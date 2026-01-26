@@ -8,7 +8,7 @@ A Rust library for encoding and decoding Short Message Peer-to-Peer (SMPP) v3.4 
 
 ## Features
 
-- **PDU Support**: Currently supports Session Management PDUs (Bind, Unbind, EnquireLink, AlertNotification, Outline, GenericNack).
+- **PDU Support**: Currently supports Session Management PDUs (Bind, Unbind, EnquireLink, AlertNotification, Outlbind, GenericNack).
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
 - **Zero-Dependency Core**: Built with standard library usages (mostly) to keep it lightweight.
 
