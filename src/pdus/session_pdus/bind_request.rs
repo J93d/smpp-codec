@@ -1,0 +1,180 @@
+use crate::common::{BindMode, PduError, HEADER_LEN, Ton, Npi};
+use std::io::{Read, Write, Cursor};
+
+#[derive(Debug, Clone)]
+pub struct BindRequest {
+    pub sequence_number: u32,
+    pub mode: BindMode,
+    pub system_id: String,
+    pub password: String,
+    pub system_type: String,
+    pub interface_version: u8,
+    pub addr_ton: Ton,
+    pub addr_npi: Npi,
+    pub address_range: String,
+}
+
+impl BindRequest {
+    /// Create a new Bind Request with defaults
+    pub fn new(
+        mode: BindMode,
+        system_id: String,
+        password: String,
+        sequence_number: u32,
+    ) -> Self {
+        Self {
+            sequence_number,
+            mode,
+            system_id,
+            password,
+            system_type: String::new(),
+            interface_version: 0x34, // SMPP 3.4
+            addr_ton: Ton::Unknown,
+            addr_npi: Npi::Unknown,
+            address_range: String::new(),
+        }
+    }
+
+    pub fn with_address_range(mut self, ton: Ton, npi: Npi, range: String) -> Self {
+        self.addr_ton = ton;
+        self.addr_npi = npi;
+        self.address_range = range;
+        self
+    }
+
+    /// Encode the struct into raw bytes for the network
+    pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        // 1. Validate Constraints
+        if self.system_id.len() > 16 {
+            return Err(PduError::StringTooLong("system_id".into(), 16));
+        }
+        if self.password.len() > 9 {
+            return Err(PduError::StringTooLong("password".into(), 9));
+        }
+        if self.system_type.len() > 13 {
+            return Err(PduError::StringTooLong("system_type".into(), 13));
+        }
+
+        if self.address_range.len() > 41 {
+            return Err(PduError::StringTooLong("address_range".into(), 41));
+        }
+
+        // 2. Buffer the body first to calculate length
+        let mut body = Vec::new();
+        
+        write_c_string(&mut body, &self.system_id)?;
+        write_c_string(&mut body, &self.password)?;
+        write_c_string(&mut body, &self.system_type)?;
+        body.write_all(&[self.interface_version])?;
+        body.write_all(&[self.addr_ton as u8, self.addr_npi as u8])?;
+        write_c_string(&mut body, &self.address_range)?;
+
+        // 3. Write Header
+        let command_len = (HEADER_LEN + body.len()) as u32;
+        writer.write_all(&command_len.to_be_bytes())?;
+        writer.write_all(&self.mode.command_id().to_be_bytes())?;
+        writer.write_all(&0u32.to_be_bytes())?; // Command Status
+        writer.write_all(&self.sequence_number.to_be_bytes())?;
+
+        // 4. Write Body
+        writer.write_all(&body)?;
+
+        Ok(())
+    }
+
+    /// Decode raw bytes from the network into the struct
+    pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        // 1. Validate total length
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
+
+        let mut cursor = Cursor::new(buffer);
+
+        // 2. Read Header
+        let mut bytes = [0u8; 4];
+
+        // Command Length
+        cursor.read_exact(&mut bytes)?;
+        let command_len = u32::from_be_bytes(bytes) as usize;
+
+        if buffer.len() != command_len {
+             // We can be strict or loose here. Strict is safer for libraries.
+             // return Err(PduError::InvalidLength); 
+        }
+
+        // Command ID
+        cursor.read_exact(&mut bytes)?;
+        let command_id = u32::from_be_bytes(bytes);
+
+        // Map Command ID to BindMode
+        let mode = match command_id {
+            0x00000001 => BindMode::Receiver,
+            0x00000002 => BindMode::Transmitter,
+            0x00000009 => BindMode::Transceiver,
+            _ => return Err(PduError::InvalidCommandId(command_id)),
+        };
+
+        // Command Status
+        cursor.read_exact(&mut bytes)?;
+        let _command_status = u32::from_be_bytes(bytes);
+
+        // Sequence Number
+        cursor.read_exact(&mut bytes)?;
+        let sequence_number = u32::from_be_bytes(bytes);
+
+        // 3. Read Body (C-Strings and u8s)
+        let system_id = read_c_string(&mut cursor)?;
+        let password = read_c_string(&mut cursor)?;
+        let system_type = read_c_string(&mut cursor)?;
+
+        // Simple u8 reads
+        let mut u8_buf = [0u8; 1];
+        cursor.read_exact(&mut u8_buf)?;
+        let interface_version = u8_buf[0];
+
+        cursor.read_exact(&mut u8_buf)?;
+        let addr_ton = Ton::from(u8_buf[0]); // Convert byte -> Enum
+
+        cursor.read_exact(&mut u8_buf)?;
+        let addr_npi = Npi::from(u8_buf[0]); // Convert byte -> Enum
+
+        let address_range = read_c_string(&mut cursor)?;
+
+        Ok(Self {
+            sequence_number,
+            mode,
+            system_id,
+            password,
+            system_type,
+            interface_version,
+            addr_ton,
+            addr_npi,
+            address_range,
+        })
+    }
+}
+
+// --- Helpers (Private to this module) ---
+
+fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
+    w.write_all(s.as_bytes())?;
+    w.write_all(&[0])
+}
+
+fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
+    let mut bytes = Vec::new();
+    let mut buf = [0u8; 1];
+
+    loop {
+        if cursor.read(&mut buf)? == 0 {
+            break; // End of stream
+        }
+        if buf[0] == 0 {
+            break; // Null terminator
+        }
+        bytes.push(buf[0]);
+    }
+
+    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
+}

@@ -10,6 +10,8 @@ pub const CMD_BIND_TRANSMITTER_RESP: u32 = 0x80000002;
 pub const CMD_BIND_TRANSCEIVER: u32 = 0x00000009;
 pub const CMD_BIND_TRANSCEIVER_RESP: u32 = 0x80000009;
 
+pub const CMD_OUTBIND: u32 = 0x0000000B;
+
 pub const CMD_ENQUIRE_LINK: u32 = 0x00000015;
 pub const CMD_ENQUIRE_LINK_RESP: u32 = 0x80000015;
 
@@ -48,6 +50,182 @@ pub const GENERIC_NACK: u32 = 0x80000000;
 // Standard Header Length
 pub const HEADER_LEN: usize = 16;
 
+/// SMPP Interface Version 3.4
+// pub const SMPP_INTERFACE_VERSION: u8 = 0x34;
+
+/// Address Type of Number (TON)
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
+pub enum Ton {
+    Unknown = 0x00,
+    International = 0x01,
+    National = 0x02,
+    NetworkSpecific = 0x03,
+    SubscriberNumber = 0x04,
+    Alphanumeric = 0x05,
+    Abbreviated = 0x06,
+}
+
+impl From<u8> for Ton {
+    fn from(value: u8) -> Self {
+        match value {
+            0x01 => Ton::International,
+            0x02 => Ton::National,
+            0x03 => Ton::NetworkSpecific,
+            0x04 => Ton::SubscriberNumber,
+            0x05 => Ton::Alphanumeric,
+            0x06 => Ton::Abbreviated,
+            _ => Ton::Unknown,
+        }
+    }
+}
+
+/// Address Numbering Plan Indicator (NPI)
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
+pub enum Npi {
+    Unknown = 0x00,
+    Isdn = 0x01,
+    Data = 0x03,
+    Telex = 0x04,
+    LandMobile = 0x06,
+    National = 0x08,
+    Private = 0x09,
+    Ermes = 0x0A,
+    Internet = 0x0E,
+    Wap = 0x12,
+}
+
+impl From<u8> for Npi {
+    fn from(value: u8) -> Self {
+        match value {
+            0x01 => Npi::Isdn,
+            0x03 => Npi::Data,
+            0x04 => Npi::Telex,
+            0x06 => Npi::LandMobile,
+            0x08 => Npi::National,
+            0x09 => Npi::Private,
+            0x0A => Npi::Ermes,
+            0x0E => Npi::Internet,
+            0x12 => Npi::Wap,
+            _ => Npi::Unknown,
+        }
+    }
+}
+
+/// Command Status
+pub const COMMAND_STATUS_OK: u32 = 0x00000000;
+
+/// Helper function to get error description from status code
+pub fn get_status_description(status: u32) -> String {
+    match status {
+        0x00000000 => "ESME_ROK".to_string(),
+        0x00000001 => "ESME_RINVMSGLEN".to_string(),
+        0x00000002 => "ESME_RINVCMDLEN".to_string(),
+        0x00000003 => "ESME_RINVCMDID".to_string(),
+        0x00000004 => "ESME_RINVBNDSTS".to_string(),
+        0x00000005 => "ESME_RALYBND".to_string(),
+        0x00000006 => "ESME_RINVPRTFLG".to_string(),
+        0x00000007 => "ESME_RINVREGDLVFLG".to_string(),
+        0x00000008 => "ESME_RSYSERR".to_string(),
+        0x0000000A => "ESME_RINVSRCADR".to_string(),
+        0x0000000B => "ESME_RINVDSTADR".to_string(),
+        0x0000000C => "ESME_RINVMSGID".to_string(),
+        0x0000000D => "ESME_RBINDFAIL".to_string(),
+        0x0000000E => "ESME_RINVPASWD".to_string(),
+        0x0000000F => "ESME_RINVSYSID".to_string(),
+        0x00000011 => "ESME_RCANCELFAIL".to_string(),
+        0x00000013 => "ESME_RREPLACEFAIL".to_string(),
+        0x00000014 => "ESME_RMSGQFUL".to_string(),
+        0x00000015 => "ESME_RINVSERVICETYPE".to_string(),
+        0x00000033 => "ESME_RINVNUMDESTS".to_string(),
+        0x00000034 => "ESME_RINVDLNAME".to_string(),
+        0x00000040 => "ESME_RINVDESTFLAG".to_string(),
+        0x00000042 => "ESME_RINVSUBREP".to_string(),
+        0x00000043 => "ESME_RINVESMCLASS".to_string(),
+        0x00000044 => "ESME_RCNTSUBDL".to_string(),
+        0x00000045 => "ESME_RSUBMITFAIL".to_string(),
+        0x00000048 => "ESME_RINVSRCTON".to_string(),
+        0x00000049 => "ESME_RINVSRCNPI".to_string(),
+        0x00000050 => "ESME_RINVDSTTON".to_string(),
+        0x00000051 => "ESME_RINVDSTNPI".to_string(),
+        0x00000053 => "ESME_RINVSYSTYP".to_string(),
+        0x00000054 => "ESME_RINVREPFLAG".to_string(),
+        0x00000055 => "ESME_RINVNUMMSGS".to_string(),
+        0x00000058 => "ESME_RTHROTTLED".to_string(),
+        0x00000061 => "ESME_RINVSCHED".to_string(),
+        0x00000062 => "ESME_RINVEXPIRY".to_string(),
+        0x00000063 => "ESME_RINVDFTMSGID".to_string(),
+        0x00000064 => "ESME_RX_T_APPN".to_string(),
+        0x00000065 => "ESME_RX_P_APPN".to_string(),
+        0x00000066 => "ESME_RX_R_APPN".to_string(),
+        0x00000067 => "ESME_RQUERYFAIL".to_string(),
+        0x000000C0 => "ESME_RINVOPTPARSTREAM".to_string(),
+        0x000000C1 => "ESME_ROPTPARNOTALLWD".to_string(),
+        0x000000C2 => "ESME_RINVPARLEN".to_string(),
+        0x000000C3 => "ESME_RMISSINGOPTPARAM".to_string(),
+        0x000000C4 => "ESME_RINVOPTPARAMVAL".to_string(),
+        0x000000FE => "ESME_RDELIVERYFAILURE".to_string(),
+        0x000000FF => "ESME_RUNKNOWNERR".to_string(),
+        _ => format!("Unknown Error: 0x{:08X}", status),
+    }
+}
+
+/// Helper function to get status code from description (Reverse lookup)
+pub fn get_status_code(name: &str) -> u32 {
+    match name {
+        "ESME_ROK" => 0x00000000,
+        "ESME_RINVMSGLEN" => 0x00000001,
+        "ESME_RINVCMDLEN" => 0x00000002,
+        "ESME_RINVCMDID" => 0x00000003,
+        "ESME_RINVBNDSTS" => 0x00000004,
+        "ESME_RALYBND" => 0x00000005,
+        "ESME_RINVPRTFLG" => 0x00000006,
+        "ESME_RINVREGDLVFLG" => 0x00000007,
+        "ESME_RSYSERR" => 0x00000008,
+        "ESME_RINVSRCADR" => 0x0000000A,
+        "ESME_RINVDSTADR" => 0x0000000B,
+        "ESME_RINVMSGID" => 0x0000000C,
+        "ESME_RBINDFAIL" => 0x0000000D,
+        "ESME_RINVPASWD" => 0x0000000E,
+        "ESME_RINVSYSID" => 0x0000000F,
+        "ESME_RCANCELFAIL" => 0x00000011,
+        "ESME_RREPLACEFAIL" => 0x00000013,
+        "ESME_RMSGQFUL" => 0x00000014,
+        "ESME_RINVSERVICETYPE" => 0x00000015,
+        "ESME_RINVNUMDESTS" => 0x00000033,
+        "ESME_RINVDLNAME" => 0x00000034,
+        "ESME_RINVDESTFLAG" => 0x00000040,
+        "ESME_RINVSUBREP" => 0x00000042,
+        "ESME_RINVESMCLASS" => 0x00000043,
+        "ESME_RCNTSUBDL" => 0x00000044,
+        "ESME_RSUBMITFAIL" => 0x00000045,
+        "ESME_RINVSRCTON" => 0x00000048,
+        "ESME_RINVSRCNPI" => 0x00000049,
+        "ESME_RINVDSTTON" => 0x00000050,
+        "ESME_RINVDSTNPI" => 0x00000051,
+        "ESME_RINVSYSTYP" => 0x00000053,
+        "ESME_RINVREPFLAG" => 0x00000054,
+        "ESME_RINVNUMMSGS" => 0x00000055,
+        "ESME_RTHROTTLED" => 0x00000058,
+        "ESME_RINVSCHED" => 0x00000061,
+        "ESME_RINVEXPIRY" => 0x00000062,
+        "ESME_RINVDFTMSGID" => 0x00000063,
+        "ESME_RX_T_APPN" => 0x00000064,
+        "ESME_RX_P_APPN" => 0x00000065,
+        "ESME_RX_R_APPN" => 0x00000066,
+        "ESME_RQUERYFAIL" => 0x00000067,
+        "ESME_RINVOPTPARSTREAM" => 0x000000C0,
+        "ESME_ROPTPARNOTALLWD" => 0x000000C1,
+        "ESME_RINVPARLEN" => 0x000000C2,
+        "ESME_RMISSINGOPTPARAM" => 0x000000C3,
+        "ESME_RINVOPTPARAMVAL" => 0x000000C4,
+        "ESME_RDELIVERYFAILURE" => 0x000000FE,
+        "ESME_RUNKNOWNERR" => 0x000000FF,
+        _ => 0x000000FF, // Default to Unknown Error if string not found
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BindMode {
     Receiver,
@@ -73,6 +251,7 @@ pub enum PduError {
     BufferTooShort,
     InvalidCommandId(u32),
     StringTooLong(String, usize), // Field name, Max len
+    InvalidLength,
 }
 
 // Convert IO errors to PduError

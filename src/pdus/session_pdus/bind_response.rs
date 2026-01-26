@@ -1,0 +1,131 @@
+// bind_response.rs (Handles both Encoder and Decoder)
+use crate::common::{PduError, HEADER_LEN, get_status_code, get_status_description};
+use std::io::{Read, Write, Cursor};
+
+#[derive(Debug, Clone)]
+pub struct BindResponse {
+    pub sequence_number: u32,
+    pub command_status: u32, // 0 = OK, others = Error
+    pub status_description: String, // Human-readable description of status
+    pub command_id: u32,     // e.g., 0x80000009 (bind_transceiver_resp)
+    pub system_id: String,   // SMSC ID
+    pub optional_params: Vec<u8>, // Rarely used in Bind Resp, but allowed
+}
+
+impl BindResponse {
+
+    pub fn new(
+        sequence_number: u32,
+        command_id: u32,
+        status_name: &str,
+        system_id: String
+    ) -> Self {
+        let command_status = get_status_code(status_name);
+        Self {
+            sequence_number,
+            command_id,
+            command_status,
+            status_description: status_name.to_string(),
+            system_id,
+            optional_params: Vec::new(),
+        }
+    }
+
+    /// Encoder: Creates raw bytes to send to the network
+    pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        let mut body = Vec::new();
+
+        // If status is OK, we must include system_id. 
+        // On error, body can be empty (or just header).
+        if self.command_status == 0 {
+            body.write_all(self.system_id.as_bytes())?;
+            body.write_all(&[0])?; // Null terminator
+            
+            // Add optional params if any
+            body.write_all(&self.optional_params)?;
+        }
+
+        let command_len = (HEADER_LEN + body.len()) as u32;
+
+        // Write Header
+        writer.write_all(&command_len.to_be_bytes())?;
+        writer.write_all(&self.command_id.to_be_bytes())?;
+        writer.write_all(&self.command_status.to_be_bytes())?;
+        writer.write_all(&self.sequence_number.to_be_bytes())?;
+
+        // Write Body
+        writer.write_all(&body)?;
+
+        Ok(())
+    }
+
+    /// Decoder: parses raw bytes received from network
+    pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
+
+        let mut cursor = Cursor::new(buffer);
+
+        // 1. Read Header
+        let mut bytes = [0u8; 4];
+
+        cursor.read_exact(&mut bytes)?;
+        let command_len = u32::from_be_bytes(bytes) as usize;
+
+        cursor.read_exact(&mut bytes)?;
+        let command_id = u32::from_be_bytes(bytes);
+
+        cursor.read_exact(&mut bytes)?;
+        let command_status = u32::from_be_bytes(bytes);
+
+        cursor.read_exact(&mut bytes)?;
+        let sequence_number = u32::from_be_bytes(bytes);
+
+        // 2. Read Body
+        let mut system_id = String::new();
+        let mut optional_params = Vec::new();
+
+        // Only try to read body if length > header
+        if command_len > HEADER_LEN {
+            // The cursor is currently at pos 16 (end of header).
+            // Read system_id (C-String)
+            if command_status == 0 {
+                 system_id = read_c_string(&mut cursor)?;
+            }
+
+            // Read any remaining bytes as optional params
+            let current_pos = cursor.position() as usize;
+            if current_pos < command_len {
+                let remaining_len = command_len - current_pos;
+                let mut temp_buf = vec![0u8; remaining_len];
+                cursor.read_exact(&mut temp_buf)?;
+                optional_params = temp_buf;
+            }
+        }
+
+        let status_description = get_status_description(command_status);
+
+        Ok(Self {
+            sequence_number,
+            command_status,
+            status_description,
+            command_id,
+            system_id,
+            optional_params,
+        })
+    }
+}
+
+// Re-use the read_c_string function from above
+fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
+    let mut bytes = Vec::new();
+    let mut buf = [0u8; 1];
+
+    loop {
+        if cursor.read(&mut buf)? == 0 { break; }
+        if buf[0] == 0 { break; }
+        bytes.push(buf[0]);
+    }
+    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
+}
