@@ -1,6 +1,9 @@
 use crate::common::{PduError, HEADER_LEN, GENERIC_NACK, get_status_code, get_status_description};
 use std::io::{Write, Read, Cursor};
 
+/// Represents a Generic NACK PDU.
+///
+/// Sent when a PDU cannot be identified or is malformed (e.g., invalid Command ID).
 #[derive(Debug, Clone)]
 pub struct GenericNack {
     pub sequence_number: u32,

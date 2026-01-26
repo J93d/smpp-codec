@@ -2,6 +2,9 @@ use crate::common::{PduError, HEADER_LEN, CMD_ENQUIRE_LINK_RESP, get_status_code
 use std::io::{Write, Read, Cursor};
 
 // --- EnquireLink Response ---
+/// Represents an Enquire Link Response PDU.
+///
+/// Sent in response to an Enquire Link Request.
 #[derive(Debug, Clone)]
 pub struct EnquireLinkResp {
     pub sequence_number: u32,

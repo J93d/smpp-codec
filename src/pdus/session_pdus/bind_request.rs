@@ -1,6 +1,9 @@
 use crate::common::{BindMode, PduError, HEADER_LEN, Ton, Npi};
 use std::io::{Read, Write, Cursor};
 
+/// Represents a Bind Request PDU (Receiver, Transmitter, or Transceiver).
+///
+/// This PDU is used to initiate a session with the SMSC.
 #[derive(Debug, Clone)]
 pub struct BindRequest {
     pub sequence_number: u32,

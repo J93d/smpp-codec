@@ -1,6 +1,9 @@
 use crate::common::{PduError, HEADER_LEN, CMD_OUTBIND};
 use std::io::{Read, Write, Cursor};
 
+/// Represents an Outbind PDU.
+///
+/// Sent by the SMSC to the ESME to request the ESME to initiate a Bind.
 #[derive(Debug, Clone)]
 pub struct OutbindRequest {
     pub sequence_number: u32,

@@ -2,6 +2,9 @@ use crate::common::{PduError, HEADER_LEN, CMD_ALERT_NOTIFICATION, Ton, Npi};
 use crate::tlv::Tlv;
 use std::io::{Write, Read, Cursor};
 
+/// Represents an Alert Notification PDU.
+///
+/// Sent by the SMSC to the ESME to provide information about a message state (e.g., delivered).
 #[derive(Debug, Clone)]
 pub struct AlertNotification {
     pub sequence_number: u32,

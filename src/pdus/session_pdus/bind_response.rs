@@ -2,6 +2,9 @@
 use crate::common::{PduError, HEADER_LEN, get_status_code, get_status_description};
 use std::io::{Read, Write, Cursor};
 
+/// Represents a Bind Response PDU.
+///
+/// Sent by the SMSC in response to a Bind Request.
 #[derive(Debug, Clone)]
 pub struct BindResponse {
     pub sequence_number: u32,
