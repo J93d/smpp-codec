@@ -6,22 +6,22 @@ use std::io::{Write, Read, Cursor};
 ///
 /// Sent in response to an Enquire Link Request.
 #[derive(Debug, Clone)]
-pub struct EnquireLinkResp {
+pub struct EnquireLinkResponse {
     pub sequence_number: u32,
     pub command_status: u32, // 0 = OK, others = Error
     pub status_description: String, // Human-readable description of status
 }
 
-impl EnquireLinkResp {
+impl EnquireLinkResponse {
     /// Create a new Enquire Link Response.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::EnquireLinkResp;
+    /// use smpp_codec::pdus::EnquireLinkResponse;
     /// use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
     ///
-    /// let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// let resp = EnquireLinkResponse::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
     /// ```
     pub fn new(
         sequence_number: u32,
@@ -45,9 +45,9 @@ impl EnquireLinkResp {
     /// # Examples
     ///
     /// ```
-    /// # use smpp_codec::pdus::EnquireLinkResp;
+    /// # use smpp_codec::pdus::EnquireLinkResponse;
     /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
-    /// # let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// # let resp = EnquireLinkResponse::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
     /// let mut buffer = Vec::new();
     /// resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -69,12 +69,12 @@ impl EnquireLinkResp {
     /// # Examples
     ///
     /// ```
-    /// # use smpp_codec::pdus::EnquireLinkResp;
+    /// # use smpp_codec::pdus::EnquireLinkResponse;
     /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
-    /// # let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// # let resp = EnquireLinkResponse::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
     /// # let mut buffer = Vec::new();
     /// # resp.encode(&mut buffer).unwrap();
-    /// let decoded = EnquireLinkResp::decode(&buffer).expect("Decoding failed");
+    /// let decoded = EnquireLinkResponse::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {

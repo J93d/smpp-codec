@@ -1,26 +1,28 @@
 use smpp_codec::common::{Ton, Npi};
-use smpp_codec::pdus::{EnquireLink, EnquireLinkResp, AlertNotification, GenericNack};
+use smpp_codec::pdus::{EnquireLinkRequest, EnquireLinkResponse, AlertNotification, GenericNack};
 use smpp_codec::tlv::Tlv;
 
 #[test]
+#[test]
 fn test_enquire_link_req() {
-    let req = EnquireLink::new(123);
+    let req = EnquireLinkRequest::new(123);
     
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
     
-    let decoded = EnquireLink::decode(&buffer).expect("Decode failed");
+    let decoded = EnquireLinkRequest::decode(&buffer).expect("Decode failed");
     assert_eq!(decoded.sequence_number, 123);
 }
 
 #[test]
+#[test]
 fn test_enquire_link_resp() {
-    let resp = EnquireLinkResp::new(123, 0x80000015, "ESME_ROK");
+    let resp = EnquireLinkResponse::new(123, 0x80000015, "ESME_ROK");
     
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
     
-    let decoded = EnquireLinkResp::decode(&buffer).expect("Decode failed");
+    let decoded = EnquireLinkResponse::decode(&buffer).expect("Decode failed");
     assert_eq!(decoded.sequence_number, 123);
     assert_eq!(decoded.command_status, 0);
     assert_eq!(decoded.status_description, "ESME_ROK");

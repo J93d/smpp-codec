@@ -6,19 +6,19 @@ use std::io::{Write, Read, Cursor};
 ///
 /// Used to check the health of the connection.
 #[derive(Debug, Clone)]
-pub struct EnquireLink {
+pub struct EnquireLinkRequest {
     pub sequence_number: u32,
 }
 
-impl EnquireLink {
+impl EnquireLinkRequest {
     /// Create a new Enquire Link Request.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::EnquireLink;
+    /// use smpp_codec::pdus::EnquireLinkRequest;
     ///
-    /// let enquire_link = EnquireLink::new(1);
+    /// let enquire_link = EnquireLinkRequest::new(1);
     /// ```
     pub fn new(sequence_number: u32) -> Self {
         Self { sequence_number }
@@ -33,8 +33,8 @@ impl EnquireLink {
     /// # Examples
     ///
     /// ```
-    /// # use smpp_codec::pdus::EnquireLink;
-    /// # let enquire_link = EnquireLink::new(1);
+    /// # use smpp_codec::pdus::EnquireLinkRequest;
+    /// # let enquire_link = EnquireLinkRequest::new(1);
     /// let mut buffer = Vec::new();
     /// enquire_link.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -56,11 +56,11 @@ impl EnquireLink {
     /// # Examples
     ///
     /// ```
-    /// # use smpp_codec::pdus::EnquireLink;
-    /// # let enquire_link = EnquireLink::new(1);
+    /// # use smpp_codec::pdus::EnquireLinkRequest;
+    /// # let enquire_link = EnquireLinkRequest::new(1);
     /// # let mut buffer = Vec::new();
     /// # enquire_link.encode(&mut buffer).unwrap();
-    /// let decoded = EnquireLink::decode(&buffer).expect("Decoding failed");
+    /// let decoded = EnquireLinkRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {

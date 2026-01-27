@@ -1,5 +1,5 @@
 use smpp_codec::common::{Ton, Npi};
-use smpp_codec::pdus::{EnquireLink, EnquireLinkResp, AlertNotification, GenericNack};
+use smpp_codec::pdus::{EnquireLinkRequest, EnquireLinkResponse, AlertNotification, GenericNack};
 use smpp_codec::tlv::Tlv;
 
 fn main() {
@@ -7,13 +7,13 @@ fn main() {
 
     // 1. EnquireLink
     println!("\n--- EnquireLink ---");
-    let enquire_link = EnquireLink::new(100);
+    let enquire_link = EnquireLinkRequest::new(100);
     println!("Request: {:?}", enquire_link);
     let mut buf = Vec::new();
     enquire_link.encode(&mut buf).unwrap();
     println!("Encoded {} bytes", buf.len());
 
-    let resp = EnquireLinkResp::new(100, 0x80000015, "ESME_ROK");
+    let resp = EnquireLinkResponse::new(100, 0x80000015, "ESME_ROK");
     println!("Response: {:?}", resp);
 
     // 2. AlertNotification
