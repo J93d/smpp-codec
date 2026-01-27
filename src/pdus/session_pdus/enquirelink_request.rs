@@ -11,10 +11,33 @@ pub struct EnquireLink {
 }
 
 impl EnquireLink {
+    /// Create a new Enquire Link Request.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::EnquireLink;
+    ///
+    /// let enquire_link = EnquireLink::new(1);
+    /// ```
     pub fn new(sequence_number: u32) -> Self {
         Self { sequence_number }
     }
 
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if an I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::EnquireLink;
+    /// # let enquire_link = EnquireLink::new(1);
+    /// let mut buffer = Vec::new();
+    /// enquire_link.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
@@ -24,6 +47,22 @@ impl EnquireLink {
         Ok(())
     }
 
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::EnquireLink;
+    /// # let enquire_link = EnquireLink::new(1);
+    /// # let mut buffer = Vec::new();
+    /// # enquire_link.encode(&mut buffer).unwrap();
+    /// let decoded = EnquireLink::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.sequence_number, 1);
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);

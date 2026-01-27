@@ -12,6 +12,19 @@ pub struct OutbindRequest {
 }
 
 impl OutbindRequest {
+    /// Create a new Outbind Request.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::OutbindRequest;
+    ///
+    /// let outbind = OutbindRequest::new(
+    ///     "my_system_id".to_string(),
+    ///     "password".to_string(),
+    ///     1 // Sequence number
+    /// );
+    /// ```
     pub fn new(system_id: String, password: String, sequence_number: u32) -> Self {
         Self {
             sequence_number,
@@ -20,6 +33,23 @@ impl OutbindRequest {
         }
     }
 
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * `system_id` exceeds 16 characters.
+    /// * `password` exceeds 9 characters.
+    /// * An I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::OutbindRequest;
+    /// # let outbind = OutbindRequest::new("id".into(), "pwd".into(), 1);
+    /// let mut buffer = Vec::new();
+    /// outbind.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // Validate
         if self.system_id.len() > 16 {
@@ -47,6 +77,24 @@ impl OutbindRequest {
         Ok(())
     }
 
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * The buffer is too short.
+    /// * The buffer data is malformed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::OutbindRequest;
+    /// # let outbind = OutbindRequest::new("id".into(), "pwd".into(), 1);
+    /// # let mut buffer = Vec::new();
+    /// # outbind.encode(&mut buffer).unwrap();
+    /// let decoded = OutbindRequest::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.system_id, "id");
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);

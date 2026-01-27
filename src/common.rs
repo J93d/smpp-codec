@@ -1,50 +1,86 @@
+//! # Common Definitions
+//!
+//! This module contains common constants, error types, and helper functions used throughout the library.
+
 use std::fmt;
 
-// Command IDs
+// --- Command IDs ---
+// These constants define the Command ID for each SMPP PDU.
+
+/// Command ID for Bind Receiver.
 pub const CMD_BIND_RECEIVER: u32 = 0x00000001;
+/// Command ID for Bind Receiver Response.
 pub const CMD_BIND_RECEIVER_RESP: u32 = 0x80000001;
 
+/// Command ID for Bind Transmitter.
 pub const CMD_BIND_TRANSMITTER: u32 = 0x00000002;
+/// Command ID for Bind Transmitter Response.
 pub const CMD_BIND_TRANSMITTER_RESP: u32 = 0x80000002;
 
+/// Command ID for Bind Transceiver.
 pub const CMD_BIND_TRANSCEIVER: u32 = 0x00000009;
+/// Command ID for Bind Transceiver Response.
 pub const CMD_BIND_TRANSCEIVER_RESP: u32 = 0x80000009;
 
+/// Command ID for Outbind.
 pub const CMD_OUTBIND: u32 = 0x0000000B;
 
+/// Command ID for Enquire Link.
 pub const CMD_ENQUIRE_LINK: u32 = 0x00000015;
+/// Command ID for Enquire Link Response.
 pub const CMD_ENQUIRE_LINK_RESP: u32 = 0x80000015;
 
+/// Command ID for Submit SM.
 pub const CMD_SUBMIT_SM: u32 = 0x00000004;
+/// Command ID for Submit SM Response.
 pub const CMD_SUBMIT_SM_RESP: u32 = 0x80000004;
 
+/// Command ID for Deliver SM.
 pub const CMD_DELIVER_SM: u32 = 0x00000005;
+/// Command ID for Deliver SM Response.
 pub const CMD_DELIVER_SM_RESP: u32 = 0x80000005;
 
+/// Command ID for Unbind.
 pub const CMD_UNBIND: u32 = 0x00000006;
+/// Command ID for Unbind Response.
 pub const CMD_UNBIND_RESP: u32 = 0x80000006;
 
+/// Command ID for Submit Multi SM.
 pub const CMD_SUBMIT_MULTI_SM: u32 = 0x00000021;
+/// Command ID for Submit Multi SM Response.
 pub const CMD_SUBMIT_MULTI_SM_RESP: u32 = 0x80000021;
 
+/// Command ID for Query SM.
 pub const CMD_QUERY_SM: u32 = 0x00000022;
+/// Command ID for Query SM Response.
 pub const CMD_QUERY_SM_RESP: u32 = 0x80000022;
 
+/// Command ID for Cancel SM.
 pub const CMD_CANCEL_SM: u32 = 0x00000023;
+/// Command ID for Cancel SM Response.
 pub const CMD_CANCEL_SM_RESP: u32 = 0x80000023;
 
+/// Command ID for Replace SM.
 pub const CMD_REPLACE_SM: u32 = 0x00000024;
+/// Command ID for Replace SM Response.
 pub const CMD_REPLACE_SM_RESP: u32 = 0x80000024;
 
+/// Command ID for Submit SM Multi (Reserved).
 pub const CMD_SUBMIT_SM_MULTI: u32 = 0x00000025;
+/// Command ID for Submit SM Multi Response (Reserved).
 pub const CMD_SUBMIT_SM_MULTI_RESP: u32 = 0x80000025;
 
+/// Command ID for Data SM.
 pub const CMD_DATA_SM: u32 = 0x00000103;
+/// Command ID for Data SM Response.
 pub const CMD_DATA_SM_RESP: u32 = 0x80000103;
 
+/// Command ID for Alert Notification.
 pub const CMD_ALERT_NOTIFICATION: u32 = 0x00000102;
+/// Command ID for Alert Notification Response (Note: Alert Notification does not have a standard response, but some implementations might use one).
 pub const CMD_ALERT_NOTIFICATION_RESP: u32 = 0x80000102;
 
+/// Generic NACK.
 pub const GENERIC_NACK: u32 = 0x80000000;
 
 // Standard Header Length

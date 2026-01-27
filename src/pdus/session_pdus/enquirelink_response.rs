@@ -13,6 +13,16 @@ pub struct EnquireLinkResp {
 }
 
 impl EnquireLinkResp {
+    /// Create a new Enquire Link Response.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::EnquireLinkResp;
+    /// use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
+    ///
+    /// let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// ```
     pub fn new(
         sequence_number: u32,
         command_id: u32,
@@ -26,6 +36,21 @@ impl EnquireLinkResp {
         }
     }
 
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if an I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::EnquireLinkResp;
+    /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
+    /// # let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// let mut buffer = Vec::new();
+    /// resp.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
@@ -35,6 +60,23 @@ impl EnquireLinkResp {
         Ok(())
     }
 
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::EnquireLinkResp;
+    /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
+    /// # let resp = EnquireLinkResp::new(1, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// # let mut buffer = Vec::new();
+    /// # resp.encode(&mut buffer).unwrap();
+    /// let decoded = EnquireLinkResp::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.sequence_number, 1);
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);

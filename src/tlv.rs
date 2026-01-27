@@ -1,8 +1,13 @@
-// src/tlv.rs
+//! # Tagged Length Value (TLV) Parameters
+//!
+//! This module handles the encoding and decoding of SMPP Optional Parameters (TLVs).
+//! It provides a registry of standard tags and mechanisms to parse and serialize them.
+
 use crate::common::PduError;
 use std::io::{Read, Write, Cursor};
 
 // --- Standard SMPP Optional Parameter Tags ---
+/// Standard SMPP Optional Parameter Tags as defined in SMPP 3.4 Spec.
 pub mod tags {
     pub const DEST_ADDR_SUBUNIT: u16 = 0x0005;
     pub const DEST_NETWORK_TYPE: u16 = 0x0006;

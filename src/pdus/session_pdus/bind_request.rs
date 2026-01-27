@@ -18,7 +18,21 @@ pub struct BindRequest {
 }
 
 impl BindRequest {
-    /// Create a new Bind Request with defaults
+    /// Create a new Bind Request with defaults.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::BindRequest;
+    /// use smpp_codec::common::BindMode;
+    ///
+    /// let bind_req = BindRequest::new(
+    ///     BindMode::Transmitter,
+    ///     "my_system_id".to_string(),
+    ///     "password".to_string(),
+    ///     1
+    /// );
+    /// ```
     pub fn new(
         mode: BindMode,
         system_id: String,
@@ -45,7 +59,26 @@ impl BindRequest {
         self
     }
 
-    /// Encode the struct into raw bytes for the network
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * `system_id` exceeds 16 characters.
+    /// * `password` exceeds 9 characters.
+    /// * `system_type` exceeds 13 characters.
+    /// * `address_range` exceeds 41 characters.
+    /// * An I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::BindRequest;
+    /// # use smpp_codec::common::BindMode;
+    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), 1);
+    /// let mut buffer = Vec::new();
+    /// bind_req.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // 1. Validate Constraints
         if self.system_id.len() > 16 {
@@ -85,7 +118,26 @@ impl BindRequest {
         Ok(())
     }
 
-    /// Decode raw bytes from the network into the struct
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * The buffer is too short to contain a valid header.
+    /// * The command ID does not correspond to a Bind Request.
+    /// * The buffer data is malformed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::BindRequest;
+    /// # use smpp_codec::common::BindMode;
+    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), 1);
+    /// # let mut buffer = Vec::new();
+    /// # bind_req.encode(&mut buffer).unwrap();
+    /// let decoded = BindRequest::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.system_id, "id");
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         // 1. Validate total length
         if buffer.len() < HEADER_LEN {

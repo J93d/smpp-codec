@@ -18,6 +18,19 @@ pub struct AlertNotification {
 }
 
 impl AlertNotification {
+    /// Create a new Alert Notification.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::AlertNotification;
+    ///
+    /// let alert = AlertNotification::new(
+    ///     1,
+    ///     "source_addr".to_string(),
+    ///     "esme_addr".to_string()
+    /// );
+    /// ```
     pub fn new(
         sequence_number: u32,
         source_addr: String,
@@ -55,6 +68,23 @@ impl AlertNotification {
         self.optional_params.push(tlv);
     }
 
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * `source_addr` exceeds 65 characters.
+    /// * `esme_addr` exceeds 65 characters.
+    /// * An I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::AlertNotification;
+    /// # let alert = AlertNotification::new(1, "src".into(), "dst".into());
+    /// let mut buffer = Vec::new();
+    /// alert.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // Validate lengths
         if self.source_addr.len() > 65 { return Err(PduError::StringTooLong("source_addr".into(), 65)); }
@@ -89,6 +119,24 @@ impl AlertNotification {
         Ok(())
     }
 
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * The buffer is too short.
+    /// * The buffer data is malformed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::AlertNotification;
+    /// # let alert = AlertNotification::new(1, "src".into(), "dst".into());
+    /// # let mut buffer = Vec::new();
+    /// # alert.encode(&mut buffer).unwrap();
+    /// let decoded = AlertNotification::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.source_addr, "src");
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
         

@@ -1,6 +1,12 @@
 [package]
 name = "smpp-codec"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "A comprehensive SMPP 3.4 protocol codec for Rust."
+repository = "https://github.com/example/smpp-codec"
+readme = "README.md"
+keywords = ["smpp", "sms", "codec", "protocol", "telecom"]
+categories = ["encoding", "network-programming"]
+license = "MIT"
 
 [dependencies]

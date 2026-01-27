@@ -17,6 +17,21 @@ pub struct BindResponse {
 
 impl BindResponse {
 
+    /// Create a new Bind Response.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use smpp_codec::pdus::BindResponse;
+    /// use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
+    ///
+    /// let bind_resp = BindResponse::new(
+    ///     1, // Sequence number
+    ///     CMD_BIND_TRANSMITTER_RESP,
+    ///     "ESME_ROK",
+    ///     "my_smsc_id".to_string()
+    /// );
+    /// ```
     pub fn new(
         sequence_number: u32,
         command_id: u32,
@@ -34,7 +49,22 @@ impl BindResponse {
         }
     }
 
-    /// Encoder: Creates raw bytes to send to the network
+    /// Encode the struct into raw bytes for the network.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * An I/O error occurs while writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::BindResponse;
+    /// # use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
+    /// # let bind_resp = BindResponse::new(1, CMD_BIND_TRANSMITTER_RESP, "ESME_ROK", "id".into());
+    /// let mut buffer = Vec::new();
+    /// bind_resp.encode(&mut buffer).expect("Encoding failed");
+    /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let mut body = Vec::new();
 
@@ -62,7 +92,25 @@ impl BindResponse {
         Ok(())
     }
 
-    /// Decoder: parses raw bytes received from network
+    /// Decode raw bytes from the network into the struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if:
+    /// * The buffer is too short.
+    /// * The buffer data is malformed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use smpp_codec::pdus::BindResponse;
+    /// # use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
+    /// # let bind_resp = BindResponse::new(1, CMD_BIND_TRANSMITTER_RESP, "ESME_ROK", "id".into());
+    /// # let mut buffer = Vec::new();
+    /// # bind_resp.encode(&mut buffer).unwrap();
+    /// let decoded = BindResponse::decode(&buffer).expect("Decoding failed");
+    /// assert_eq!(decoded.system_id, "id");
+    /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
