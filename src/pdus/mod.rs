@@ -15,3 +15,6 @@ pub use session_pdus::alert_notification::AlertNotification;
 pub use session_pdus::generic_nack::GenericNack;
 pub use session_pdus::unbind::UnbindRequest;
 pub use session_pdus::unbind::UnbindResponse;
+pub use submission_pdus::SubmitSmRequest;
+pub use submission_pdus::SubmitSmResponse;
+pub use submission_pdus::{MessageSplitter, SplitMode, EncodingType};

@@ -18,7 +18,8 @@ impl EnquireLinkRequest {
     /// ```
     /// use smpp_codec::pdus::EnquireLinkRequest;
     ///
-    /// let enquire_link = EnquireLinkRequest::new(1);
+    /// let sequence_number: u32 = 1;
+    /// let enquire_link = EnquireLinkRequest::new(sequence_number);
     /// ```
     pub fn new(sequence_number: u32) -> Self {
         Self { sequence_number }
@@ -34,7 +35,8 @@ impl EnquireLinkRequest {
     ///
     /// ```
     /// # use smpp_codec::pdus::EnquireLinkRequest;
-    /// # let enquire_link = EnquireLinkRequest::new(1);
+    /// # let sequence_number: u32 = 1;
+    /// # let enquire_link = EnquireLinkRequest::new(sequence_number);
     /// let mut buffer = Vec::new();
     /// enquire_link.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -57,7 +59,8 @@ impl EnquireLinkRequest {
     ///
     /// ```
     /// # use smpp_codec::pdus::EnquireLinkRequest;
-    /// # let enquire_link = EnquireLinkRequest::new(1);
+    /// # let sequence_number: u32 = 1;
+    /// # let enquire_link = EnquireLinkRequest::new(sequence_number);
     /// # let mut buffer = Vec::new();
     /// # enquire_link.encode(&mut buffer).unwrap();
     /// let decoded = EnquireLinkRequest::decode(&buffer).expect("Decoding failed");

@@ -19,7 +19,8 @@ impl GenericNack {
     /// ```
     /// use smpp_codec::pdus::GenericNack;
     ///
-    /// let nack = GenericNack::new("ESME_RINVCMDID", 1);
+    /// let sequence_number: u32 = 1;
+    /// let nack = GenericNack::new("ESME_RINVCMDID", sequence_number);
     /// ```
     pub fn new(status_name: &str, sequence_number: u32) -> Self {
         let command_status = get_status_code(status_name);
@@ -40,7 +41,8 @@ impl GenericNack {
     ///
     /// ```
     /// # use smpp_codec::pdus::GenericNack;
-    /// # let nack = GenericNack::new("ESME_RINVCMDID", 1);
+    /// # let sequence_number: u32 = 1;
+    /// # let nack = GenericNack::new("ESME_RINVCMDID", sequence_number);
     /// let mut buffer = Vec::new();
     /// nack.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -63,7 +65,8 @@ impl GenericNack {
     ///
     /// ```
     /// # use smpp_codec::pdus::GenericNack;
-    /// # let nack = GenericNack::new("ESME_RINVCMDID", 1);
+    /// # let sequence_number: u32 = 1;
+    /// # let nack = GenericNack::new("ESME_RINVCMDID", sequence_number);
     /// # let mut buffer = Vec::new();
     /// # nack.encode(&mut buffer).unwrap();
     /// let decoded = GenericNack::decode(&buffer).expect("Decoding failed");

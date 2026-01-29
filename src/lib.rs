@@ -32,6 +32,7 @@
 // Expose the common module (constants, errors, enums)
 pub mod common;
 pub mod tlv;
+pub mod encoding;
 
 // Expose the PDUs module (the structs for specific operations)
 pub mod pdus;

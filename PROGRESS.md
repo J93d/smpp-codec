@@ -10,16 +10,16 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 - [x] `bind_transceiver`
 - [x] `bind_transceiver_resp`
 - [x] `outbind`
-- [x] `unbind` (Pending implementation? Checks needed)
-- [x] `unbind_resp` (Pending implementation? Checks needed)
+- [x] `unbind`
+- [x] `unbind_resp`
 - [x] `enquire_link`
 - [x] `enquire_link_resp`
 - [x] `alert_notification`
 - [x] `generic_nack`
 
 ## Message Submission
-- [ ] `submit_sm`
-- [ ] `submit_sm_resp`
+- [x] `submit_sm`
+- [x] `submit_sm_resp`
 - [ ] `submit_multi`
 - [ ] `submit_multi_resp`
 - [ ] `data_sm`

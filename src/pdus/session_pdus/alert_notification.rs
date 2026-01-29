@@ -25,8 +25,9 @@ impl AlertNotification {
     /// ```
     /// use smpp_codec::pdus::AlertNotification;
     ///
+    /// let sequence_number: u32 = 1;
     /// let alert = AlertNotification::new(
-    ///     1,
+    ///     sequence_number,
     ///     "source_addr".to_string(),
     ///     "esme_addr".to_string()
     /// );
@@ -81,7 +82,8 @@ impl AlertNotification {
     ///
     /// ```
     /// # use smpp_codec::pdus::AlertNotification;
-    /// # let alert = AlertNotification::new(1, "src".into(), "dst".into());
+    /// # let sequence_number: u32 = 1;
+    /// # let alert = AlertNotification::new(sequence_number, "src".into(), "dst".into());
     /// let mut buffer = Vec::new();
     /// alert.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -131,7 +133,8 @@ impl AlertNotification {
     ///
     /// ```
     /// # use smpp_codec::pdus::AlertNotification;
-    /// # let alert = AlertNotification::new(1, "src".into(), "dst".into());
+    /// # let sequence_number: u32 = 1;
+    /// # let alert = AlertNotification::new(sequence_number, "src".into(), "dst".into());
     /// # let mut buffer = Vec::new();
     /// # alert.encode(&mut buffer).unwrap();
     /// let decoded = AlertNotification::decode(&buffer).expect("Decoding failed");

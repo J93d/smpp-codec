@@ -15,7 +15,8 @@ impl UnbindRequest {
     /// ```
     /// use smpp_codec::pdus::UnbindRequest;
     ///
-    /// let unbind_req = UnbindRequest::new(1);
+    /// let sequence_number: u32 = 1;
+    /// let unbind_req = UnbindRequest::new(sequence_number);
     /// ```
     pub fn new(sequence_number: u32) -> Self {
         Self { sequence_number }
@@ -31,7 +32,8 @@ impl UnbindRequest {
     ///
     /// ```
     /// # use smpp_codec::pdus::UnbindRequest;
-    /// # let unbind_req = UnbindRequest::new(1);
+    /// # let sequence_number: u32 = 1;
+    /// # let unbind_req = UnbindRequest::new(sequence_number);
     /// let mut buffer = Vec::new();
     /// unbind_req.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -54,7 +56,8 @@ impl UnbindRequest {
     ///
     /// ```
     /// # use smpp_codec::pdus::UnbindRequest;
-    /// # let unbind_req = UnbindRequest::new(1);
+    /// # let sequence_number: u32 = 1;
+    /// # let unbind_req = UnbindRequest::new(sequence_number);
     /// # let mut buffer = Vec::new();
     /// # unbind_req.encode(&mut buffer).unwrap();
     /// let decoded = UnbindRequest::decode(&buffer).expect("Decoding failed");
@@ -91,7 +94,8 @@ impl UnbindResponse {
     /// ```
     /// use smpp_codec::pdus::UnbindResponse;
     ///
-    /// let unbind_resp = UnbindResponse::new(1, "ESME_ROK");
+    /// let sequence_number: u32 = 1;
+    /// let unbind_resp = UnbindResponse::new(sequence_number, "ESME_ROK");
     /// ```
     pub fn new(
         sequence_number: u32, 
@@ -115,7 +119,8 @@ impl UnbindResponse {
     ///
     /// ```
     /// # use smpp_codec::pdus::UnbindResponse;
-    /// # let unbind_resp = UnbindResponse::new(1, "ESME_ROK");
+    /// # let sequence_number: u32 = 1;
+    /// # let unbind_resp = UnbindResponse::new(sequence_number, "ESME_ROK");
     /// let mut buffer = Vec::new();
     /// unbind_resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -138,7 +143,8 @@ impl UnbindResponse {
     ///
     /// ```
     /// # use smpp_codec::pdus::UnbindResponse;
-    /// # let unbind_resp = UnbindResponse::new(1, "ESME_ROK");
+    /// # let sequence_number: u32 = 1;
+    /// # let unbind_resp = UnbindResponse::new(sequence_number, "ESME_ROK");
     /// # let mut buffer = Vec::new();
     /// # unbind_resp.encode(&mut buffer).unwrap();
     /// let decoded = UnbindResponse::decode(&buffer).expect("Decoding failed");

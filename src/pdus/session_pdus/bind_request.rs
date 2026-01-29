@@ -26,11 +26,12 @@ impl BindRequest {
     /// use smpp_codec::pdus::BindRequest;
     /// use smpp_codec::common::BindMode;
     ///
+    /// let sequence_number: u32 = 1;
     /// let bind_req = BindRequest::new(
-    ///     BindMode::Transmitter,
-    ///     "my_system_id".to_string(),
+    ///     BindMode::Transceiver,
+    ///     "system_id".to_string(),
     ///     "password".to_string(),
-    ///     1
+    ///     sequence_number,
     /// );
     /// ```
     pub fn new(
@@ -75,7 +76,8 @@ impl BindRequest {
     /// ```
     /// # use smpp_codec::pdus::BindRequest;
     /// # use smpp_codec::common::BindMode;
-    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), 1);
+    /// # let sequence_number: u32 = 1;
+    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), sequence_number);
     /// let mut buffer = Vec::new();
     /// bind_req.encode(&mut buffer).expect("Encoding failed");
     /// ```

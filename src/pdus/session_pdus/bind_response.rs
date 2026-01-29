@@ -23,13 +23,14 @@ impl BindResponse {
     ///
     /// ```
     /// use smpp_codec::pdus::BindResponse;
-    /// use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
+    /// use smpp_codec::common::{CMD_BIND_TRANSCEIVER_RESP, BindMode};
     ///
-    /// let bind_resp = BindResponse::new(
-    ///     1, // Sequence number
-    ///     CMD_BIND_TRANSMITTER_RESP,
+    /// let sequence_number: u32 = 1;
+    /// let resp = BindResponse::new(
+    ///     sequence_number,
+    ///     CMD_BIND_TRANSCEIVER_RESP,
     ///     "ESME_ROK",
-    ///     "my_smsc_id".to_string()
+    ///     "system_id".to_string()
     /// );
     /// ```
     pub fn new(
@@ -61,7 +62,8 @@ impl BindResponse {
     /// ```
     /// # use smpp_codec::pdus::BindResponse;
     /// # use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
-    /// # let bind_resp = BindResponse::new(1, CMD_BIND_TRANSMITTER_RESP, "ESME_ROK", "id".into());
+    /// # let sequence_number: u32 = 1;
+    /// # let bind_resp = BindResponse::new(sequence_number, CMD_BIND_TRANSMITTER_RESP, "ESME_ROK", "id".into());
     /// let mut buffer = Vec::new();
     /// bind_resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -104,12 +106,13 @@ impl BindResponse {
     ///
     /// ```
     /// # use smpp_codec::pdus::BindResponse;
-    /// # use smpp_codec::common::CMD_BIND_TRANSMITTER_RESP;
-    /// # let bind_resp = BindResponse::new(1, CMD_BIND_TRANSMITTER_RESP, "ESME_ROK", "id".into());
+    /// # use smpp_codec::common::CMD_BIND_TRANSCEIVER_RESP;
+    /// # let sequence_number: u32 = 1;
+    /// # let resp = BindResponse::new(sequence_number, CMD_BIND_TRANSCEIVER_RESP, "ESME_ROK", "id".into());
     /// # let mut buffer = Vec::new();
-    /// # bind_resp.encode(&mut buffer).unwrap();
+    /// # resp.encode(&mut buffer).unwrap();
     /// let decoded = BindResponse::decode(&buffer).expect("Decoding failed");
-    /// assert_eq!(decoded.system_id, "id");
+    /// assert_eq!(decoded.sequence_number, 1);
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
