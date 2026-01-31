@@ -5,8 +5,9 @@ use crate::common::{
 use std::io::{Read, Write, Cursor};
 
 // --- Request ---
+/// Represents a Cancel SM Request PDU.
 #[derive(Debug, Clone)]
-pub struct CancelSm {
+pub struct CancelSmRequest {
     pub sequence_number: u32,
     pub service_type: String,
     pub message_id: String,
@@ -18,7 +19,7 @@ pub struct CancelSm {
     pub dest_addr: String,
 }
 
-impl CancelSm {
+impl CancelSmRequest {
     pub fn new(
         sequence_number: u32,
         message_id: String,
@@ -100,21 +101,21 @@ impl CancelSm {
 // --- Response ---
 // CancelSmResp has NO BODY. It is just a header.
 #[derive(Debug, Clone)]
-pub struct CancelSmResp {
+pub struct CancelSmResponse {
     pub sequence_number: u32,
     pub command_status: u32,
     pub status_description: String,
 }
 
-impl CancelSmResp {
+impl CancelSmResponse {
     /// Create a new CancelSm response.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::CancelSmResp;
+    /// use smpp_codec::pdus::CancelSmResponse;
     ///
-    /// let message = CancelSmResp::new(1, "ESME_ROK");
+    /// let message = CancelSmResponse::new(1, "ESME_ROK");
     /// ```
     pub fn new(sequence_number: u32, status_name: &str) -> Self { 
         let command_status = get_status_code(status_name);

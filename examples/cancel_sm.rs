@@ -1,10 +1,10 @@
-use smpp_codec::pdus::{CancelSm, CancelSmResp};
+use smpp_codec::pdus::{CancelSmRequest, CancelSmResponse};
 
 fn main() {
     println!("=== SMPP Cancel SM Example ===");
 
     // 1. Request
-    let cancel = CancelSm::new(
+    let cancel = CancelSmRequest::new(
         200,
         "Msg12345".to_string(), // Message ID to cancel
         "source_addr".to_string(),
@@ -17,6 +17,6 @@ fn main() {
     println!("Encoded {} bytes", buf.len());
 
     // 2. Response
-    let resp = CancelSmResp::new(200, "ESME_ROK");
+    let resp = CancelSmResponse::new(200, "ESME_ROK");
     println!("Cancel Response: {:?}", resp);
 }

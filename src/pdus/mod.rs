@@ -17,5 +17,5 @@ pub use submission_pdus::SubmitSmRequest;
 pub use submission_pdus::SubmitSmResponse;
 pub use crate::splitter::{MessageSplitter, SplitMode, EncodingType};
 pub use delivery_pdus::{DeliverSmRequest, DeliverSmResponse, DeliveryReceipt};
-pub use ancillary_pdus::{CancelSm, CancelSmResp};
-pub use ancillary_pdus::{QuerySm, QuerySmResp, MessageState};
+pub use ancillary_pdus::{CancelSmRequest, CancelSmResponse};
+pub use ancillary_pdus::{QuerySmRequest, QuerySmResponse, MessageState};

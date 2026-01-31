@@ -143,10 +143,10 @@ fn main() {
 | SubmitSmResponse          | 39.00ms       | 2564312.97      | 36.65ms       | 2728244.97      |
 | DeliverSmRequest          | 5.34ms        | 18732906.22     | 47.83ms       | 2090842.94      |
 | DeliverSmResponse         | 0.42ms        | 237529691.21    | 5.30ms        | 18857250.61     |
-| CancelSm                  | 20.31ms       | 4923440.50      | 19.05ms       | 5250611.70      |
-| CancelSmResp              | 0.42ms        | 240558094.78    | 5.24ms        | 19094537.05     |
-| QuerySm                   | 13.44ms       | 7438981.75      | 12.70ms       | 7875628.08      |
-| QuerySmResp               | 13.31ms       | 7511172.87      | 11.57ms       | 8645284.00      |
+| CancelSmRequest           | 20.31ms       | 4923440.50      | 19.05ms       | 5250611.70      |
+| CancelSmResponse          | 0.42ms        | 240558094.78    | 5.24ms        | 19094537.05     |
+| QuerySmRequest            | 13.44ms       | 7438981.75      | 12.70ms       | 7875628.08      |
+| QuerySmResponse           | 13.31ms       | 7511172.87      | 11.57ms       | 8645284.00      |
 
 ## License
 

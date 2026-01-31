@@ -1,12 +1,12 @@
 use smpp_codec::pdus::{
-    QuerySmResp, CancelSmResp, UnbindResponse, EnquireLinkResponse,
+    QuerySmResponse, CancelSmResponse, UnbindResponse, EnquireLinkResponse,
     SubmitSmResponse, BindResponse, DeliverSmResponse,
 };
 use smpp_codec::common::CMD_BIND_TRANSCEIVER_RESP;
 
 #[test]
 fn test_query_sm_response_error() {
-    let resp = QuerySmResp::new(
+    let resp = QuerySmResponse::new(
         3, 
         "ESME_RQUERYFAIL", // 0x00000067
         "".to_string(), 
@@ -20,7 +20,7 @@ fn test_query_sm_response_error() {
 
     assert_eq!(buffer.len(), 16); // Header only for error
 
-    let decoded = QuerySmResp::decode(&buffer).expect("Decoding failed");
+    let decoded = QuerySmResponse::decode(&buffer).expect("Decoding failed");
     assert_eq!(decoded.sequence_number, 3);
     assert_eq!(decoded.command_status, 0x00000067);
     assert_eq!(decoded.status_description, "ESME_RQUERYFAIL");
@@ -29,14 +29,14 @@ fn test_query_sm_response_error() {
 
 #[test]
 fn test_cancel_sm_response_error() {
-    let resp = CancelSmResp::new(2, "ESME_RCANCELFAIL"); // 0x00000011
+    let resp = CancelSmResponse::new(2, "ESME_RCANCELFAIL"); // 0x00000011
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encoding failed");
 
     assert_eq!(buffer.len(), 16);
 
-    let decoded = CancelSmResp::decode(&buffer).expect("Decoding failed");
+    let decoded = CancelSmResponse::decode(&buffer).expect("Decoding failed");
     assert_eq!(decoded.sequence_number, 2);
     assert_eq!(decoded.command_status, 0x00000011);
     assert_eq!(decoded.status_description, "ESME_RCANCELFAIL");

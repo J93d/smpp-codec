@@ -1,10 +1,10 @@
-use smpp_codec::pdus::{QuerySm, QuerySmResp, MessageState};
+use smpp_codec::pdus::{QuerySmRequest, QuerySmResponse, MessageState};
 
 fn main() {
     println!("=== SMPP Query SM Example ===");
 
     // 1. Request
-    let query = QuerySm::new(
+    let query = QuerySmRequest::new(
         300,
         "Msg12345".to_string(),
         "source_addr".to_string(),
@@ -16,7 +16,7 @@ fn main() {
     println!("Encoded {} bytes", buf.len());
 
     // 2. Response
-    let resp = QuerySmResp::new(
+    let resp = QuerySmResponse::new(
         300, 
         "ESME_ROK", 
         "Msg12345".to_string(), 

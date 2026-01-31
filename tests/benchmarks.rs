@@ -147,30 +147,30 @@ fn benchmark_suite() {
     // --- Ancillary PDUs ---
 
     bench_all!(
-        CancelSm,
-        "CancelSm",
-        CancelSm::new(300, "msg_id".into(), "src".into(), "dst".into()),
+        CancelSmRequest,
+        "CancelSmRequest",
+        CancelSmRequest::new(300, "msg_id".into(), "src".into(), "dst".into()),
         iterations
     );
 
     bench_all!(
-        CancelSmResp,
-        "CancelSmResp",
-        CancelSmResp::new(300, "ESME_ROK"),
+        CancelSmResponse,
+        "CancelSmResponse",
+        CancelSmResponse::new(300, "ESME_ROK"),
         iterations
     );
 
     bench_all!(
-        QuerySm,
-        "QuerySm",
-        QuerySm::new(400, "msg_id".into(), "src".into()),
+        QuerySmRequest,
+        "QuerySmRequest",
+        QuerySmRequest::new(400, "msg_id".into(), "src".into()),
         iterations
     );
     
     bench_all!(
-        QuerySmResp,
-        "QuerySmResp",
-        QuerySmResp::new(400, "ESME_ROK", "msg_id".into(), String::new(), MessageState::Delivered as u8, 0),
+        QuerySmResponse,
+        "QuerySmResponse",
+        QuerySmResponse::new(400, "ESME_ROK", "msg_id".into(), String::new(), MessageState::Delivered as u8, 0),
         iterations
     );
 

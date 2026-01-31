@@ -3,7 +3,7 @@ use std::io::{Read, Write, Cursor};
 
 // --- Request ---
 #[derive(Debug, Clone)]
-pub struct QuerySm {
+pub struct QuerySmRequest {
     pub sequence_number: u32,
     pub message_id: String,
     pub source_addr_ton: Ton,
@@ -11,7 +11,7 @@ pub struct QuerySm {
     pub source_addr: String,
 }
 
-impl QuerySm {
+impl QuerySmRequest {
     pub fn new(
         sequence_number: u32,
         message_id: String,
@@ -82,7 +82,7 @@ impl QuerySm {
 
 /// Query_SM Response
 #[derive(Debug, Clone)]
-pub struct QuerySmResp {
+pub struct QuerySmResponse {
     pub sequence_number: u32,
     pub command_status: u32,
     pub message_id: String,
@@ -106,7 +106,7 @@ pub enum MessageState {
     Rejected = 8,
 }
 
-impl QuerySmResp {
+impl QuerySmResponse {
     pub fn new(sequence_number: u32, status_name: &str, message_id: String, final_date: String, message_state: u8, error_code: u8) -> Self {
         let command_status = get_status_code(status_name);
         Self { 
