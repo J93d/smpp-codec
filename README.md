@@ -29,16 +29,50 @@ use smpp_codec::pdus::BindRequest;
 
 fn main() {
     let bind_req = BindRequest::new(
+        1, // Sequence Number
         BindMode::Transceiver,
         "my_system_id".to_string(),
         "password".to_string(),
-        1, // Sequence Number
     ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     let mut buffer = Vec::new();
     bind_req.encode(&mut buffer).unwrap();
     
     // Send `buffer` over TCP stream...
+}
+```
+
+### 2. Submit Short Message
+
+```rust
+use smpp_codec::pdus::SubmitSmRequest;
+
+fn main() {
+    let mut submit_req = SubmitSmRequest::new(
+        2, // Sequence Number
+        "source_addr".to_string(),
+        "dest_addr".to_string(),
+        b"Hello, SMPP!".to_vec(),
+    );
+
+    let mut buffer = Vec::new();
+    submit_req.encode(&mut buffer).unwrap();
+}
+```
+
+### 3. Deliver Short Message
+> **Note**: `DeliverSm` is currently planned and yet to be implemented.
+
+### 4. Unbind
+
+```rust
+use smpp_codec::pdus::UnbindRequest;
+
+fn main() {
+    let unbind_req = UnbindRequest::new(3); // Sequence Number
+
+    let mut buffer = Vec::new();
+    unbind_req.encode(&mut buffer).unwrap();
 }
 ```
 

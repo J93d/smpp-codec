@@ -1,4 +1,4 @@
-use crate::common::{PduError, HEADER_LEN, CMD_SUBMIT_SM_RESP};
+use crate::common::{PduError, HEADER_LEN, CMD_SUBMIT_SM_RESP, get_status_code, get_status_description};
 use std::io::{Read, Write, Cursor};
 
 #[derive(Debug, Clone)]
@@ -6,6 +6,7 @@ pub struct SubmitSmResponse {
     pub sequence_number: u32,
     pub command_status: u32,
     pub message_id: String, // C-Octet String (Max 65 chars)
+    pub status_description: String,
 }
 
 impl SubmitSmResponse {
@@ -19,11 +20,17 @@ impl SubmitSmResponse {
     /// let sequence_number: u32 = 1;
     /// let resp = SubmitSmResponse::new(sequence_number, 0, "MsgID:123".into());
     /// ```
-    pub fn new(sequence_number: u32, command_status: u32, message_id: String) -> Self {
+    pub fn new(
+        sequence_number: u32, 
+        status_name: &str,
+        message_id: String
+    ) -> Self {
+        let command_status = get_status_code(status_name);
         Self {
             sequence_number,
             command_status,
             message_id,
+            status_description: status_name.to_string(),
         }
     }
 
@@ -99,10 +106,13 @@ impl SubmitSmResponse {
              message_id = read_c_string(&mut cursor)?;
         }
 
+        let status_description = get_status_description(command_status);
+
         Ok(Self {
             sequence_number,
             command_status,
             message_id,
+            status_description,
         })
     }
 }

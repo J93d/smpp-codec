@@ -3,7 +3,7 @@ use smpp_codec::pdus::{EnquireLinkRequest, EnquireLinkResponse, AlertNotificatio
 use smpp_codec::tlv::Tlv;
 
 #[test]
-#[test]
+
 fn test_enquire_link_req() {
     let req = EnquireLinkRequest::new(123);
     
@@ -17,7 +17,7 @@ fn test_enquire_link_req() {
 #[test]
 #[test]
 fn test_enquire_link_resp() {
-    let resp = EnquireLinkResponse::new(123, 0x80000015, "ESME_ROK");
+    let resp = EnquireLinkResponse::new(123, "ESME_ROK");
     
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");

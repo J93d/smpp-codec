@@ -1,4 +1,4 @@
-use smpp_codec::common::{Ton, Npi};
+use smpp_codec::common;
 use smpp_codec::pdus::{EnquireLinkRequest, EnquireLinkResponse, AlertNotification, GenericNack};
 use smpp_codec::tlv::Tlv;
 
@@ -13,7 +13,7 @@ fn main() {
     enquire_link.encode(&mut buf).unwrap();
     println!("Encoded {} bytes", buf.len());
 
-    let resp = EnquireLinkResponse::new(100, 0x80000015, "ESME_ROK");
+    let resp = EnquireLinkResponse::new(100, "ESME_ROK");
     println!("Response: {:?}", resp);
 
     // 2. AlertNotification

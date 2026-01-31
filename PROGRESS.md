@@ -30,10 +30,10 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 - [ ] `deliver_sm_resp`
 
 ## Message Query/Cancel/Replace
-- [ ] `query_sm`
-- [ ] `query_sm_resp`
-- [ ] `cancel_sm`
-- [ ] `cancel_sm_resp`
+- [x] `query_sm`
+- [x] `query_sm_resp`
+- [x] `cancel_sm`
+- [x] `cancel_sm_resp`
 - [ ] `replace_sm`
 - [ ] `replace_sm_resp`
 

@@ -1,5 +1,5 @@
 use smpp_codec::encoding::{gsm_7bit_encode, gsm_7bit_decode, encode_16bit, decode_16bit};
-use smpp_codec::pdus::SubmitSmRequest;
+
 
 #[test]
 fn test_gsm_7bit_basic() {

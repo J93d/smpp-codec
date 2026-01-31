@@ -21,12 +21,12 @@ impl OutbindRequest {
     ///
     /// let sequence_number: u32 = 1;
     /// let outbind = OutbindRequest::new(
+    ///     sequence_number, // Sequence number
     ///     "my_system_id".to_string(),
     ///     "password".to_string(),
-    ///     sequence_number // Sequence number
     /// );
     /// ```
-    pub fn new(system_id: String, password: String, sequence_number: u32) -> Self {
+    pub fn new(sequence_number: u32, system_id: String, password: String) -> Self {
         Self {
             sequence_number,
             system_id,
@@ -48,7 +48,7 @@ impl OutbindRequest {
     /// ```
     /// # use smpp_codec::pdus::OutbindRequest;
     /// # let sequence_number: u32 = 1;
-    /// # let outbind = OutbindRequest::new("id".into(), "pwd".into(), sequence_number);
+    /// # let outbind = OutbindRequest::new(sequence_number, "id".into(), "pwd".into());
     /// let mut buffer = Vec::new();
     /// outbind.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -92,7 +92,7 @@ impl OutbindRequest {
     /// ```
     /// # use smpp_codec::pdus::OutbindRequest;
     /// # let sequence_number: u32 = 1;
-    /// # let outbind = OutbindRequest::new("id".into(), "pwd".into(), sequence_number);
+    /// # let outbind = OutbindRequest::new(sequence_number, "id".into(), "pwd".into());
     /// # let mut buffer = Vec::new();
     /// # outbind.encode(&mut buffer).unwrap();
     /// let decoded = OutbindRequest::decode(&buffer).expect("Decoding failed");

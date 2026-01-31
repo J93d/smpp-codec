@@ -1,7 +1,6 @@
-use crate::pdus::submission_pdus::submit_sm_request::SubmitSmRequest;
-use crate::tlv::{Tlv, tags};
 use crate::encoding;
 use rand::Rng;
+
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EncodingType {
@@ -20,35 +19,17 @@ pub enum SplitMode {
 pub struct MessageSplitter;
 
 impl MessageSplitter {
-    /// Split a long message into multiple `SubmitSmRequest` PDUs.
+    /// Split a long message into multiple chunks.
     ///
-    /// Supports 3 modes:
-    /// * `SplitMode::Udh`: Uses User Data Header (Concatenated SMS).
-    /// * `SplitMode::Sar`: Uses SAR Optional Parameters.
-    /// * `SplitMode::Payload`: Uses `message_payload` TLV (no splitting, single large PDU).
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use smpp_codec::pdus::MessageSplitter;
-    /// use smpp_codec::pdus::submission_pdus::splitter::{SplitMode, EncodingType};
-    ///
-    /// let parts = MessageSplitter::split(
-    ///     "src".to_string(),
-    ///     "dst".to_string(),
-    ///     "Hello World".to_string(),
-    ///     EncodingType::Gsm7Bit,
-    ///     SplitMode::Udh
-    /// ).unwrap();
-    /// assert_eq!(parts.len(), 1);
-    /// ```
+    /// Returns a tuple of (Chunks, DataCoding).
+    /// * For `SplitMode::Udh`, chunks include the User Data Header.
+    /// * For `SplitMode::Sar`, chunks are raw payload; caller must add SAR TLVs.
+    /// * For `SplitMode::Payload`, returns a single chunk (no splitting).
     pub fn split(
-        source_addr: String,
-        dest_addr: String,
         text: String,
         encoding: EncodingType,
         mode: SplitMode,
-    ) -> Result<Vec<SubmitSmRequest>, String> {
+    ) -> Result<(Vec<Vec<u8>>, u8), String> {
         
         // 1. Encode Text
         let (encoded_bytes, data_coding) = match encoding {
@@ -63,29 +44,17 @@ impl MessageSplitter {
                 EncodingType::Gsm7Bit => (160, 153), 
                 _ => (140, 134),
             },
-            SplitMode::Sar => match encoding {
-                _ => (254, 254), 
-            },
+            SplitMode::Sar =>(254, 254),
             SplitMode::Payload => (65535, 65535),
         };
 
         // 3. Simple Case: Fits in one message?
-        if encoded_bytes.len() <= single_max || mode == SplitMode::Payload {
-            // ... (Same single message logic as before) ...
-            let mut pdu = SubmitSmRequest::new(0, source_addr, dest_addr, Vec::new());
-            pdu.data_coding = data_coding;
-            if mode == SplitMode::Payload && encoded_bytes.len() > single_max {
-                pdu.add_tlv(Tlv::new_payload(tags::MESSAGE_PAYLOAD, encoded_bytes));
-                pdu.short_message = Vec::new();
-            } else {
-                pdu.short_message = encoded_bytes;
-            }
-            return Ok(vec![pdu]);
+        if encoded_bytes.len() <= single_max || matches!(mode, SplitMode::Payload) {
+            return Ok((vec![encoded_bytes], data_coding));
         }
 
-        // 4. PRE-CALCULATE CHUNKS (The Simplification)
-        // Instead of building PDUs inside the loop, we just collect byte slices.
-        let mut chunks = Vec::new();
+        // 4. Calculate Chunks (Payload Only First)
+        let mut temp_chunks = Vec::new();
         let mut offset = 0;
 
         while offset < encoded_bytes.len() {
@@ -96,43 +65,33 @@ impl MessageSplitter {
             if encoding == EncodingType::Gsm7Bit && chunk_len < remaining {
                 let last_byte_index = offset + chunk_len - 1;
                 if encoded_bytes[last_byte_index] == 0x1B {
-                    chunk_len -= 1; // Back off
+                    chunk_len -= 1; // Back off to avoid splitting escape sequence
                 }
             }
 
-            chunks.push(&encoded_bytes[offset..offset + chunk_len]);
+            temp_chunks.push(encoded_bytes[offset..offset + chunk_len].to_vec());
             offset += chunk_len;
         }
 
-        // 5. Build PDUs
-        // Now we know the exact count without any guessing logic.
-        let total_segments = chunks.len() as u8;
-        let ref_num: u8 = rand::thread_rng().random_range(1..=254);
-        let mut pdus = Vec::with_capacity(chunks.len());
+        // 5. Finalize Chunks (Add UDH if needed)
+        let mut final_chunks = Vec::new();
+        let total_segments = temp_chunks.len() as u8;
+        let ref_num = rand::thread_rng().gen::<u8>();
 
-        for (i, chunk) in chunks.iter().enumerate() {
-            let seq_num = (i + 1) as u8;
-            let mut pdu = SubmitSmRequest::new(0, source_addr.clone(), dest_addr.clone(), Vec::new());
-            pdu.data_coding = data_coding;
-
-            match mode {
-                SplitMode::Udh => {
-                    pdu.esm_class = 0x40; // UDHI
-                    let mut udh = vec![0x05, 0x00, 0x03, ref_num, total_segments, seq_num];
-                    udh.extend_from_slice(chunk);
-                    pdu.short_message = udh;
-                },
-                SplitMode::Sar => {
-                    pdu.short_message = chunk.to_vec();
-                    pdu.add_tlv(Tlv::new_u16(tags::SAR_MSG_REF_NUM, ref_num as u16));
-                    pdu.add_tlv(Tlv::new_u16(tags::SAR_TOTAL_SEGMENTS, total_segments as u16));
-                    pdu.add_tlv(Tlv::new_u16(tags::SAR_SEGMENT_SEQNUM, seq_num as u16));
-                },
-                SplitMode::Payload => unreachable!(),
+        for (i, chunk_payload) in temp_chunks.iter().enumerate() {
+            let mut chunk = Vec::new();
+            
+            if mode == SplitMode::Udh {
+                // UDH: Len(05) + ID(00) + Len(03) + Ref + Total + Seq
+                let seq_num = (i + 1) as u8;
+                let udh = vec![0x05, 0x00, 0x03, ref_num, total_segments, seq_num];
+                chunk.extend(udh);
             }
-            pdus.push(pdu);
+            
+            chunk.extend_from_slice(chunk_payload);
+            final_chunks.push(chunk);
         }
 
-        Ok(pdus)
+        Ok((final_chunks, data_coding))
     }
-}
+}   

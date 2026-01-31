@@ -28,17 +28,17 @@ impl BindRequest {
     ///
     /// let sequence_number: u32 = 1;
     /// let bind_req = BindRequest::new(
+    ///     sequence_number,
     ///     BindMode::Transceiver,
     ///     "system_id".to_string(),
     ///     "password".to_string(),
-    ///     sequence_number,
     /// );
     /// ```
     pub fn new(
+        sequence_number: u32,
         mode: BindMode,
         system_id: String,
         password: String,
-        sequence_number: u32,
     ) -> Self {
         Self {
             sequence_number,
@@ -77,7 +77,7 @@ impl BindRequest {
     /// # use smpp_codec::pdus::BindRequest;
     /// # use smpp_codec::common::BindMode;
     /// # let sequence_number: u32 = 1;
-    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), sequence_number);
+    /// # let bind_req = BindRequest::new(sequence_number, BindMode::Transmitter, "id".into(), "pwd".into());
     /// let mut buffer = Vec::new();
     /// bind_req.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -134,7 +134,7 @@ impl BindRequest {
     /// ```
     /// # use smpp_codec::pdus::BindRequest;
     /// # use smpp_codec::common::BindMode;
-    /// # let bind_req = BindRequest::new(BindMode::Transmitter, "id".into(), "pwd".into(), 1);
+    /// # let bind_req = BindRequest::new(1, BindMode::Transmitter, "id".into(), "pwd".into());
     /// # let mut buffer = Vec::new();
     /// # bind_req.encode(&mut buffer).unwrap();
     /// let decoded = BindRequest::decode(&buffer).expect("Decoding failed");

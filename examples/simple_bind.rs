@@ -6,10 +6,10 @@ fn main() {
 
     // 1. Create a BindTransceiver Request
     let bind_req = BindRequest::new(
+        1, // Sequence Number
         BindMode::Transceiver,
         "my_system_id".to_string(),
         "password".to_string(),
-        1, // Sequence Number
     ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     println!("Created PDU: {:?}", bind_req);

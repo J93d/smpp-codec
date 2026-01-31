@@ -4,10 +4,10 @@ use smpp_codec::pdus::{BindRequest, BindResponse, OutbindRequest};
 #[test]
 fn test_bind_transceiver_encode_decode() {
     let bind_req = BindRequest::new(
+        12345,
         BindMode::Transceiver,
         "my_system_id".to_string(),
         "secret".to_string(),
-        12345,
     ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     let mut buffer = Vec::new();
@@ -27,10 +27,10 @@ fn test_bind_transceiver_encode_decode() {
 #[test]
 fn test_bind_receiver_defaults() {
     let bind_req = BindRequest::new(
+        111, //Sequence Number
         BindMode::Receiver,
         "guest".to_string(),
         "guest".to_string(),
-        111,
     );
 
     let mut buffer = Vec::new();
@@ -89,9 +89,9 @@ fn test_bind_response_failure() {
 #[test]
 fn test_outbind_request() {
     let outbind = OutbindRequest::new(
+        55555,
         "sys_id".to_string(),
         "password".to_string(),
-        55555,
     );
 
     let mut buffer = Vec::new();

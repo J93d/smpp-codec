@@ -2,7 +2,7 @@
 //!
 //! This module contains common constants, error types, and helper functions used throughout the library.
 
-use std::fmt;
+
 
 // --- Command IDs ---
 // These constants define the Command ID for each SMPP PDU.

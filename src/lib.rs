@@ -18,10 +18,10 @@
 //! use smpp_codec::common::BindMode;
 //!
 //! let mut bind_req = BindRequest::new(
+//!     1, // Sequence number
 //!     BindMode::Transmitter,
 //!     "my_system_id".to_string(),
 //!     "password".to_string(),
-//!     1 // Sequence number
 //! );
 //!
 //! // Encode to bytes

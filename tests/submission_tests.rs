@@ -1,5 +1,5 @@
 use smpp_codec::pdus::{SubmitSmRequest, SubmitSmResponse, MessageSplitter, SplitMode, EncodingType};
-use smpp_codec::tlv::tags;
+
 
 #[test]
 fn test_submit_sm_encoding_decoding() {
@@ -26,7 +26,7 @@ fn test_submit_sm_encoding_decoding() {
 
 #[test]
 fn test_submit_sm_resp_encoding_decoding() {
-    let resp = SubmitSmResponse::new(55, 0, "UUID-1234".to_string());
+    let resp = SubmitSmResponse::new(55, "ESME_ROK", "UUID-1234".to_string());
     
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
@@ -41,9 +41,7 @@ fn test_splitter_udh() {
     // Generate a long string > 160 chars
     let text = "A".repeat(200);
     
-    let parts = MessageSplitter::split(
-        "src".into(),
-        "dst".into(),
+    let (parts, _) = MessageSplitter::split(
         text.clone(),
         EncodingType::Gsm7Bit,
         SplitMode::Udh
@@ -52,21 +50,17 @@ fn test_splitter_udh() {
     assert_eq!(parts.len(), 2);
     
     // Verify first part has UDH
-    let pdu1 = &parts[0];
-    assert_eq!(pdu1.esm_class, 0x40); // UDHI set
+    let pdu1_body = &parts[0];
     // UDH header is typically 6 bytes (len(1) + ie(5)) = 05 00 03 AA TT 01
-    // src/pdus/submission_pdus/splitter.rs line 99: vec![0x05, 0x00, 0x03, ref_num, total_segments, seq_num];
-    assert!(pdu1.short_message.len() > 6);
-    assert_eq!(pdu1.short_message[0], 0x05); // UDH Len
+    assert!(pdu1_body.len() > 6);
+    assert_eq!(pdu1_body[0], 0x05); // UDH Len
 }
 
 #[test]
 fn test_splitter_sar() {
     let text = "B".repeat(300);
     
-    let parts = MessageSplitter::split(
-        "src".into(),
-        "dst".into(),
+    let (parts, _) = MessageSplitter::split(
         text.clone(),
         EncodingType::Gsm7Bit,
         SplitMode::Sar
@@ -74,11 +68,8 @@ fn test_splitter_sar() {
 
     assert_eq!(parts.len(), 2);
     
-    // Verify SAR tags present
-    let pdu2 = &parts[1];
-    // We expect 3 TLVs for SAR
-    assert!(pdu2.optional_params.len() >= 3);
-    
-    let has_sar_total = pdu2.optional_params.iter().any(|t| t.tag == tags::SAR_TOTAL_SEGMENTS);
-    assert!(has_sar_total);
+    // Verify chunks are within limits
+    let pdu2_body = &parts[1];
+    assert!(pdu2_body.len() <= 254);
+    // Note: SAR TLVs are added by the caller, so we can't test them here.
 }

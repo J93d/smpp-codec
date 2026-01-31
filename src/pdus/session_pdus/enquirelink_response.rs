@@ -19,14 +19,12 @@ impl EnquireLinkResponse {
     ///
     /// ```
     /// use smpp_codec::pdus::EnquireLinkResponse;
-    /// use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
     ///
     /// let sequence_number: u32 = 1;
-    /// let resp = EnquireLinkResponse::new(sequence_number, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// let resp = EnquireLinkResponse::new(sequence_number, "ESME_ROK");
     /// ```
     pub fn new(
         sequence_number: u32,
-        command_id: u32,
         status_name: &str,
     ) -> Self {
         let command_status = get_status_code(status_name);
