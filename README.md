@@ -45,18 +45,32 @@ fn main() {
 ### 2. Submit Short Message
 
 ```rust
-use smpp_codec::pdus::SubmitSmRequest;
+use smpp_codec::pdus::{SubmitSmRequest, MessageSplitter, SplitMode, EncodingType};
 
 fn main() {
-    let mut submit_req = SubmitSmRequest::new(
-        2, // Sequence Number
-        "source_addr".to_string(),
-        "dest_addr".to_string(),
-        b"Hello, SMPP!".to_vec(),
-    );
+    let text = "Hello, world!".to_string();
+    
+    // Split message (handles encoding and valid chunking)
+    let (parts, data_coding) = MessageSplitter::split(
+        text,
+        EncodingType::Gsm7Bit, 
+        SplitMode::Udh // Use UDH for concatenation
+    ).unwrap();
 
-    let mut buffer = Vec::new();
-    submit_req.encode(&mut buffer).unwrap();
+    // Iterate over parts and send each PDU
+    for (i, part) in parts.into_iter().enumerate() {
+        let mut submit_req = SubmitSmRequest::new(
+            (i + 2) as u32, // Sequence Number
+            "source_addr".to_string(),
+            "dest_addr".to_string(),
+            part,
+        );
+        submit_req.data_coding = data_coding; // Important: Set correct encoding!
+
+        let mut buffer = Vec::new();
+        submit_req.encode(&mut buffer).unwrap();
+        // Send buffer...
+    }
 }
 ```
 
