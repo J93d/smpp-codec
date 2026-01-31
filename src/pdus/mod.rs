@@ -19,4 +19,4 @@ pub use submission_pdus::SubmitSmRequest;
 pub use submission_pdus::SubmitSmResponse;
 pub use submission_pdus::{MessageSplitter, SplitMode, EncodingType};
 pub use ancillary_pdus::{CancelSm, CancelSmResp};
-pub use ancillary_pdus::{QuerySm, QuerySmResp};
+pub use ancillary_pdus::{QuerySm, QuerySmResp, MessageState};

@@ -2,7 +2,7 @@ use smpp_codec::common::{BindMode, Ton, Npi};
 use smpp_codec::pdus::BindRequest;
 
 fn main() {
-    println!("=== SMPP Bind Request Example ===");
+    println!("=== SMPP Bind Transceiver Example ===");
 
     // 1. Create a BindTransceiver Request
     let bind_req = BindRequest::new(
