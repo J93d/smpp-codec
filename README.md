@@ -113,34 +113,7 @@ fn main() {
 }
 ```
 
-### 4. Create Delivery Receipt
-
-```rust
-use smpp_codec::pdus::{DeliverSmRequest, DeliveryReceipt};
-
-fn main() {
-    // Helpers available for creating and parsing Delivery Receipts
-    let receipt = DeliveryReceipt {
-        message_id: "1234567890".to_string(),
-        submitted_count: 1,
-        delivered_count: 1,
-        submit_date: "2601312300".to_string(),
-        done_date: "2601312301".to_string(),
-        status: "DELIVRD".to_string(),
-        error_code: 0,
-        text: "Hello World".to_string(),
-    };
-
-    let pdu = DeliverSmRequest::new_receipt(
-        101, 
-        "SMSC".to_string(), 
-        "SystemId".to_string(), 
-        receipt,
-    );
-}
-```
-
-### 5. Unbind
+### 4. Unbind
 
 ```rust
 use smpp_codec::pdus::UnbindRequest;
@@ -155,14 +128,25 @@ fn main() {
 
 ## Running cargo test --test benchmarks
 
-| PDU Type | Encode (ops/sec) | Encode (time) | Decode (ops/sec) | Decode (time) |
-| :--- | :--- | :--- | :--- | :--- |
-| BindRequest | 1,222,482 | 81.65ns | 528,713 | 189.15ns | 
-| SubmitSmRequest | 861,250 | 116.14ns | 388,421 | 257.44ns | 
-| DeliverSmRequest | 822,097 | 121.64ns | 376,610 | 265.53ns | 
-| BindResponse | 1,180,244 | 85.00ns | 980,111 | 102.00ns |
-| SubmitSmResponse | 3,120,444 | 32.00ns | 2,890,999 | 35.00ns |
-| EnquireLink | 5,502,312 | 18.00ns | 5,100,200 | 20.00ns |
+| Request Name              | Encoding Time | Enc Rate (op/s) | Decoding Time | Dec Rate (op/s) |
+|---------------------------|---------------|-----------------|---------------|-----------------|
+| BindRequest               | 2.11ms        | 47483380.82     | 46.71ms       | 2140685.88      |
+| BindResponse              | 6.26ms        | 15970359.01     | 11.09ms       | 9016482.13      |
+| OutbindRequest            | 12.68ms       | 7885999.98      | 12.51ms       | 7994244.14      |
+| UnbindRequest             | 0.61ms        | 162628069.60    | 0.23ms        | 434404865.33    |
+| UnbindResponse            | 0.43ms        | 234686693.26    | 5.27ms        | 18961659.52     |
+| EnquireLinkRequest        | 0.36ms        | 274649821.48    | 0.18ms        | 543773790.10    |
+| EnquireLinkResponse       | 0.41ms        | 245639891.92    | 4.79ms        | 20894711.55     |
+| GenericNack               | 0.40ms        | 252780586.45    | 30.67ms       | 3261025.53      |
+| AlertNotification         | 13.50ms       | 7407462.28      | 13.38ms       | 7475350.03      |
+| SubmitSmRequest           | 5.89ms        | 16965830.82     | 49.38ms       | 2024963.75      |
+| SubmitSmResponse          | 39.00ms       | 2564312.97      | 36.65ms       | 2728244.97      |
+| DeliverSmRequest          | 5.34ms        | 18732906.22     | 47.83ms       | 2090842.94      |
+| DeliverSmResponse         | 0.42ms        | 237529691.21    | 5.30ms        | 18857250.61     |
+| CancelSm                  | 20.31ms       | 4923440.50      | 19.05ms       | 5250611.70      |
+| CancelSmResp              | 0.42ms        | 240558094.78    | 5.24ms        | 19094537.05     |
+| QuerySm                   | 13.44ms       | 7438981.75      | 12.70ms       | 7875628.08      |
+| QuerySmResp               | 13.31ms       | 7511172.87      | 11.57ms       | 8645284.00      |
 
 ## License
 
