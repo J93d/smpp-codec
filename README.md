@@ -126,7 +126,7 @@ fn main() {
 }
 ```
 
-## Running cargo test --test benchmarks
+## Running cargo test --test benchmarks --release -- --nocapture
 
 | Request Name              | Encoding Time | Enc Rate (op/s) | Decoding Time | Dec Rate (op/s) |
 |---------------------------|---------------|-----------------|---------------|-----------------|
@@ -150,7 +150,7 @@ fn main() {
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache-2.0 license.
 
 ## Running Tests
 
