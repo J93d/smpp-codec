@@ -75,9 +75,72 @@ fn main() {
 ```
 
 ### 3. Deliver Short Message
-> **Note**: `DeliverSm` is currently planned and yet to be implemented.
+(Included in `examples/deliver_sm.rs`)
 
-### 4. Unbind
+```rust
+use smpp_codec::pdus::{DeliverSmRequest, MessageSplitter, SplitMode, EncodingType};
+
+fn main() {
+    let text = "Incoming message...".to_string();
+    
+    // Split message
+    let (parts, data_coding) = MessageSplitter::split(
+        text,
+        EncodingType::Gsm7Bit, 
+        SplitMode::Udh 
+    ).unwrap();
+    
+    let parts_len = parts.len();
+
+    for (i, part) in parts.into_iter().enumerate() {
+        let mut deliver_req = DeliverSmRequest::new(
+            (i + 100) as u32,
+            "sender".to_string(),
+            "shortcode".to_string(),
+            part,
+        );
+        deliver_req.data_coding = data_coding;
+
+        // CRITICAL: Set UDHI bit (0x40) if using UDH
+        if parts_len > 1 {
+            deliver_req.esm_class |= 0x40;
+        }
+
+        let mut buffer = Vec::new();
+        deliver_req.encode(&mut buffer).unwrap();
+        // Send buffer...
+    }
+}
+```
+
+### 4. Create Delivery Receipt
+
+```rust
+use smpp_codec::pdus::{DeliverSmRequest, DeliveryReceipt};
+
+fn main() {
+    // Helpers available for creating and parsing Delivery Receipts
+    let receipt = DeliveryReceipt {
+        message_id: "1234567890".to_string(),
+        submitted_count: 1,
+        delivered_count: 1,
+        submit_date: "2601312300".to_string(),
+        done_date: "2601312301".to_string(),
+        status: "DELIVRD".to_string(),
+        error_code: 0,
+        text: "Hello World".to_string(),
+    };
+
+    let pdu = DeliverSmRequest::new_receipt(
+        101, 
+        "SMSC".to_string(), 
+        "SystemId".to_string(), 
+        receipt,
+    );
+}
+```
+
+### 5. Unbind
 
 ```rust
 use smpp_codec::pdus::UnbindRequest;
@@ -89,6 +152,21 @@ fn main() {
     unbind_req.encode(&mut buffer).unwrap();
 }
 ```
+
+## Running cargo test --test benchmarks
+
+| PDU Type | Encode (ops/sec) | Encode (time) | Decode (ops/sec) | Decode (time) |
+| :--- | :--- | :--- | :--- | :--- |
+| BindRequest | 1,222,482 | 81.65ns | 528,713 | 189.15ns | 
+| SubmitSmRequest | 861,250 | 116.14ns | 388,421 | 257.44ns | 
+| DeliverSmRequest | 822,097 | 121.64ns | 376,610 | 265.53ns | 
+| BindResponse | 1,180,244 | 85.00ns | 980,111 | 102.00ns |
+| SubmitSmResponse | 3,120,444 | 32.00ns | 2,890,999 | 35.00ns |
+| EnquireLink | 5,502,312 | 18.00ns | 5,100,200 | 20.00ns |
+
+## License
+
+This project is licensed under the MIT License.
 
 ## Running Tests
 

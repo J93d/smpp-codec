@@ -294,3 +294,32 @@ pub enum PduError {
 impl From<std::io::Error> for PduError {
     fn from(err: std::io::Error) -> Self { PduError::Io(err) }
 }
+
+/// optimized helper to read a C-Style string from a Cursor<&[u8]>
+pub fn read_c_string(cursor: &mut std::io::Cursor<&[u8]>) -> Result<String, PduError> {
+    let current_pos = cursor.position() as usize;
+    let inner = cursor.get_ref();
+
+    if current_pos >= inner.len() {
+        return Err(PduError::Io(std::io::Error::from(std::io::ErrorKind::UnexpectedEof)));
+    }
+
+    let remaining = &inner[current_pos..];
+    
+    // Find null byte efficiently using slice iter
+    match remaining.iter().position(|&b| b == 0) {
+        Some(null_idx) => {
+            let s_bytes = &remaining[..null_idx];
+            let s = String::from_utf8(s_bytes.to_vec()).map_err(PduError::Utf8)?;
+            cursor.set_position((current_pos + null_idx + 1) as u64);
+            Ok(s)
+        }
+        None => Err(PduError::Io(std::io::Error::from(std::io::ErrorKind::UnexpectedEof))),
+    }
+}
+
+/// Helper to write a C-Style string (null terminated)
+pub fn write_c_string(w: &mut impl std::io::Write, s: &str) -> std::io::Result<()> {
+    w.write_all(s.as_bytes())?;
+    w.write_all(&[0])
+}

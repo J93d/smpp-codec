@@ -1,4 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_CANCEL_SM, CMD_CANCEL_SM_RESP, Ton, Npi, get_status_code, get_status_description};
+use crate::common::{
+    PduError, HEADER_LEN, CMD_CANCEL_SM, CMD_CANCEL_SM_RESP, Ton, Npi, 
+    write_c_string, get_status_code, get_status_description
+};
 use std::io::{Read, Write, Cursor};
 
 // --- Request ---
@@ -64,21 +67,21 @@ impl CancelSm {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        let service_type = read_c_string(&mut cursor)?;
-        let message_id = read_c_string(&mut cursor)?;
+        let service_type = crate::common::read_c_string(&mut cursor)?;
+        let message_id = crate::common::read_c_string(&mut cursor)?;
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
-        let source_addr = read_c_string(&mut cursor)?;
+        let source_addr = crate::common::read_c_string(&mut cursor)?;
 
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_npi = Npi::from(u8_buf[0]);
-        let dest_addr = read_c_string(&mut cursor)?;
+        let dest_addr = crate::common::read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -113,7 +116,7 @@ impl CancelSmResp {
     ///
     /// let message = CancelSmResp::new(1, "ESME_ROK");
     /// ```
-    pub fn new(sequence_number: u32, status_name: &str) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str) -> Self { 
         let command_status = get_status_code(status_name);
         Self { 
             sequence_number, 
@@ -123,8 +126,7 @@ impl CancelSmResp {
     }
 
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
-        let command_len = HEADER_LEN as u32;
-        writer.write_all(&command_len.to_be_bytes())?;
+        writer.write_all(&(HEADER_LEN as u32).to_be_bytes())?;
         writer.write_all(&CMD_CANCEL_SM_RESP.to_be_bytes())?;
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
@@ -148,19 +150,3 @@ impl CancelSmResp {
     }
 }
 
-// Helpers
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
-}
-
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
-}

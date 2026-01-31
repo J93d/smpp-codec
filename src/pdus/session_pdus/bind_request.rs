@@ -97,25 +97,31 @@ impl BindRequest {
             return Err(PduError::StringTooLong("address_range".into(), 41));
         }
 
-        // 2. Buffer the body first to calculate length
-        let mut body = Vec::new();
+        // 2. Calculate Length Upfront
+        // Header (16) + SystemID (N+1) + Password (N+1) + SystemType (N+1) + Ver(1) + Ton(1) + Npi(1) + Range(N+1)
+        let body_len = self.system_id.len() + 1 +
+                       self.password.len() + 1 +
+                       self.system_type.len() + 1 +
+                       1 + // interface_version
+                       1 + // addr_ton
+                       1 + // addr_npi
+                       self.address_range.len() + 1;
         
-        write_c_string(&mut body, &self.system_id)?;
-        write_c_string(&mut body, &self.password)?;
-        write_c_string(&mut body, &self.system_type)?;
-        body.write_all(&[self.interface_version])?;
-        body.write_all(&[self.addr_ton as u8, self.addr_npi as u8])?;
-        write_c_string(&mut body, &self.address_range)?;
+        let command_len = (HEADER_LEN + body_len) as u32;
 
         // 3. Write Header
-        let command_len = (HEADER_LEN + body.len()) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&self.mode.command_id().to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?; // Command Status
         writer.write_all(&self.sequence_number.to_be_bytes())?;
 
         // 4. Write Body
-        writer.write_all(&body)?;
+        write_c_string(writer, &self.system_id)?;
+        write_c_string(writer, &self.password)?;
+        write_c_string(writer, &self.system_type)?;
+        writer.write_all(&[self.interface_version])?;
+        writer.write_all(&[self.addr_ton as u8, self.addr_npi as u8])?;
+        write_c_string(writer, &self.address_range)?;
 
         Ok(())
     }
@@ -181,9 +187,9 @@ impl BindRequest {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // 3. Read Body (C-Strings and u8s)
-        let system_id = read_c_string(&mut cursor)?;
-        let password = read_c_string(&mut cursor)?;
-        let system_type = read_c_string(&mut cursor)?;
+        let system_id = crate::common::read_c_string(&mut cursor)?;
+        let password = crate::common::read_c_string(&mut cursor)?;
+        let system_type = crate::common::read_c_string(&mut cursor)?;
 
         // Simple u8 reads
         let mut u8_buf = [0u8; 1];
@@ -196,7 +202,7 @@ impl BindRequest {
         cursor.read_exact(&mut u8_buf)?;
         let addr_npi = Npi::from(u8_buf[0]); // Convert byte -> Enum
 
-        let address_range = read_c_string(&mut cursor)?;
+        let address_range = crate::common::read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -217,21 +223,4 @@ impl BindRequest {
 fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
     w.write_all(s.as_bytes())?;
     w.write_all(&[0])
-}
-
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-
-    loop {
-        if cursor.read(&mut buf)? == 0 {
-            break; // End of stream
-        }
-        if buf[0] == 0 {
-            break; // Null terminator
-        }
-        bytes.push(buf[0]);
-    }
-
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
 }

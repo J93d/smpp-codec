@@ -20,7 +20,9 @@ fn main() {
         300, 
         "ESME_ROK", 
         "Msg12345".to_string(), 
-        MessageState::Delivered as u8
+        String::new(), // final_date
+        MessageState::Delivered as u8,
+        0 // error_code
     );
     println!("Query Response: {:?}", resp);
 }

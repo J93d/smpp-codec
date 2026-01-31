@@ -1,5 +1,5 @@
 use crate::encoding;
-use rand::Rng;
+// use rand::Rng; // Deprecated/Unused
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -76,7 +76,7 @@ impl MessageSplitter {
         // 5. Finalize Chunks (Add UDH if needed)
         let mut final_chunks = Vec::new();
         let total_segments = temp_chunks.len() as u8;
-        let ref_num = rand::thread_rng().gen::<u8>();
+        let ref_num = rand::random::<u8>();
 
         for (i, chunk_payload) in temp_chunks.iter().enumerate() {
             let mut chunk = Vec::new();

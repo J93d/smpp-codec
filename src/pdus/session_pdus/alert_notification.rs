@@ -150,24 +150,22 @@ impl AlertNotification {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
         
-        // Body
+        // 3. Read Body
         let mut u8_buf = [0u8; 1];
-
-        // Source
+        
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
-        let source_addr = read_c_string(&mut cursor)?;
-
-        // ESME
+        let source_addr = crate::common::read_c_string(&mut cursor)?;
+        
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_npi = Npi::from(u8_buf[0]);
-        let esme_addr = read_c_string(&mut cursor)?;
+        let esme_addr = crate::common::read_c_string(&mut cursor)?;
 
-        // [Change] Simplified TLV Decoding
+         // Optional Params (TLVs)
         let mut optional_params = Vec::new();
         while let Some(tlv) = Tlv::decode(&mut cursor)? {
             optional_params.push(tlv);
@@ -186,19 +184,8 @@ impl AlertNotification {
     }
 }
 
-// Helpers (Import/Copy these as needed)
+// Helpers
 fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
     w.write_all(s.as_bytes())?;
     w.write_all(&[0])
-}
-
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
 }

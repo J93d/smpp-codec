@@ -15,6 +15,7 @@ fn main() {
     ).unwrap();
 
     println!("Split into {} parts using UDH concatenation.", parts.len());
+    let parts_len = parts.len();
 
     // 2. Iterate over parts and create/encode PDUs
     for (i, part) in parts.into_iter().enumerate() {
@@ -26,6 +27,11 @@ fn main() {
             part,
         );
         submit_req.data_coding = data_coding; 
+        
+        // If UDH is present, set the UDHI bit (0x40) in esm_class
+        if parts_len > 1 {
+            submit_req.esm_class |= 0x40;
+        } 
 
         let mut buffer = Vec::new();
         submit_req.encode(&mut buffer).unwrap();

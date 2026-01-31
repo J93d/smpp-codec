@@ -104,3 +104,4 @@ impl EnquireLinkResponse {
         })
     }
 }
+

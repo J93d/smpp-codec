@@ -93,7 +93,7 @@ impl SubmitSmResponse {
         // Header
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
-        let command_len = u32::from_be_bytes(bytes) as usize;
+        let _command_len = u32::from_be_bytes(bytes) as usize;
         cursor.read_exact(&mut bytes)?; // Skip ID
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
@@ -101,9 +101,12 @@ impl SubmitSmResponse {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // Body
-        let mut message_id = String::new();
-        if command_status == 0 && command_len > HEADER_LEN {
-             message_id = read_c_string(&mut cursor)?;
+        // 3. Read Body (message_id)
+        let message_id: String;
+        if buffer.len() > HEADER_LEN {
+             message_id = crate::common::read_c_string(&mut cursor)?;
+        } else {
+             message_id = String::new();
         }
 
         let status_description = get_status_description(command_status);
@@ -117,14 +120,3 @@ impl SubmitSmResponse {
     }
 }
 
-// Helper (Assuming this is standard now, can also import from common/utils if you made one)
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
-}

@@ -137,7 +137,7 @@ impl BindResponse {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // 2. Read Body
-        let mut system_id = String::new();
+        let system_id: String;
         let mut optional_params = Vec::new();
 
         // Only try to read body if length > header
@@ -145,17 +145,22 @@ impl BindResponse {
             // The cursor is currently at pos 16 (end of header).
             // Read system_id (C-String)
             if command_status == 0 {
-                 system_id = read_c_string(&mut cursor)?;
+                 system_id = crate::common::read_c_string(&mut cursor)?;
+            } else {
+                 system_id = String::new();
             }
+        } else {
+            system_id = String::new();
+        }
 
-            // Read any remaining bytes as optional params
-            let current_pos = cursor.position() as usize;
-            if current_pos < command_len {
-                let remaining_len = command_len - current_pos;
-                let mut temp_buf = vec![0u8; remaining_len];
-                cursor.read_exact(&mut temp_buf)?;
-                optional_params = temp_buf;
-            }
+        // Optional Params
+        // optional_params reused from above
+        let current_pos = cursor.position() as usize;
+        if current_pos < command_len {
+            let remaining_len = command_len - current_pos;
+            let mut temp_buf = vec![0u8; remaining_len];
+            cursor.read_exact(&mut temp_buf)?;
+            optional_params = temp_buf;
         }
 
         let status_description = get_status_description(command_status);
@@ -171,15 +176,3 @@ impl BindResponse {
     }
 }
 
-// Re-use the read_c_string function from above
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
-}

@@ -1,4 +1,4 @@
-use crate::common::{PduError, HEADER_LEN, CMD_OUTBIND};
+use crate::common::{PduError, HEADER_LEN, CMD_OUTBIND, write_c_string};
 use std::io::{Read, Write, Cursor};
 
 /// Represents an Outbind PDU.
@@ -112,8 +112,8 @@ impl OutbindRequest {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // Body
-        let system_id = read_c_string(&mut cursor)?;
-        let password = read_c_string(&mut cursor)?;
+        let system_id = crate::common::read_c_string(&mut cursor)?;
+        let password = crate::common::read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -121,21 +121,4 @@ impl OutbindRequest {
             password,
         })
     }
-}
-
-// Helper (copy/import this)
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
-}
-
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
 }

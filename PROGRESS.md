@@ -26,8 +26,8 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 - [ ] `data_sm_resp`
 
 ## Message Delivery
-- [ ] `deliver_sm`
-- [ ] `deliver_sm_resp`
+- [x] `deliver_sm` (Support for Delivery Receipts implemented)
+- [x] `deliver_sm_resp`
 
 ## Message Query/Cancel/Replace
 - [x] `query_sm`

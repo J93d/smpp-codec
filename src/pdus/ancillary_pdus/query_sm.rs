@@ -1,4 +1,4 @@
-use crate::common::{PduError, HEADER_LEN, CMD_QUERY_SM, CMD_QUERY_SM_RESP, Ton, Npi, get_status_code, get_status_description};
+use crate::common::{PduError, HEADER_LEN, CMD_QUERY_SM, Ton, Npi, get_status_code};
 use std::io::{Read, Write, Cursor};
 
 // --- Request ---
@@ -27,22 +27,32 @@ impl QuerySm {
     }
 
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        // 1. Validation
+        if self.message_id.len() > 64 { return Err(PduError::StringTooLong("message_id".into(), 64)); }
+        if self.source_addr.len() > 21 { return Err(PduError::StringTooLong("source_addr".into(), 21)); }
+
+        // 2. Buffer Body to Calculate Length
         let mut body = Vec::new();
         write_c_string(&mut body, &self.message_id)?;
         body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
         write_c_string(&mut body, &self.source_addr)?;
 
+        // 3. Write Header
         let command_len = (HEADER_LEN + body.len()) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_QUERY_SM.to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
+
+        // 4. Write Body
         writer.write_all(&body)?;
+
         Ok(())
     }
 
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12);
 
@@ -50,7 +60,7 @@ impl QuerySm {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        let message_id = read_c_string(&mut cursor)?;
+        let message_id = crate::common::read_c_string(&mut cursor)?;
         
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
@@ -58,7 +68,7 @@ impl QuerySm {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         
-        let source_addr = read_c_string(&mut cursor)?;
+        let source_addr = crate::common::read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -70,19 +80,21 @@ impl QuerySm {
     }
 }
 
-// --- Response ---
+/// Query_SM Response
 #[derive(Debug, Clone)]
 pub struct QuerySmResp {
     pub sequence_number: u32,
     pub command_status: u32,
     pub message_id: String,
-    pub final_date: String, // format: "YYMMDDhhmm"
-    pub message_state: u8,  // See MessageState enum below
+    pub final_date: String,
+    pub message_state: u8,
     pub error_code: u8,
     pub status_description: String,
 }
 
 // Message States (SMPP v3.4 Spec section 5.2.28)
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
 pub enum MessageState {
     Enroute = 1,
     Delivered = 2,
@@ -95,93 +107,87 @@ pub enum MessageState {
 }
 
 impl QuerySmResp {
-    pub fn new(sequence_number: u32, status_name: &str, message_id: String, state: u8) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str, message_id: String, final_date: String, message_state: u8, error_code: u8) -> Self {
         let command_status = get_status_code(status_name);
-        Self {
-            sequence_number,
+        Self { 
+            sequence_number, 
             command_status,
-            message_id,
-            final_date: String::new(), // Optional in many implementations
-            message_state: state,
-            error_code: 0,
-            status_description: status_name.to_string(),
+            message_id, 
+            final_date, 
+            message_state, 
+            error_code,
+            status_description: status_name.to_string(), 
         }
     }
 
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
-        let mut body = Vec::new();
-        // Only write body if success
-        if self.command_status == 0 {
-            write_c_string(&mut body, &self.message_id)?;
-            write_c_string(&mut body, &self.final_date)?;
-            body.write_all(&[self.message_state, self.error_code])?;
-        }
+         let mut body = Vec::new();
+
+         if self.command_status == 0 {
+             write_c_string(&mut body, &self.message_id)?;
+             write_c_string(&mut body, &self.final_date)?;
+             body.write_all(&[self.message_state, self.error_code])?;
+         }
 
         let command_len = (HEADER_LEN + body.len()) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
-        writer.write_all(&CMD_QUERY_SM_RESP.to_be_bytes())?;
+        writer.write_all(&crate::common::CMD_QUERY_SM_RESP.to_be_bytes())?;
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
         writer.write_all(&body)?;
+
         Ok(())
     }
 
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
-        let mut cursor = Cursor::new(buffer);
-        
-        // Skip Length(4) + ID(4)
-        cursor.set_position(8);
-        
-        let mut bytes = [0u8; 4];
-        cursor.read_exact(&mut bytes)?;
-        let command_status = u32::from_be_bytes(bytes);
-        cursor.read_exact(&mut bytes)?;
-        let sequence_number = u32::from_be_bytes(bytes);
+         if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+         let mut cursor = Cursor::new(buffer);
+         cursor.set_position(8); 
 
-        let mut message_id = String::new();
-        let mut final_date = String::new();
-        let mut message_state = 0;
-        let mut error_code = 0;
+         let mut bytes = [0u8; 4];
+         cursor.read_exact(&mut bytes)?;
+         let command_status = u32::from_be_bytes(bytes);
+         cursor.read_exact(&mut bytes)?;
+         let sequence_number = u32::from_be_bytes(bytes);
 
-        if command_status == 0 {
-             message_id = read_c_string(&mut cursor)?;
-             final_date = read_c_string(&mut cursor)?;
+         let message_id: String;
+         let final_date: String;
+         let message_state: u8;
+         let error_code: u8;
+
+         if command_status == 0 && buffer.len() > HEADER_LEN {
+             message_id = crate::common::read_c_string(&mut cursor)?;
+             final_date = crate::common::read_c_string(&mut cursor)?;
              
              let mut u8_buf = [0u8; 1];
              cursor.read_exact(&mut u8_buf)?;
              message_state = u8_buf[0];
              cursor.read_exact(&mut u8_buf)?;
              error_code = u8_buf[0];
-        }
+         } else {
+             message_id = String::new();
+             final_date = String::new();
+             message_state = 0;
+             error_code = 0;
+         }
 
-        let status_description = get_status_description(command_status);
+         let status_description = crate::common::get_status_description(command_status);
 
-        Ok(Self {
-            sequence_number,
-            command_status,
-            message_id,
-            final_date,
-            message_state,
-            error_code,
-            status_description,
-        })
+         Ok(Self {
+             sequence_number,
+             command_status,
+             message_id,
+             final_date,
+             message_state,
+             error_code,
+             status_description,
+         })
     }
 }
 
-// Private Helpers (Duplicate for simplicity to avoid import cycles)
+// Helpers
 fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
     w.write_all(s.as_bytes())?;
     w.write_all(&[0])
 }
 
-fn read_c_string(cursor: &mut Cursor<&[u8]>) -> Result<String, PduError> {
-    let mut bytes = Vec::new();
-    let mut buf = [0u8; 1];
-    loop {
-        if cursor.read(&mut buf)? == 0 { break; }
-        if buf[0] == 0 { break; }
-        bytes.push(buf[0]);
-    }
-    String::from_utf8(bytes).map_err(|e| PduError::Utf8(e))
-}
