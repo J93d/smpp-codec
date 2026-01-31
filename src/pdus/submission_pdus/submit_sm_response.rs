@@ -18,7 +18,7 @@ impl SubmitSmResponse {
     /// use smpp_codec::pdus::SubmitSmResponse;
     ///
     /// let sequence_number: u32 = 1;
-    /// let resp = SubmitSmResponse::new(sequence_number, 0, "MsgID:123".into());
+    /// let resp = SubmitSmResponse::new(sequence_number, "ESME_ROK", "MsgID:123".into());
     /// ```
     pub fn new(
         sequence_number: u32, 
@@ -45,7 +45,7 @@ impl SubmitSmResponse {
     /// ```
     /// # use smpp_codec::pdus::SubmitSmResponse;
     /// # let sequence_number: u32 = 1;
-    /// # let resp = SubmitSmResponse::new(sequence_number, 0, "ID".into());
+    /// # let resp = SubmitSmResponse::new(sequence_number, "ESME_ROK", "ID".into());
     /// let mut buffer = Vec::new();
     /// resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -80,7 +80,7 @@ impl SubmitSmResponse {
     /// ```
     /// # use smpp_codec::pdus::SubmitSmResponse;
     /// # let sequence_number: u32 = 1;
-    /// # let resp = SubmitSmResponse::new(sequence_number, 0, "ID".into());
+    /// # let resp = SubmitSmResponse::new(sequence_number, "ESME_ROK", "ID".into());
     /// # let mut buffer = Vec::new();
     /// # resp.encode(&mut buffer).unwrap();
     /// let decoded = SubmitSmResponse::decode(&buffer).expect("Decoding failed");

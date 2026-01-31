@@ -17,6 +17,6 @@ pub use session_pdus::unbind::UnbindRequest;
 pub use session_pdus::unbind::UnbindResponse;
 pub use submission_pdus::SubmitSmRequest;
 pub use submission_pdus::SubmitSmResponse;
-pub use submission_pdus::{MessageSplitter, SplitMode, EncodingType};
+pub use crate::splitter::{MessageSplitter, SplitMode, EncodingType};
 pub use ancillary_pdus::{CancelSm, CancelSmResp};
 pub use ancillary_pdus::{QuerySm, QuerySmResp, MessageState};

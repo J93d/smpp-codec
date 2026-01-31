@@ -47,7 +47,7 @@ impl EnquireLinkResponse {
     /// # use smpp_codec::pdus::EnquireLinkResponse;
     /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
     /// # let sequence_number: u32 = 1;
-    /// # let resp = EnquireLinkResponse::new(sequence_number, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// # let resp = EnquireLinkResponse::new(sequence_number, "ESME_ROK");
     /// let mut buffer = Vec::new();
     /// resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
@@ -72,7 +72,7 @@ impl EnquireLinkResponse {
     /// # use smpp_codec::pdus::EnquireLinkResponse;
     /// # use smpp_codec::common::CMD_ENQUIRE_LINK_RESP;
     /// # let sequence_number: u32 = 1;
-    /// # let resp = EnquireLinkResponse::new(sequence_number, CMD_ENQUIRE_LINK_RESP, "ESME_ROK");
+    /// # let resp = EnquireLinkResponse::new(sequence_number, "ESME_ROK");
     /// # let mut buffer = Vec::new();
     /// # resp.encode(&mut buffer).unwrap();
     /// let decoded = EnquireLinkResponse::decode(&buffer).expect("Decoding failed");

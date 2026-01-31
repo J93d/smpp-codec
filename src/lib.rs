@@ -36,3 +36,4 @@ pub mod encoding;
 
 // Expose the PDUs module (the structs for specific operations)
 pub mod pdus;
+pub mod splitter;
