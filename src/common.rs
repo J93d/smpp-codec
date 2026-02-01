@@ -84,8 +84,10 @@ pub const GENERIC_NACK: u32 = 0x80000000;
 // Standard Header Length
 pub const HEADER_LEN: usize = 16;
 
-// /// SMPP Interface Version 3.4
-// pub const SMPP_INTERFACE_VERSION: u8 = 0x34;/// Address Type of Number (TON)
+/// SMPP Interface Version 3.4
+pub const SMPP_INTERFACE_VERSION: u8 = 0x34;
+
+/// Address Type of Number (TON)
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum Ton {
