@@ -46,7 +46,7 @@ impl CancelSmRequest {
                        1 + 1 +                       // source ton + npi
                        self.source_addr.len() + 1 +  // C-String
                        1 + 1 +                       // dest ton + npi
-                       self.dest_addr.len() + 1;     // C-String
+                       self.dest_addr.len() + 1; // C-String
 
         let command_len = (HEADER_LEN + body_len) as u32;
 

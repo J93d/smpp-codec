@@ -1,7 +1,6 @@
 // src/encoding.rs
 use std::collections::HashMap;
 
-
 const GSM_BASIC_CHARSET: &str = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1bÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ`¿abcdefghijklmnopqrstuvwxyzäöñüà";
 
 /// Encodes text into GSM 7-bit packed format (unpacked representation).
@@ -119,8 +118,8 @@ pub fn decode_16bit(bytes: &[u8]) -> String {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MessageBody {
-    Text(String),      // It was GSM7, UCS2, or Latin1
-    Binary(Vec<u8>),   // It was Class 2, 8-bit Data, or Unknown
+    Text(String),    // It was GSM7, UCS2, or Latin1
+    Binary(Vec<u8>), // It was Class 2, 8-bit Data, or Unknown
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -136,10 +135,10 @@ fn detect_raw_encoding(dcs: u8) -> RawEncoding {
     match dcs {
         // Standard "Safe" Values
         0x00 | 0x01 => RawEncoding::Gsm7Bit,
-        0x03 => RawEncoding::Latin1,       // Explicit Latin-1
+        0x03 => RawEncoding::Latin1, // Explicit Latin-1
         0x08 => RawEncoding::Ucs2,
         0x02 | 0x04 => RawEncoding::Binary8Bit, // Explicit 8-bit Data
-        
+
         // Bitmask / Classes logic
         _ => {
             let group = dcs >> 4;
@@ -151,7 +150,7 @@ fn detect_raw_encoding(dcs: u8) -> RawEncoding {
                         0x01 => RawEncoding::Binary8Bit, // 8-bit data
                         _ => RawEncoding::Gsm7Bit,
                     }
-                },
+                }
                 // Group 1111: Data Coding / Message Class (OTA often lives here)
                 0x0F => {
                     if (dcs & 0x04) != 0 {
@@ -159,7 +158,7 @@ fn detect_raw_encoding(dcs: u8) -> RawEncoding {
                     } else {
                         RawEncoding::Gsm7Bit
                     }
-                },
+                }
                 _ => RawEncoding::Binary8Bit, // Treat unknown as binary to be safe
             }
         }
@@ -174,8 +173,8 @@ pub fn process_body(body: &[u8], dcs: u8, udhi: bool) -> MessageBody {
         if body.len() > udh_len + 1 {
             &body[udh_len + 1..]
         } else {
-             // Malformed UDH? Return raw bytes to be safe.
-             return MessageBody::Binary(body.to_vec());
+            // Malformed UDH? Return raw bytes to be safe.
+            return MessageBody::Binary(body.to_vec());
         }
     } else {
         body

@@ -1,7 +1,7 @@
 use crate::common::{Npi, PduError, Ton, CMD_SUBMIT_SM, HEADER_LEN};
+use crate::encoding::MessageBody;
 use crate::tlv::{tags, Tlv};
 use std::io::{Cursor, Read, Write};
-use crate::encoding::MessageBody;
 
 #[derive(Debug, Clone)]
 pub struct SubmitSmRequest {
