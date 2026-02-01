@@ -128,25 +128,25 @@ fn main() {
 
 ## Running cargo test --test benchmarks --release -- --nocapture
 
-| Request Name              | Encoding Time | Enc Rate (op/s) | Decoding Time | Dec Rate (op/s) |
-|---------------------------|---------------|-----------------|---------------|-----------------|
-| BindRequest               | 2.11ms        | 47483380.82     | 46.71ms       | 2140685.88      |
-| BindResponse              | 6.26ms        | 15970359.01     | 11.09ms       | 9016482.13      |
-| OutbindRequest            | 12.68ms       | 7885999.98      | 12.51ms       | 7994244.14      |
-| UnbindRequest             | 0.61ms        | 162628069.60    | 0.23ms        | 434404865.33    |
-| UnbindResponse            | 0.43ms        | 234686693.26    | 5.27ms        | 18961659.52     |
-| EnquireLinkRequest        | 0.36ms        | 274649821.48    | 0.18ms        | 543773790.10    |
-| EnquireLinkResponse       | 0.41ms        | 245639891.92    | 4.79ms        | 20894711.55     |
-| GenericNack               | 0.40ms        | 252780586.45    | 30.67ms       | 3261025.53      |
-| AlertNotification         | 13.50ms       | 7407462.28      | 13.38ms       | 7475350.03      |
-| SubmitSmRequest           | 5.89ms        | 16965830.82     | 49.38ms       | 2024963.75      |
-| SubmitSmResponse          | 39.00ms       | 2564312.97      | 36.65ms       | 2728244.97      |
-| DeliverSmRequest          | 5.34ms        | 18732906.22     | 47.83ms       | 2090842.94      |
-| DeliverSmResponse         | 0.42ms        | 237529691.21    | 5.30ms        | 18857250.61     |
-| CancelSmRequest           | 20.31ms       | 4923440.50      | 19.05ms       | 5250611.70      |
-| CancelSmResponse          | 0.42ms        | 240558094.78    | 5.24ms        | 19094537.05     |
-| QuerySmRequest            | 13.44ms       | 7438981.75      | 12.70ms       | 7875628.08      |
-| QuerySmResponse           | 13.31ms       | 7511172.87      | 11.57ms       | 8645284.00      |
+| Request Name              | Encoding Time | Enc Rate (Mop/s) | Decoding Time | Dec Rate (Mop/s)|
+|---------------------------|---------------|------------------|---------------|-----------------|
+| BindRequest               | 2.11ms        | 47.48            | 46.71ms       | 2.14            |
+| BindResponse              | 6.26ms        | 15.97            | 11.09ms       | 9.02            |
+| OutbindRequest            | 12.68ms       | 7.89             | 12.51ms       | 7.99            |
+| UnbindRequest             | 0.61ms        | 162.63           | 0.23ms        | 434.40          |
+| UnbindResponse            | 0.43ms        | 234.69           | 5.27ms        | 18.96           |
+| EnquireLinkRequest        | 0.36ms        | 274.65           | 0.18ms        | 543.77          |
+| EnquireLinkResponse       | 0.41ms        | 245.64           | 4.79ms        | 20.89           |
+| GenericNack               | 0.40ms        | 252.78           | 30.67ms       | 3.26            |
+| AlertNotification         | 13.50ms       | 7.41             | 13.38ms       | 7.48            |
+| SubmitSmRequest           | 5.89ms        | 16.97            | 49.38ms       | 2.02            |
+| SubmitSmResponse          | 39.00ms       | 2.56             | 36.65ms       | 2.73            |
+| DeliverSmRequest          | 5.34ms        | 18.73            | 47.83ms       | 2.09            |
+| DeliverSmResponse         | 0.42ms        | 237.53           | 5.30ms        | 18.86           |
+| CancelSmRequest           | 20.31ms       | 4.92             | 19.05ms       | 5.25            |
+| CancelSmResponse          | 0.42ms        | 240.56           | 5.24ms        | 19.09           |
+| QuerySmRequest            | 13.44ms       | 7.44             | 12.70ms       | 7.88            |
+| QuerySmResponse           | 13.31ms       | 7.51             | 11.57ms       | 8.65            |
 
 ## License
 
