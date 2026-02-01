@@ -1,6 +1,7 @@
 // src/encoding.rs
 use std::collections::HashMap;
 
+
 const GSM_BASIC_CHARSET: &str = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1bÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ`¿abcdefghijklmnopqrstuvwxyzäöñüà";
 
 /// Encodes text into GSM 7-bit packed format (unpacked representation).
@@ -116,30 +117,75 @@ pub fn decode_16bit(bytes: &[u8]) -> String {
 
 // --- SMSC HELPER ---
 
-use crate::pdus::submission_pdus::submit_sm_request::SubmitSmRequest;
+#[derive(Debug, PartialEq, Clone)]
+pub enum MessageBody {
+    Text(String),      // It was GSM7, UCS2, or Latin1
+    Binary(Vec<u8>),   // It was Class 2, 8-bit Data, or Unknown
+}
 
-/// Extracts readable text from a SubmitSm PDU, stripping UDH if present.
-pub fn decode_submit_sm_text(pdu: &SubmitSmRequest) -> String {
-    let body = &pdu.short_message;
+#[derive(Debug, Clone, Copy)]
+enum RawEncoding {
+    Gsm7Bit,
+    Latin1,
+    Ucs2,
+    Binary8Bit, // Pure data (Class 2, OTA, etc)
+}
 
-    // 1. Check for User Data Header (UDH)
-    // If ESM_CLASS bit 6 (0x40) is set, strip the header.
-    let payload = if (pdu.esm_class & 0x40) != 0 && !body.is_empty() {
+/// distinguishing Latin1 (0x03) from Binary (0x04, Class 2)
+fn detect_raw_encoding(dcs: u8) -> RawEncoding {
+    match dcs {
+        // Standard "Safe" Values
+        0x00 | 0x01 => RawEncoding::Gsm7Bit,
+        0x03 => RawEncoding::Latin1,       // Explicit Latin-1
+        0x08 => RawEncoding::Ucs2,
+        0x02 | 0x04 => RawEncoding::Binary8Bit, // Explicit 8-bit Data
+        
+        // Bitmask / Classes logic
+        _ => {
+            let group = dcs >> 4;
+            match group {
+                // Group 00xx: General Data Coding
+                0x00..=0x03 => {
+                    match (dcs & 0x0C) >> 2 {
+                        0x02 => RawEncoding::Ucs2,
+                        0x01 => RawEncoding::Binary8Bit, // 8-bit data
+                        _ => RawEncoding::Gsm7Bit,
+                    }
+                },
+                // Group 1111: Data Coding / Message Class (OTA often lives here)
+                0x0F => {
+                    if (dcs & 0x04) != 0 {
+                        RawEncoding::Binary8Bit // 8-bit Data
+                    } else {
+                        RawEncoding::Gsm7Bit
+                    }
+                },
+                _ => RawEncoding::Binary8Bit, // Treat unknown as binary to be safe
+            }
+        }
+    }
+}
+
+// The Public Helper
+pub fn process_body(body: &[u8], dcs: u8, udhi: bool) -> MessageBody {
+    // 1. Strip UDH if present
+    let payload = if udhi && !body.is_empty() {
         let udh_len = body[0] as usize;
         if body.len() > udh_len + 1 {
             &body[udh_len + 1..]
         } else {
-            return "Error: Malformed UDH".to_string();
+             // Malformed UDH? Return raw bytes to be safe.
+             return MessageBody::Binary(body.to_vec());
         }
     } else {
         body
     };
 
-    // 2. Decode based on Data Coding Scheme
-    match pdu.data_coding {
-        0x00 | 0x01 => gsm_7bit_decode(payload),
-        0x03 => decode_8bit(payload),
-        0x08 => decode_16bit(payload),
-        _ => format!("<Binary Data: {} bytes>", payload.len()),
+    // 2. Decode based on detected type
+    match detect_raw_encoding(dcs) {
+        RawEncoding::Gsm7Bit => MessageBody::Text(gsm_7bit_decode(payload)),
+        RawEncoding::Latin1 => MessageBody::Text(decode_8bit(payload)),
+        RawEncoding::Ucs2 => MessageBody::Text(decode_16bit(payload)),
+        RawEncoding::Binary8Bit => MessageBody::Binary(payload.to_vec()),
     }
 }

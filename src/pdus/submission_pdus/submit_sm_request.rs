@@ -1,6 +1,7 @@
 use crate::common::{Npi, PduError, Ton, CMD_SUBMIT_SM, HEADER_LEN};
 use crate::tlv::{tags, Tlv};
 use std::io::{Cursor, Read, Write};
+use crate::encoding::MessageBody;
 
 #[derive(Debug, Clone)]
 pub struct SubmitSmRequest {
@@ -343,6 +344,11 @@ impl SubmitSmRequest {
 
         // No segmentation found (Single Message)
         None
+    }
+
+    pub fn parse_message(&self) -> MessageBody {
+        let has_udh = (self.esm_class & 0x40) != 0;
+        crate::encoding::process_body(&self.short_message, self.data_coding, has_udh)
     }
 
     /// Helper to find a TLV and return it as u16 (handles both u8 and u16 storage)

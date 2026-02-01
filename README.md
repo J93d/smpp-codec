@@ -139,7 +139,7 @@ fn main() {
 | EnquireLinkResponse       | 0.41ms        | 245.64           | 4.79ms        | 20.89           |
 | GenericNack               | 0.40ms        | 252.78           | 30.67ms       | 3.26            |
 | AlertNotification         | 13.50ms       | 7.41             | 13.38ms       | 7.48            |
-| SubmitSmRequest           | 5.89ms        | 16.97            | 49.38ms       | 2.02            |
+| SubmitSmRequest (Multi)| 2.81s         | 10.66            | 10.37s        | 2.89            |
 | SubmitSmResponse          | 39.00ms       | 2.56             | 36.65ms       | 2.73            |
 | DeliverSmRequest          | 5.34ms        | 18.73            | 47.83ms       | 2.09            |
 | DeliverSmResponse         | 0.42ms        | 237.53           | 5.30ms        | 18.86           |

@@ -135,6 +135,71 @@ fn benchmark_suite() {
         iterations
     );
 
+    {
+        let name = "SubmitSmRequest (Multi)";
+        // Create a message long enough to be split (GSM 7-bit limit is 160 septets)
+        // With UDH (6 bytes), the limit is lower (153 septets).
+        // 320 chars guarantees multiple parts.
+        let text = "A".repeat(320); 
+        
+        let (parts, _) = MessageSplitter::split(
+            text, 
+            EncodingType::Gsm7Bit, 
+            SplitMode::Udh
+        ).unwrap();
+
+        let requests: Vec<SubmitSmRequest> = parts.into_iter().enumerate().map(|(i, part)| {
+            let mut req = SubmitSmRequest::new(
+                100 + i as u32,
+                "source".into(),
+                "dest".into(),
+                part
+            );
+            req.data_coding = 10; // Requested DCS
+            req.protocol_id = 10; // Requested PID
+            req.esm_class = 0x40; // UDHI
+            req
+        }).collect();
+
+        // Measure Encoding
+        let mut buffer = Vec::with_capacity(2048);
+        let start_encode = Instant::now();
+        let mut total_encoded = 0;
+        for _ in 0..iterations {
+            for req in &requests {
+                buffer.clear();
+                req.encode(&mut buffer).unwrap();
+                total_encoded += 1;
+            }
+        }
+        let duration_encode = start_encode.elapsed();
+        let ops_encode = total_encoded as f64 / duration_encode.as_secs_f64();
+
+        // Measure Decoding
+        // Pre-encode to simulate receiving
+        let encoded_buffers: Vec<Vec<u8>> = requests.iter().map(|r| {
+            let mut b = Vec::new();
+            r.encode(&mut b).unwrap();
+            b
+        }).collect();
+
+        let start_decode = Instant::now();
+        let mut total_decoded = 0;
+        for _ in 0..iterations {
+             for buf in &encoded_buffers {
+                 let _ = SubmitSmRequest::decode(buf).unwrap();
+                 total_decoded += 1;
+             }
+        }
+        let duration_decode = start_decode.elapsed();
+        let ops_decode = total_decoded as f64 / duration_decode.as_secs_f64();
+
+        println!(
+            "| {:<25} | {:<13.2?} | {:<15.2} | {:<13.2?} | {:<15.2} |",
+            name, duration_encode, ops_encode, duration_decode, ops_decode
+        );
+    }
+
     bench_all!(
         SubmitSmResponse,
         "SubmitSmResponse",

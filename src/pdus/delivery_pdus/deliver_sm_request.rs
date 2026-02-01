@@ -1,5 +1,5 @@
 use crate::common::{Npi, PduError, Ton, CMD_DELIVER_SM, HEADER_LEN};
-use crate::encoding;
+use crate::encoding::MessageBody;
 use crate::tlv::Tlv;
 use std::io::{Cursor, Read, Write};
 
@@ -280,6 +280,11 @@ impl DeliverSmRequest {
         })
     }
 
+    pub fn parse_message(&self) -> MessageBody {
+        let has_udh = (self.esm_class & 0x40) != 0;
+        crate::encoding::process_body(&self.short_message, self.data_coding, has_udh)
+    }
+
     pub fn new_receipt(
         sequence_number: u32,
         source: String,
@@ -300,7 +305,7 @@ impl DeliverSmRequest {
         // Check if the ESM Class has the receipt bit (0x04) set
         if (self.esm_class & 0x04) != 0 {
             // Decode bytes to string first using our existing encoding helpers
-            let text = encoding::gsm_7bit_decode(&self.short_message);
+            let text = crate::encoding::gsm_7bit_decode(&self.short_message);
             text.parse::<DeliveryReceipt>().ok()
         } else {
             None

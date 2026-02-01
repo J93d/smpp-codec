@@ -40,22 +40,28 @@ impl CancelSmRequest {
     }
 
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
-        let mut body = Vec::new();
-        write_c_string(&mut body, &self.service_type)?;
-        write_c_string(&mut body, &self.message_id)?;
+        // Calculate body length upfront to avoid double buffering
+        let body_len = self.service_type.len() + 1 + // C-String
+                       self.message_id.len() + 1 +   // C-String
+                       1 + 1 +                       // source ton + npi
+                       self.source_addr.len() + 1 +  // C-String
+                       1 + 1 +                       // dest ton + npi
+                       self.dest_addr.len() + 1;     // C-String
 
-        body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
-        write_c_string(&mut body, &self.source_addr)?;
+        let command_len = (HEADER_LEN + body_len) as u32;
 
-        body.write_all(&[self.dest_addr_ton as u8, self.dest_addr_npi as u8])?;
-        write_c_string(&mut body, &self.dest_addr)?;
-
-        let command_len = (HEADER_LEN + body.len()) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_CANCEL_SM.to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
-        writer.write_all(&body)?;
+
+        write_c_string(writer, &self.service_type)?;
+        write_c_string(writer, &self.message_id)?;
+        writer.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
+        write_c_string(writer, &self.source_addr)?;
+        writer.write_all(&[self.dest_addr_ton as u8, self.dest_addr_npi as u8])?;
+        write_c_string(writer, &self.dest_addr)?;
+
         Ok(())
     }
 

@@ -11,6 +11,18 @@
 //! *   Support for TLVs (Tagged Length Values) / Optional Parameters.
 //! *   Easy-to-use API for encoding and decoding.
 //!
+//! ## Performance Tips
+//!
+//! this library is designed to be compatible with any `std::io::Write` implementation.
+//! When encoding PDUs directly to a network stream, **always use buffering**.
+//!
+//! *   **Recommended**: Encode to a `Vec<u8>` first, then write the vector to the stream.
+//! *   **Alternative**: Wrap your `TcpStream` in a `std::io::BufWriter`.
+//!
+//! *Passing a raw `TcpStream` to `encode` will result in many small system calls, significantly reducing throughput.*
+//!
+//! See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for a detailed guide.
+//!
 //! ## Example
 //!
 //! ```rust
