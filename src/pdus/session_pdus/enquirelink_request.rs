@@ -1,5 +1,5 @@
-use crate::common::{PduError, HEADER_LEN, CMD_ENQUIRE_LINK};
-use std::io::{Write, Read, Cursor};
+use crate::common::{PduError, CMD_ENQUIRE_LINK, HEADER_LEN};
+use std::io::{Cursor, Read, Write};
 
 // --- EnquireLink Request ---
 /// Represents an Enquire Link PDU.
@@ -72,7 +72,7 @@ impl EnquireLinkRequest {
         }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12); // Skip len, id, status
-        
+
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
@@ -80,4 +80,3 @@ impl EnquireLinkRequest {
         Ok(Self { sequence_number })
     }
 }
-

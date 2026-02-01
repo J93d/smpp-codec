@@ -1,6 +1,6 @@
 // bind_response.rs (Handles both Encoder and Decoder)
-use crate::common::{PduError, HEADER_LEN, get_status_code, get_status_description};
-use std::io::{Read, Write, Cursor};
+use crate::common::{get_status_code, get_status_description, PduError, HEADER_LEN};
+use std::io::{Cursor, Read, Write};
 
 /// Represents a Bind Response PDU.
 ///
@@ -8,15 +8,14 @@ use std::io::{Read, Write, Cursor};
 #[derive(Debug, Clone)]
 pub struct BindResponse {
     pub sequence_number: u32,
-    pub command_status: u32, // 0 = OK, others = Error
+    pub command_status: u32,        // 0 = OK, others = Error
     pub status_description: String, // Human-readable description of status
-    pub command_id: u32,     // e.g., 0x80000009 (bind_transceiver_resp)
-    pub system_id: String,   // SMSC ID
-    pub optional_params: Vec<u8>, // Rarely used in Bind Resp, but allowed
+    pub command_id: u32,            // e.g., 0x80000009 (bind_transceiver_resp)
+    pub system_id: String,          // SMSC ID
+    pub optional_params: Vec<u8>,   // Rarely used in Bind Resp, but allowed
 }
 
 impl BindResponse {
-
     /// Create a new Bind Response.
     ///
     /// # Examples
@@ -37,7 +36,7 @@ impl BindResponse {
         sequence_number: u32,
         command_id: u32,
         status_name: &str,
-        system_id: String
+        system_id: String,
     ) -> Self {
         let command_status = get_status_code(status_name);
         Self {
@@ -70,12 +69,12 @@ impl BindResponse {
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let mut body = Vec::new();
 
-        // If status is OK, we must include system_id. 
+        // If status is OK, we must include system_id.
         // On error, body can be empty (or just header).
         if self.command_status == 0 {
             body.write_all(self.system_id.as_bytes())?;
             body.write_all(&[0])?; // Null terminator
-            
+
             // Add optional params if any
             body.write_all(&self.optional_params)?;
         }
@@ -145,9 +144,9 @@ impl BindResponse {
             // The cursor is currently at pos 16 (end of header).
             // Read system_id (C-String)
             if command_status == 0 {
-                 system_id = crate::common::read_c_string(&mut cursor)?;
+                system_id = crate::common::read_c_string(&mut cursor)?;
             } else {
-                 system_id = String::new();
+                system_id = String::new();
             }
         } else {
             system_id = String::new();
@@ -175,4 +174,3 @@ impl BindResponse {
         })
     }
 }
-

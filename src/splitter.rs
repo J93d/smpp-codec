@@ -1,7 +1,6 @@
 use crate::encoding;
 // use rand::Rng; // Deprecated/Unused
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EncodingType {
     Gsm7Bit,
@@ -30,7 +29,6 @@ impl MessageSplitter {
         encoding: EncodingType,
         mode: SplitMode,
     ) -> Result<(Vec<Vec<u8>>, u8), String> {
-        
         // 1. Encode Text
         let (encoded_bytes, data_coding) = match encoding {
             EncodingType::Gsm7Bit => (encoding::gsm_7bit_encode(&text)?, 0x00),
@@ -41,10 +39,10 @@ impl MessageSplitter {
         // 2. Determine Limits
         let (single_max, multipart_max) = match mode {
             SplitMode::Udh => match encoding {
-                EncodingType::Gsm7Bit => (160, 153), 
+                EncodingType::Gsm7Bit => (160, 153),
                 _ => (140, 134),
             },
-            SplitMode::Sar =>(254, 254),
+            SplitMode::Sar => (254, 254),
             SplitMode::Payload => (65535, 65535),
         };
 
@@ -80,18 +78,18 @@ impl MessageSplitter {
 
         for (i, chunk_payload) in temp_chunks.iter().enumerate() {
             let mut chunk = Vec::new();
-            
+
             if mode == SplitMode::Udh {
                 // UDH: Len(05) + ID(00) + Len(03) + Ref + Total + Seq
                 let seq_num = (i + 1) as u8;
                 let udh = vec![0x05, 0x00, 0x03, ref_num, total_segments, seq_num];
                 chunk.extend(udh);
             }
-            
+
             chunk.extend_from_slice(chunk_payload);
             final_chunks.push(chunk);
         }
 
         Ok((final_chunks, data_coding))
     }
-}   
+}

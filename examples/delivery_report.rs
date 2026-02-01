@@ -20,8 +20,8 @@ fn main() {
 
     // 2. Create DeliverSm PDU wrapping the receipt
     let pdu = DeliverSmRequest::new_receipt(
-        101, // Sequence number
-        "SMSC".to_string(), // Source (SMSC)
+        101,                    // Sequence number
+        "SMSC".to_string(),     // Source (SMSC)
         "SystemId".to_string(), // Dest (ESME)
         receipt.clone(),
     );

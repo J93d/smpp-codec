@@ -1,4 +1,4 @@
-use smpp_codec::common::{BindMode, Ton, Npi};
+use smpp_codec::common::{BindMode, Npi, Ton};
 use smpp_codec::pdus::{BindRequest, BindResponse, OutbindRequest};
 
 #[test]
@@ -8,7 +8,8 @@ fn test_bind_transceiver_encode_decode() {
         BindMode::Transceiver,
         "my_system_id".to_string(),
         "secret".to_string(),
-    ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
+    )
+    .with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     let mut buffer = Vec::new();
     bind_req.encode(&mut buffer).expect("Failed to encode");
@@ -88,11 +89,7 @@ fn test_bind_response_failure() {
 
 #[test]
 fn test_outbind_request() {
-    let outbind = OutbindRequest::new(
-        55555,
-        "sys_id".to_string(),
-        "password".to_string(),
-    );
+    let outbind = OutbindRequest::new(55555, "sys_id".to_string(), "password".to_string());
 
     let mut buffer = Vec::new();
     outbind.encode(&mut buffer).expect("Failed to encode");

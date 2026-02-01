@@ -2,8 +2,6 @@
 //!
 //! This module contains common constants, error types, and helper functions used throughout the library.
 
-
-
 // --- Command IDs ---
 // These constants define the Command ID for each SMPP PDU.
 
@@ -86,10 +84,8 @@ pub const GENERIC_NACK: u32 = 0x80000000;
 // Standard Header Length
 pub const HEADER_LEN: usize = 16;
 
-/// SMPP Interface Version 3.4
-// pub const SMPP_INTERFACE_VERSION: u8 = 0x34;
-
-/// Address Type of Number (TON)
+// /// SMPP Interface Version 3.4
+// pub const SMPP_INTERFACE_VERSION: u8 = 0x34;/// Address Type of Number (TON)
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum Ton {
@@ -292,7 +288,9 @@ pub enum PduError {
 
 // Convert IO errors to PduError
 impl From<std::io::Error> for PduError {
-    fn from(err: std::io::Error) -> Self { PduError::Io(err) }
+    fn from(err: std::io::Error) -> Self {
+        PduError::Io(err)
+    }
 }
 
 /// optimized helper to read a C-Style string from a Cursor<&[u8]>
@@ -301,11 +299,13 @@ pub fn read_c_string(cursor: &mut std::io::Cursor<&[u8]>) -> Result<String, PduE
     let inner = cursor.get_ref();
 
     if current_pos >= inner.len() {
-        return Err(PduError::Io(std::io::Error::from(std::io::ErrorKind::UnexpectedEof)));
+        return Err(PduError::Io(std::io::Error::from(
+            std::io::ErrorKind::UnexpectedEof,
+        )));
     }
 
     let remaining = &inner[current_pos..];
-    
+
     // Find null byte efficiently using slice iter
     match remaining.iter().position(|&b| b == 0) {
         Some(null_idx) => {
@@ -314,7 +314,9 @@ pub fn read_c_string(cursor: &mut std::io::Cursor<&[u8]>) -> Result<String, PduE
             cursor.set_position((current_pos + null_idx + 1) as u64);
             Ok(s)
         }
-        None => Err(PduError::Io(std::io::Error::from(std::io::ErrorKind::UnexpectedEof))),
+        None => Err(PduError::Io(std::io::Error::from(
+            std::io::ErrorKind::UnexpectedEof,
+        ))),
     }
 }
 

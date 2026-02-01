@@ -1,5 +1,5 @@
-use crate::common::{BindMode, PduError, HEADER_LEN, Ton, Npi};
-use std::io::{Read, Write, Cursor};
+use crate::common::{BindMode, Npi, PduError, Ton, HEADER_LEN};
+use std::io::{Cursor, Read, Write};
 
 /// Represents a Bind Request PDU (Receiver, Transmitter, or Transceiver).
 ///
@@ -34,12 +34,7 @@ impl BindRequest {
     ///     "password".to_string(),
     /// );
     /// ```
-    pub fn new(
-        sequence_number: u32,
-        mode: BindMode,
-        system_id: String,
-        password: String,
-    ) -> Self {
+    pub fn new(sequence_number: u32, mode: BindMode, system_id: String, password: String) -> Self {
         Self {
             sequence_number,
             mode,
@@ -106,7 +101,7 @@ impl BindRequest {
                        1 + // addr_ton
                        1 + // addr_npi
                        self.address_range.len() + 1;
-        
+
         let command_len = (HEADER_LEN + body_len) as u32;
 
         // 3. Write Header
@@ -162,8 +157,8 @@ impl BindRequest {
         let command_len = u32::from_be_bytes(bytes) as usize;
 
         if buffer.len() != command_len {
-             // We can be strict or loose here. Strict is safer for libraries.
-             // return Err(PduError::InvalidLength); 
+            // We can be strict or loose here. Strict is safer for libraries.
+            // return Err(PduError::InvalidLength);
         }
 
         // Command ID

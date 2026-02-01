@@ -4,7 +4,7 @@
 //! It provides a registry of standard tags and mechanisms to parse and serialize them.
 
 use crate::common::PduError;
-use std::io::{Read, Write, Cursor};
+use std::io::{Cursor, Read, Write};
 
 // --- Standard SMPP Optional Parameter Tags ---
 /// Standard SMPP Optional Parameter Tags as defined in SMPP 3.4 Spec.
@@ -69,7 +69,9 @@ pub fn get_tag_by_name(name: &str) -> u16 {
         "source_telematics_id" | "SOURCE_TELEMATICS_ID" => tags::SOURCE_TELEMATICS_ID,
         "qos_time_to_live" | "QOS_TIME_TO_LIVE" => tags::QOS_TIME_TO_LIVE,
         "payload_type" | "PAYLOAD_TYPE" => tags::PAYLOAD_TYPE,
-        "additional_status_info_text" | "ADDITIONAL_STATUS_INFO_TEXT" => tags::ADDITIONAL_STATUS_INFO_TEXT,
+        "additional_status_info_text" | "ADDITIONAL_STATUS_INFO_TEXT" => {
+            tags::ADDITIONAL_STATUS_INFO_TEXT
+        }
         "receipted_message_id" | "RECEIPTED_MESSAGE_ID" => tags::RECEIPTED_MESSAGE_ID,
         "ms_msg_wait_facilities" | "MS_MSG_WAIT_FACILITIES" => tags::MS_MSG_WAIT_FACILITIES,
         "privacy_indicator" | "PRIVACY_INDICATOR" => tags::PRIVACY_INDICATOR,
@@ -100,7 +102,9 @@ pub fn get_tag_by_name(name: &str) -> u16 {
         "display_time" | "DISPLAY_TIME" => tags::DISPLAY_TIME,
         "sms_signal" | "SMS_SIGNAL" => tags::SMS_SIGNAL,
         "ms_validity" | "MS_VALIDITY" => tags::MS_VALIDITY,
-        "alert_on_message_delivery" | "ALERT_ON_MESSAGE_DELIVERY" => tags::ALERT_ON_MESSAGE_DELIVERY,
+        "alert_on_message_delivery" | "ALERT_ON_MESSAGE_DELIVERY" => {
+            tags::ALERT_ON_MESSAGE_DELIVERY
+        }
         "its_reply_type" | "ITS_REPLY_TYPE" => tags::ITS_REPLY_TYPE,
         "its_session_info" | "ITS_SESSION_INFO" => tags::ITS_SESSION_INFO,
         _ => 0,
@@ -132,7 +136,7 @@ impl Tlv {
     pub fn new_u8(tag: u16, val: u8) -> Self {
         Self::new(tag, vec![val])
     }
-    
+
     // Convenience: create u8 TLV from name
     pub fn new_u8_from_name(name: &str, val: u8) -> Self {
         Self::new(get_tag_by_name(name), vec![val])
@@ -167,7 +171,7 @@ impl Tlv {
     pub fn decode(cursor: &mut Cursor<&[u8]>) -> Result<Option<Self>, PduError> {
         let pos = cursor.position();
         let len = cursor.get_ref().len() as u64;
-        
+
         if pos + 4 > len {
             return Ok(None);
         }
@@ -182,7 +186,7 @@ impl Tlv {
 
         let current_pos = cursor.position();
         if current_pos + length as u64 > len {
-             return Err(PduError::BufferTooShort);
+            return Err(PduError::BufferTooShort);
         }
 
         let mut value = vec![0u8; length as usize];
@@ -193,21 +197,25 @@ impl Tlv {
 
     // --- Getters ---
     pub fn value_as_u8(&self) -> Result<u8, PduError> {
-        if self.value.len() != 1 { return Err(PduError::InvalidLength); } // Assuming InvalidLength is in common
+        if self.value.len() != 1 {
+            return Err(PduError::InvalidLength);
+        } // Assuming InvalidLength is in common
         Ok(self.value[0])
     }
 
     pub fn value_as_u16(&self) -> Result<u16, PduError> {
-        if self.value.len() != 2 { return Err(PduError::InvalidLength); }
+        if self.value.len() != 2 {
+            return Err(PduError::InvalidLength);
+        }
         Ok(u16::from_be_bytes([self.value[0], self.value[1]]))
     }
 
     pub fn value_as_string(&self) -> Result<String, PduError> {
-        let v = if !self.value.is_empty() && self.value[self.value.len()-1] == 0 {
-            &self.value[..self.value.len()-1]
+        let v = if !self.value.is_empty() && self.value[self.value.len() - 1] == 0 {
+            &self.value[..self.value.len() - 1]
         } else {
             &self.value
         };
-        String::from_utf8(v.to_vec()).map_err(|e| PduError::Utf8(e))
+        String::from_utf8(v.to_vec()).map_err(PduError::Utf8)
     }
 }

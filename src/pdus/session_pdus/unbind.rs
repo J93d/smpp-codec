@@ -1,5 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_UNBIND, CMD_UNBIND_RESP, get_status_code, get_status_description};
-use std::io::{Write, Read, Cursor};
+use crate::common::{
+    get_status_code, get_status_description, PduError, CMD_UNBIND, CMD_UNBIND_RESP, HEADER_LEN,
+};
+use std::io::{Cursor, Read, Write};
 
 // --- Unbind Request ---
 #[derive(Debug, Clone)]
@@ -69,7 +71,7 @@ impl UnbindRequest {
         }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12); // Skip len, id, status
-        
+
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
@@ -97,12 +99,9 @@ impl UnbindResponse {
     /// let sequence_number: u32 = 1;
     /// let unbind_resp = UnbindResponse::new(sequence_number, "ESME_ROK");
     /// ```
-    pub fn new(
-        sequence_number: u32, 
-        status_name: &str,
-    ) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
-        Self { 
+        Self {
             sequence_number,
             command_status,
             status_description: status_name.to_string(),
@@ -155,7 +154,7 @@ impl UnbindResponse {
             return Err(PduError::BufferTooShort);
         }
         let mut cursor = Cursor::new(buffer);
-        
+
         // Skip Length (4) + ID (4)
         cursor.set_position(8);
 
@@ -169,11 +168,10 @@ impl UnbindResponse {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        Ok(Self { 
-            sequence_number, 
-            command_status,  
+        Ok(Self {
+            sequence_number,
+            command_status,
             status_description: get_status_description(command_status),
         })
     }
 }
-

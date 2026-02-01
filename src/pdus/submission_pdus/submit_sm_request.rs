@@ -1,6 +1,6 @@
-use crate::common::{PduError, HEADER_LEN, CMD_SUBMIT_SM, Ton, Npi};
-use crate::tlv::{Tlv, tags};
-use std::io::{Read, Write, Cursor};
+use crate::common::{Npi, PduError, Ton, CMD_SUBMIT_SM, HEADER_LEN};
+use crate::tlv::{tags, Tlv};
+use std::io::{Cursor, Read, Write};
 
 #[derive(Debug, Clone)]
 pub struct SubmitSmRequest {
@@ -8,10 +8,10 @@ pub struct SubmitSmRequest {
     pub service_type: String, // Max 6 chars
     pub source_addr_ton: Ton,
     pub source_addr_npi: Npi,
-    pub source_addr: String,  // Max 21 chars
+    pub source_addr: String, // Max 21 chars
     pub dest_addr_ton: Ton,
     pub dest_addr_npi: Npi,
-    pub dest_addr: String,    // Max 21 chars
+    pub dest_addr: String, // Max 21 chars
     pub esm_class: u8,
     pub protocol_id: u8,
     pub priority_flag: u8,
@@ -104,26 +104,43 @@ impl SubmitSmRequest {
     /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // 1. Validation
-        if self.service_type.len() > 6 { return Err(PduError::StringTooLong("service_type".into(), 6)); }
-        if self.source_addr.len() > 21 { return Err(PduError::StringTooLong("source_addr".into(), 21)); }
-        if self.dest_addr.len() > 21 { return Err(PduError::StringTooLong("dest_addr".into(), 21)); }
-        if self.schedule_delivery_time.len() > 17 { return Err(PduError::StringTooLong("schedule_delivery_time".into(), 17)); }
-        if self.validity_period.len() > 17 { return Err(PduError::StringTooLong("validity_period".into(), 17)); }
-        if self.short_message.len() > 254 { return Err(PduError::InvalidLength); } // Use Payload TLV for longer msgs
+        if self.service_type.len() > 6 {
+            return Err(PduError::StringTooLong("service_type".into(), 6));
+        }
+        if self.source_addr.len() > 21 {
+            return Err(PduError::StringTooLong("source_addr".into(), 21));
+        }
+        if self.dest_addr.len() > 21 {
+            return Err(PduError::StringTooLong("dest_addr".into(), 21));
+        }
+        if self.schedule_delivery_time.len() > 17 {
+            return Err(PduError::StringTooLong("schedule_delivery_time".into(), 17));
+        }
+        if self.validity_period.len() > 17 {
+            return Err(PduError::StringTooLong("validity_period".into(), 17));
+        }
+        if self.short_message.len() > 254 {
+            return Err(PduError::InvalidLength);
+        } // Use Payload TLV for longer msgs
 
         // 2. Calculate Length Upfront
-        let tlvs_len: usize = self.optional_params.iter().map(|tlv| 4 + tlv.length as usize).sum();
-        
+        let tlvs_len: usize = self
+            .optional_params
+            .iter()
+            .map(|tlv| 4 + tlv.length as usize)
+            .sum();
+
         // Fixed fields overhead:
         // Src(Ton1+Npi1) + Dst(Ton1+Npi1) + Flags(3) + Reg/Rep/DC/Id(4) + SmLen(1) = 12 bytes
-        let body_len = self.service_type.len() + 1 +
-                       (self.source_addr.len() + 1) + 
-                       (self.dest_addr.len() + 1) +
-                       (self.schedule_delivery_time.len() + 1) +
-                       (self.validity_period.len() + 1) +
-                       self.short_message.len() +
-                       12 + 
-                       tlvs_len;
+        let body_len = self.service_type.len()
+            + 1
+            + (self.source_addr.len() + 1)
+            + (self.dest_addr.len() + 1)
+            + (self.schedule_delivery_time.len() + 1)
+            + (self.validity_period.len() + 1)
+            + self.short_message.len()
+            + 12
+            + tlvs_len;
 
         // 3. Write Header
         let command_len = (HEADER_LEN + body_len) as u32;
@@ -144,11 +161,7 @@ impl SubmitSmRequest {
         write_c_string(writer, &self.dest_addr)?;
 
         // Flags & settings
-        writer.write_all(&[
-            self.esm_class,
-            self.protocol_id,
-            self.priority_flag,
-        ])?;
+        writer.write_all(&[self.esm_class, self.protocol_id, self.priority_flag])?;
 
         write_c_string(writer, &self.schedule_delivery_time)?;
         write_c_string(writer, &self.validity_period)?;
@@ -190,8 +203,10 @@ impl SubmitSmRequest {
     /// assert_eq!(decoded.short_message, b"Hi");
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
-        
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
+
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12); // Skip header (len, id, status)
         let mut bytes = [0u8; 4];
@@ -202,7 +217,7 @@ impl SubmitSmRequest {
         let mut u8_buf = [0u8; 1];
 
         let service_type = crate::common::read_c_string(&mut cursor)?;
-        
+
         // Source
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
@@ -291,17 +306,17 @@ impl SubmitSmRequest {
         // Only look if the ESM Class "UDHI" bit (0x40) is set.
         if (self.esm_class & 0x40) != 0 && self.short_message.len() > 5 {
             let udh_len = self.short_message[0] as usize;
-            
+
             // Safety check: header must be fully contained in message
-            if self.short_message.len() >= udh_len + 1 {
+            if self.short_message.len() > udh_len {
                 let header_bytes = &self.short_message[1..=udh_len];
-                
+
                 // Parse UDH Information Elements (IEs)
                 let mut cursor = 0;
                 while cursor < header_bytes.len() {
                     let ie_id = header_bytes[cursor];
                     let ie_len = header_bytes[cursor + 1] as usize;
-                    let ie_data = &header_bytes[cursor + 2 .. cursor + 2 + ie_len];
+                    let ie_data = &header_bytes[cursor + 2..cursor + 2 + ie_len];
 
                     // 0x00: Concatenated short messages, 8-bit reference number
                     if ie_id == 0x00 && ie_len == 3 {
@@ -332,15 +347,18 @@ impl SubmitSmRequest {
 
     /// Helper to find a TLV and return it as u16 (handles both u8 and u16 storage)
     fn get_tlv_u16(&self, tag: u16) -> Option<u16> {
-        self.optional_params.iter().find(|t| t.tag == tag).and_then(|t| {
-            if t.length == 1 {
-                Some(t.value[0] as u16)
-            } else if t.length == 2 {
-                Some(u16::from_be_bytes([t.value[0], t.value[1]]))
-            } else {
-                None
-            }
-        })
+        self.optional_params
+            .iter()
+            .find(|t| t.tag == tag)
+            .and_then(|t| {
+                if t.length == 1 {
+                    Some(t.value[0] as u16)
+                } else if t.length == 2 {
+                    Some(u16::from_be_bytes([t.value[0], t.value[1]]))
+                } else {
+                    None
+                }
+            })
     }
 }
 

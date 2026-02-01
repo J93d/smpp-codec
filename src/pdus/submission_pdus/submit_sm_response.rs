@@ -1,5 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_SUBMIT_SM_RESP, get_status_code, get_status_description};
-use std::io::{Read, Write, Cursor};
+use crate::common::{
+    get_status_code, get_status_description, PduError, CMD_SUBMIT_SM_RESP, HEADER_LEN,
+};
+use std::io::{Cursor, Read, Write};
 
 #[derive(Debug, Clone)]
 pub struct SubmitSmResponse {
@@ -20,11 +22,7 @@ impl SubmitSmResponse {
     /// let sequence_number: u32 = 1;
     /// let resp = SubmitSmResponse::new(sequence_number, "ESME_ROK", "MsgID:123".into());
     /// ```
-    pub fn new(
-        sequence_number: u32, 
-        status_name: &str,
-        message_id: String
-    ) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str, message_id: String) -> Self {
         let command_status = get_status_code(status_name);
         Self {
             sequence_number,
@@ -65,7 +63,7 @@ impl SubmitSmResponse {
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
         writer.write_all(&body)?;
-        
+
         Ok(())
     }
 
@@ -87,9 +85,11 @@ impl SubmitSmResponse {
     /// assert_eq!(decoded.message_id, "ID");
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
         let mut cursor = Cursor::new(buffer);
-        
+
         // Header
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
@@ -102,12 +102,11 @@ impl SubmitSmResponse {
 
         // Body
         // 3. Read Body (message_id)
-        let message_id: String;
-        if buffer.len() > HEADER_LEN {
-             message_id = crate::common::read_c_string(&mut cursor)?;
+        let message_id: String = if buffer.len() > HEADER_LEN {
+            crate::common::read_c_string(&mut cursor)?
         } else {
-             message_id = String::new();
-        }
+            String::new()
+        };
 
         let status_description = get_status_description(command_status);
 
@@ -119,4 +118,3 @@ impl SubmitSmResponse {
         })
     }
 }
-

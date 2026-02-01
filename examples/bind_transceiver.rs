@@ -1,4 +1,4 @@
-use smpp_codec::common::{BindMode, Ton, Npi};
+use smpp_codec::common::{BindMode, Npi, Ton};
 use smpp_codec::pdus::BindRequest;
 
 fn main() {
@@ -10,7 +10,8 @@ fn main() {
         BindMode::Transceiver,
         "my_system_id".to_string(),
         "password".to_string(),
-    ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
+    )
+    .with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     println!("Created PDU: {:?}", bind_req);
 

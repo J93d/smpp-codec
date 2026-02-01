@@ -1,5 +1,5 @@
+use smpp_codec::common::{Npi, Ton};
 use smpp_codec::pdus::AlertNotification;
-use smpp_codec::common::{Ton, Npi};
 use smpp_codec::tlv::Tlv;
 
 fn main() {

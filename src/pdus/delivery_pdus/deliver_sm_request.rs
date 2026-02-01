@@ -1,7 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_DELIVER_SM, Ton, Npi};
-use crate::tlv::Tlv;
+use crate::common::{Npi, PduError, Ton, CMD_DELIVER_SM, HEADER_LEN};
 use crate::encoding;
-use std::io::{Read, Write, Cursor};
+use crate::tlv::Tlv;
+use std::io::{Cursor, Read, Write};
 
 /// Represents a Deliver SM PDU.
 ///
@@ -105,26 +105,43 @@ impl DeliverSmRequest {
     /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // 1. Validation
-        if self.service_type.len() > 6 { return Err(PduError::StringTooLong("service_type".into(), 6)); }
-        if self.source_addr.len() > 21 { return Err(PduError::StringTooLong("source_addr".into(), 21)); }
-        if self.dest_addr.len() > 21 { return Err(PduError::StringTooLong("dest_addr".into(), 21)); }
-        if self.schedule_delivery_time.len() > 17 { return Err(PduError::StringTooLong("schedule_delivery_time".into(), 17)); }
-        if self.validity_period.len() > 17 { return Err(PduError::StringTooLong("validity_period".into(), 17)); }
-        if self.short_message.len() > 254 { return Err(PduError::InvalidLength); }
+        if self.service_type.len() > 6 {
+            return Err(PduError::StringTooLong("service_type".into(), 6));
+        }
+        if self.source_addr.len() > 21 {
+            return Err(PduError::StringTooLong("source_addr".into(), 21));
+        }
+        if self.dest_addr.len() > 21 {
+            return Err(PduError::StringTooLong("dest_addr".into(), 21));
+        }
+        if self.schedule_delivery_time.len() > 17 {
+            return Err(PduError::StringTooLong("schedule_delivery_time".into(), 17));
+        }
+        if self.validity_period.len() > 17 {
+            return Err(PduError::StringTooLong("validity_period".into(), 17));
+        }
+        if self.short_message.len() > 254 {
+            return Err(PduError::InvalidLength);
+        }
 
         // 2. Calculate Length Upfront
-        let tlvs_len: usize = self.optional_params.iter().map(|tlv| 4 + tlv.length as usize).sum();
-        
+        let tlvs_len: usize = self
+            .optional_params
+            .iter()
+            .map(|tlv| 4 + tlv.length as usize)
+            .sum();
+
         // Fixed fields overhead:
         // Src(Ton1+Npi1) + Dst(Ton1+Npi1) + Flags(3) + Reg/Rep/DC/Id(4) + SmLen(1) = 12 bytes
-        let body_len = self.service_type.len() + 1 +
-                       (self.source_addr.len() + 1) + 
-                       (self.dest_addr.len() + 1) +
-                       (self.schedule_delivery_time.len() + 1) +
-                       (self.validity_period.len() + 1) +
-                       self.short_message.len() +
-                       12 + 
-                       tlvs_len;
+        let body_len = self.service_type.len()
+            + 1
+            + (self.source_addr.len() + 1)
+            + (self.dest_addr.len() + 1)
+            + (self.schedule_delivery_time.len() + 1)
+            + (self.validity_period.len() + 1)
+            + self.short_message.len()
+            + 12
+            + tlvs_len;
 
         // 3. Write Header
         let command_len = (HEADER_LEN + body_len) as u32;
@@ -143,13 +160,9 @@ impl DeliverSmRequest {
         // Destination Address
         writer.write_all(&[self.dest_addr_ton as u8, self.dest_addr_npi as u8])?;
         write_c_string(writer, &self.dest_addr)?;
-        
+
         // Flags & settings
-        writer.write_all(&[
-            self.esm_class,
-            self.protocol_id,
-            self.priority_flag,
-        ])?;
+        writer.write_all(&[self.esm_class, self.protocol_id, self.priority_flag])?;
 
         write_c_string(writer, &self.schedule_delivery_time)?;
         write_c_string(writer, &self.validity_period)?;
@@ -184,10 +197,12 @@ impl DeliverSmRequest {
     /// assert_eq!(decoded.short_message, b"Hi");
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12);
-        
+
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
@@ -196,7 +211,7 @@ impl DeliverSmRequest {
         let mut u8_buf = [0u8; 1];
 
         let service_type = crate::common::read_c_string(&mut cursor)?;
-        
+
         // Source
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
@@ -243,10 +258,25 @@ impl DeliverSmRequest {
         }
 
         Ok(Self {
-            sequence_number, service_type, source_addr_ton, source_addr_npi, source_addr,
-            dest_addr_ton, dest_addr_npi, dest_addr, esm_class, protocol_id, priority_flag,
-            schedule_delivery_time, validity_period, registered_delivery, replace_if_present_flag,
-            data_coding, sm_default_msg_id, short_message, optional_params,
+            sequence_number,
+            service_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            dest_addr,
+            esm_class,
+            protocol_id,
+            priority_flag,
+            schedule_delivery_time,
+            validity_period,
+            registered_delivery,
+            replace_if_present_flag,
+            data_coding,
+            sm_default_msg_id,
+            short_message,
+            optional_params,
         })
     }
 
@@ -257,17 +287,12 @@ impl DeliverSmRequest {
         receipt: DeliveryReceipt,
     ) -> Self {
         let receipt_text = receipt.to_string();
-        let mut pdu = Self::new(
-            sequence_number,
-            source,
-            dest,
-            receipt_text.into_bytes(),
-        );
-        
+        let mut pdu = Self::new(sequence_number, source, dest, receipt_text.into_bytes());
+
         // 0x04 indicates this is an SMSC Delivery Receipt
-        pdu.esm_class = 0x04; 
+        pdu.esm_class = 0x04;
         pdu.data_coding = 0x00; // Receipts are usually GSM 7-bit/Default
-        
+
         pdu
     }
 
@@ -276,12 +301,15 @@ impl DeliverSmRequest {
         if (self.esm_class & 0x04) != 0 {
             // Decode bytes to string first using our existing encoding helpers
             let text = encoding::gsm_7bit_decode(&self.short_message);
-            DeliveryReceipt::from_str(&text).ok()
+            text.parse::<DeliveryReceipt>().ok()
         } else {
             None
         }
     }
 }
+
+use std::fmt;
+use std::str::FromStr;
 
 #[derive(Debug, Clone)]
 pub struct DeliveryReceipt {
@@ -295,11 +323,10 @@ pub struct DeliveryReceipt {
     pub text: String,        // First 20 chars of original msg
 }
 
-impl DeliveryReceipt {
-    /// Formats the receipt into the standard string format:
-    /// id:IIIIIIIIII sub:SSS dlvrd:DDD submit date:YYMMDDhhmm done date:YYMMDDhhmm stat:SSSSSSS err:E text:..........
-    pub fn to_string(&self) -> String {
-        format!(
+impl fmt::Display for DeliveryReceipt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
             "id:{} sub:{:03} dlvrd:{:03} submit date:{} done date:{} stat:{} err:{:03} text:{}",
             self.message_id,
             self.submitted_count,
@@ -311,10 +338,12 @@ impl DeliveryReceipt {
             self.text
         )
     }
+}
 
-    /// Decodes a DLR string into a DeliveryReceipt struct.
-    /// Handles the standard "id:IIII sub:SSS..." format.
-    pub fn from_str(s: &str) -> Result<Self, String> {
+impl FromStr for DeliveryReceipt {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut receipt = DeliveryReceipt {
             message_id: String::new(),
             submitted_count: 0,
@@ -332,7 +361,9 @@ impl DeliveryReceipt {
 
         for part in parts {
             let kv: Vec<&str> = part.splitn(2, ':').collect();
-            if kv.len() < 2 { continue; }
+            if kv.len() < 2 {
+                continue;
+            }
 
             let key = kv[0];
             let val = kv[1];

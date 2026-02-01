@@ -31,7 +31,7 @@ pub fn gsm_7bit_encode(text: &str) -> Result<Vec<u8>, String> {
         if let Some(index) = GSM_BASIC_CHARSET.chars().position(|c| c == char) {
             encoded_text.push(index as u8);
         } else if let Some(&code) = gsm_extended_charset.get(&char) {
-            encoded_text.push(0x1B); 
+            encoded_text.push(0x1B);
             encoded_text.push(code);
         } else {
             return Err(format!("Character '{}' not supported in GSM 03.38", char));
@@ -41,9 +41,9 @@ pub fn gsm_7bit_encode(text: &str) -> Result<Vec<u8>, String> {
 }
 
 pub fn encode_8bit(text: &str) -> Vec<u8> {
-    text.chars().map(|c| {
-        if (c as u32) <= 0xFF { c as u8 } else { b'?' }
-    }).collect()
+    text.chars()
+        .map(|c| if (c as u32) <= 0xFF { c as u8 } else { b'?' })
+        .collect()
 }
 
 pub fn encode_16bit(text: &str) -> Vec<u8> {
@@ -71,8 +71,15 @@ pub fn gsm_7bit_decode(bytes: &[u8]) -> String {
             if i + 1 < bytes.len() {
                 let next_byte = bytes[i + 1];
                 let decoded_char = match next_byte {
-                    20 => '^', 40 => '{', 41 => '}', 47 => '\\',
-                    60 => '[', 61 => '~', 62 => ']', 64 => '|', 101 => '€',
+                    20 => '^',
+                    40 => '{',
+                    41 => '}',
+                    47 => '\\',
+                    60 => '[',
+                    61 => '~',
+                    62 => ']',
+                    64 => '|',
+                    101 => '€',
                     _ => '?', // Unknown extended char
                 };
                 result.push(decoded_char);
@@ -114,13 +121,13 @@ use crate::pdus::submission_pdus::submit_sm_request::SubmitSmRequest;
 /// Extracts readable text from a SubmitSm PDU, stripping UDH if present.
 pub fn decode_submit_sm_text(pdu: &SubmitSmRequest) -> String {
     let body = &pdu.short_message;
-    
+
     // 1. Check for User Data Header (UDH)
     // If ESM_CLASS bit 6 (0x40) is set, strip the header.
     let payload = if (pdu.esm_class & 0x40) != 0 && !body.is_empty() {
         let udh_len = body[0] as usize;
         if body.len() > udh_len + 1 {
-            &body[udh_len + 1..] 
+            &body[udh_len + 1..]
         } else {
             return "Error: Malformed UDH".to_string();
         }

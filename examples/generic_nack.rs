@@ -16,7 +16,7 @@ fn main() {
     let mut buf = Vec::new();
     nack.encode(&mut buf).unwrap();
     println!("Encoded {} bytes", buf.len());
-    
+
     // 3. Decode verification
     let decoded = GenericNack::decode(&buf).unwrap();
     println!("Decoded Command Status: 0x{:08X}", decoded.command_status);

@@ -1,8 +1,8 @@
 use crate::common::{
-    PduError, HEADER_LEN, CMD_CANCEL_SM, CMD_CANCEL_SM_RESP, Ton, Npi, 
-    write_c_string, get_status_code, get_status_description
+    get_status_code, get_status_description, write_c_string, Npi, PduError, Ton, CMD_CANCEL_SM,
+    CMD_CANCEL_SM_RESP, HEADER_LEN,
 };
-use std::io::{Read, Write, Cursor};
+use std::io::{Cursor, Read, Write};
 
 // --- Request ---
 /// Represents a Cancel SM Request PDU.
@@ -43,7 +43,7 @@ impl CancelSmRequest {
         let mut body = Vec::new();
         write_c_string(&mut body, &self.service_type)?;
         write_c_string(&mut body, &self.message_id)?;
-        
+
         body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
         write_c_string(&mut body, &self.source_addr)?;
 
@@ -60,7 +60,9 @@ impl CancelSmRequest {
     }
 
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(12); // Skip Header
 
@@ -117,10 +119,10 @@ impl CancelSmResponse {
     ///
     /// let message = CancelSmResponse::new(1, "ESME_ROK");
     /// ```
-    pub fn new(sequence_number: u32, status_name: &str) -> Self { 
+    pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
-        Self { 
-            sequence_number, 
+        Self {
+            sequence_number,
             command_status,
             status_description: status_name.to_string(),
         }
@@ -135,7 +137,9 @@ impl CancelSmResponse {
     }
 
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(8); // Skip Len, ID
 
@@ -147,7 +151,10 @@ impl CancelSmResponse {
 
         let status_description = get_status_description(command_status);
 
-        Ok(Self { sequence_number, command_status, status_description })
+        Ok(Self {
+            sequence_number,
+            command_status,
+            status_description,
+        })
     }
 }
-

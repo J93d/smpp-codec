@@ -1,5 +1,5 @@
-use crate::common::{PduError, HEADER_LEN, CMD_OUTBIND, write_c_string};
-use std::io::{Read, Write, Cursor};
+use crate::common::{write_c_string, PduError, CMD_OUTBIND, HEADER_LEN};
+use std::io::{Cursor, Read, Write};
 
 /// Represents an Outbind PDU.
 ///
@@ -104,7 +104,7 @@ impl OutbindRequest {
         }
 
         let mut cursor = Cursor::new(buffer);
-        
+
         // Skip Header (assuming caller checked ID, or we just consume it)
         cursor.set_position(12); // Skip len, id, status
         let mut bytes = [0u8; 4];

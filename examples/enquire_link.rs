@@ -15,7 +15,7 @@ fn main() {
     println!("\n--- Response ---");
     let resp = EnquireLinkResponse::new(100, "ESME_ROK");
     println!("Response: {:?}", resp);
-    
+
     let mut buf2 = Vec::new();
     resp.encode(&mut buf2).unwrap();
     println!("Encoded {} bytes", buf2.len());

@@ -1,5 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_DELIVER_SM_RESP, get_status_code, get_status_description};
-use std::io::{Write, Cursor, Read};
+use crate::common::{
+    get_status_code, get_status_description, PduError, CMD_DELIVER_SM_RESP, HEADER_LEN,
+};
+use std::io::{Cursor, Read, Write};
 
 /// Represents a Deliver SM Response PDU.
 ///
@@ -30,10 +32,7 @@ impl DeliverSmResponse {
     ///
     /// let resp = DeliverSmResponse::new(1, "ESME_ROK");
     /// ```
-    pub fn new(
-        sequence_number: u32, 
-        status_name: &str,
-    ) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
         Self {
             sequence_number,
@@ -49,14 +48,16 @@ impl DeliverSmResponse {
         writer.write_all(&CMD_DELIVER_SM_RESP.to_be_bytes())?;
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
-        
+
         // DeliverSmResp typically has no body (message_id is unused in v3.4)
         Ok(())
     }
 
     /// Decode raw bytes from the network into the struct.
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
         let mut cursor = Cursor::new(buffer);
         cursor.set_position(8); // Skip Len and ID
 
@@ -75,4 +76,3 @@ impl DeliverSmResponse {
         })
     }
 }
-

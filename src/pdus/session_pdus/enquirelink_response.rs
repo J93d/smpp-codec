@@ -1,5 +1,7 @@
-use crate::common::{PduError, HEADER_LEN, CMD_ENQUIRE_LINK_RESP, get_status_code, get_status_description};
-use std::io::{Write, Read, Cursor};
+use crate::common::{
+    get_status_code, get_status_description, PduError, CMD_ENQUIRE_LINK_RESP, HEADER_LEN,
+};
+use std::io::{Cursor, Read, Write};
 
 // --- EnquireLink Response ---
 /// Represents an Enquire Link Response PDU.
@@ -8,7 +10,7 @@ use std::io::{Write, Read, Cursor};
 #[derive(Debug, Clone)]
 pub struct EnquireLinkResponse {
     pub sequence_number: u32,
-    pub command_status: u32, // 0 = OK, others = Error
+    pub command_status: u32,        // 0 = OK, others = Error
     pub status_description: String, // Human-readable description of status
 }
 
@@ -23,13 +25,10 @@ impl EnquireLinkResponse {
     /// let sequence_number: u32 = 1;
     /// let resp = EnquireLinkResponse::new(sequence_number, "ESME_ROK");
     /// ```
-    pub fn new(
-        sequence_number: u32,
-        status_name: &str,
-    ) -> Self {
+    pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
-        Self { 
-            sequence_number, 
+        Self {
+            sequence_number,
             command_status,
             status_description: status_name.to_string(),
         }
@@ -83,12 +82,12 @@ impl EnquireLinkResponse {
             return Err(PduError::BufferTooShort);
         }
         let mut cursor = Cursor::new(buffer);
-        
+
         // Skip Length (4) and ID (4)
-        cursor.set_position(8); 
+        cursor.set_position(8);
 
         let mut bytes = [0u8; 4];
-        
+
         // [Change] Read Status
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
@@ -97,11 +96,10 @@ impl EnquireLinkResponse {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        Ok(Self { 
-            sequence_number, 
-            command_status, 
+        Ok(Self {
+            sequence_number,
+            command_status,
             status_description: get_status_description(command_status),
         })
     }
 }
-

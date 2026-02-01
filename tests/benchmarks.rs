@@ -1,11 +1,11 @@
-use smpp_codec::pdus::*;
 use smpp_codec::common::*;
+use smpp_codec::pdus::*;
 use std::time::Instant;
 
 macro_rules! bench_all {
     ($type:ty, $name:expr, $setup:expr, $iters:expr) => {{
         let req: $type = $setup;
-        
+
         // Measure Encoding
         let mut buffer = Vec::with_capacity(2048);
         let start_encode = Instant::now();
@@ -26,11 +26,7 @@ macro_rules! bench_all {
 
         println!(
             "| {:<25} | {:<13.2?} | {:<15.2} | {:<13.2?} | {:<15.2} |",
-            $name,
-            duration_encode,
-            ops_encode,
-            duration_decode,
-            ops_decode
+            $name, duration_encode, ops_encode, duration_decode, ops_decode
         );
     }};
 }
@@ -39,20 +35,33 @@ macro_rules! bench_all {
 fn benchmark_suite() {
     let iterations = 100_000;
 
-    println!("\n=== SMPP PDU Performance Benchmarks ({} iterations) ===", iterations);
+    println!(
+        "\n=== SMPP PDU Performance Benchmarks ({} iterations) ===",
+        iterations
+    );
     println!("Running on: {}", std::env::consts::OS);
     println!();
-    println!("| {:<25} | {:<13} | {:<15} | {:<13} | {:<15} |", 
-        "Request Name", "Encoding Time", "Enc Rate (op/s)", "Decoding Time", "Dec Rate (op/s)");
-    println!("|{:-<27}|{:-<15}|{:-<17}|{:-<15}|{:-<17}|", "", "", "", "", "");
+    println!(
+        "| {:<25} | {:<13} | {:<15} | {:<13} | {:<15} |",
+        "Request Name", "Encoding Time", "Enc Rate (op/s)", "Decoding Time", "Dec Rate (op/s)"
+    );
+    println!(
+        "|{:-<27}|{:-<15}|{:-<17}|{:-<15}|{:-<17}|",
+        "", "", "", "", ""
+    );
 
     // --- Session PDUs ---
 
     bench_all!(
         BindRequest,
         "BindRequest",
-        BindRequest::new(1, BindMode::Transceiver, "system_id".into(), "password".into())
-            .with_address_range(Ton::International, Npi::Isdn, "12345".into()),
+        BindRequest::new(
+            1,
+            BindMode::Transceiver,
+            "system_id".into(),
+            "password".into()
+        )
+        .with_address_range(Ton::International, Npi::Isdn, "12345".into()),
         iterations
     );
 
@@ -117,7 +126,12 @@ fn benchmark_suite() {
     bench_all!(
         SubmitSmRequest,
         "SubmitSmRequest",
-        SubmitSmRequest::new(100, "source".into(), "dest".into(), b"Short Message Content".to_vec()),
+        SubmitSmRequest::new(
+            100,
+            "source".into(),
+            "dest".into(),
+            b"Short Message Content".to_vec()
+        ),
         iterations
     );
 
@@ -133,7 +147,12 @@ fn benchmark_suite() {
     bench_all!(
         DeliverSmRequest,
         "DeliverSmRequest",
-        DeliverSmRequest::new(200, "source".into(), "dest".into(), b"Delivery Receipt or Msg".to_vec()),
+        DeliverSmRequest::new(
+            200,
+            "source".into(),
+            "dest".into(),
+            b"Delivery Receipt or Msg".to_vec()
+        ),
         iterations
     );
 
@@ -166,14 +185,24 @@ fn benchmark_suite() {
         QuerySmRequest::new(400, "msg_id".into(), "src".into()),
         iterations
     );
-    
+
     bench_all!(
         QuerySmResponse,
         "QuerySmResponse",
-        QuerySmResponse::new(400, "ESME_ROK", "msg_id".into(), String::new(), MessageState::Delivered as u8, 0),
+        QuerySmResponse::new(
+            400,
+            "ESME_ROK",
+            "msg_id".into(),
+            String::new(),
+            MessageState::Delivered as u8,
+            0
+        ),
         iterations
     );
 
-    println!("|{:-<27}|{:-<15}|{:-<17}|{:-<15}|{:-<17}|", "", "", "", "", "");
+    println!(
+        "|{:-<27}|{:-<15}|{:-<17}|{:-<15}|{:-<17}|",
+        "", "", "", "", ""
+    );
     println!("\nBenchmark suite completed successfully.");
 }

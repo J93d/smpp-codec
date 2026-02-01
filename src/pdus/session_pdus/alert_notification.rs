@@ -1,6 +1,6 @@
-use crate::common::{PduError, HEADER_LEN, CMD_ALERT_NOTIFICATION, Ton, Npi};
+use crate::common::{Npi, PduError, Ton, CMD_ALERT_NOTIFICATION, HEADER_LEN};
 use crate::tlv::Tlv;
-use std::io::{Write, Read, Cursor};
+use std::io::{Cursor, Read, Write};
 
 /// Represents an Alert Notification PDU.
 ///
@@ -13,7 +13,7 @@ pub struct AlertNotification {
     pub source_addr: String, // Max 65
     pub esme_addr_ton: Ton,
     pub esme_addr_npi: Npi,
-    pub esme_addr: String,   // Max 65
+    pub esme_addr: String, // Max 65
     pub optional_params: Vec<Tlv>,
 }
 
@@ -32,11 +32,7 @@ impl AlertNotification {
     ///     "esme_addr".to_string()
     /// );
     /// ```
-    pub fn new(
-        sequence_number: u32,
-        source_addr: String,
-        esme_addr: String,
-    ) -> Self {
+    pub fn new(sequence_number: u32, source_addr: String, esme_addr: String) -> Self {
         Self {
             sequence_number,
             source_addr_ton: Ton::Unknown,
@@ -48,7 +44,7 @@ impl AlertNotification {
             optional_params: Vec::new(),
         }
     }
-    
+
     // Builder for TON/NPI
     pub fn with_source_addr(mut self, ton: Ton, npi: Npi, addr: String) -> Self {
         self.source_addr_ton = ton;
@@ -56,7 +52,7 @@ impl AlertNotification {
         self.source_addr = addr;
         self
     }
-    
+
     pub fn with_esme_addr(mut self, ton: Ton, npi: Npi, addr: String) -> Self {
         self.esme_addr_ton = ton;
         self.esme_addr_npi = npi;
@@ -89,11 +85,15 @@ impl AlertNotification {
     /// ```
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // Validate lengths
-        if self.source_addr.len() > 65 { return Err(PduError::StringTooLong("source_addr".into(), 65)); }
-        if self.esme_addr.len() > 65 { return Err(PduError::StringTooLong("esme_addr".into(), 65)); }
+        if self.source_addr.len() > 65 {
+            return Err(PduError::StringTooLong("source_addr".into(), 65));
+        }
+        if self.esme_addr.len() > 65 {
+            return Err(PduError::StringTooLong("esme_addr".into(), 65));
+        }
 
         let mut body = Vec::new();
-        
+
         // Source Address
         body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
         write_c_string(&mut body, &self.source_addr)?;
@@ -114,10 +114,10 @@ impl AlertNotification {
         writer.write_all(&CMD_ALERT_NOTIFICATION.to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
-        
+
         // Body
         writer.write_all(&body)?;
-        
+
         Ok(())
     }
 
@@ -141,31 +141,33 @@ impl AlertNotification {
     /// assert_eq!(decoded.source_addr, "src");
     /// ```
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
-        if buffer.len() < HEADER_LEN { return Err(PduError::BufferTooShort); }
-        
+        if buffer.len() < HEADER_LEN {
+            return Err(PduError::BufferTooShort);
+        }
+
         let mut cursor = Cursor::new(buffer);
         // Skip Header
         cursor.set_position(12);
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
-        
+
         // 3. Read Body
         let mut u8_buf = [0u8; 1];
-        
+
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = crate::common::read_c_string(&mut cursor)?;
-        
+
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_npi = Npi::from(u8_buf[0]);
         let esme_addr = crate::common::read_c_string(&mut cursor)?;
 
-         // Optional Params (TLVs)
+        // Optional Params (TLVs)
         let mut optional_params = Vec::new();
         while let Some(tlv) = Tlv::decode(&mut cursor)? {
             optional_params.push(tlv);
@@ -179,7 +181,7 @@ impl AlertNotification {
             esme_addr_ton,
             esme_addr_npi,
             esme_addr,
-            optional_params
+            optional_params,
         })
     }
 }

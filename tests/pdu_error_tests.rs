@@ -1,18 +1,18 @@
-use smpp_codec::pdus::{
-    QuerySmResponse, CancelSmResponse, UnbindResponse, EnquireLinkResponse,
-    SubmitSmResponse, BindResponse, DeliverSmResponse,
-};
 use smpp_codec::common::CMD_BIND_TRANSCEIVER_RESP;
+use smpp_codec::pdus::{
+    BindResponse, CancelSmResponse, DeliverSmResponse, EnquireLinkResponse, QuerySmResponse,
+    SubmitSmResponse, UnbindResponse,
+};
 
 #[test]
 fn test_query_sm_response_error() {
     let resp = QuerySmResponse::new(
-        3, 
+        3,
         "ESME_RQUERYFAIL", // 0x00000067
-        "".to_string(), 
-        "".to_string(), 
-        0, 
-        0
+        "".to_string(),
+        "".to_string(),
+        0,
+        0,
     );
 
     let mut buffer = Vec::new();
@@ -74,16 +74,12 @@ fn test_enquire_link_response_error() {
 
 #[test]
 fn test_submit_sm_response_error() {
-    // Note: SubmitSmResponse::new can be used here instead of struct init if available, 
-    // but using struct init to match what was in the unit test, 
+    // Note: SubmitSmResponse::new can be used here instead of struct init if available,
+    // but using struct init to match what was in the unit test,
     // Wait, struct init is NOT allowed if fields are private!
-    // I should use `new` if available or check visibility. 
+    // I should use `new` if available or check visibility.
     // `SubmitSmResponse` fields are public.
-    let resp = SubmitSmResponse::new(
-        2,
-        "ESME_RSYSERR",
-        "".to_string()
-    );
+    let resp = SubmitSmResponse::new(2, "ESME_RSYSERR", "".to_string());
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encoding failed");
@@ -102,7 +98,7 @@ fn test_bind_response_error() {
         3,
         CMD_BIND_TRANSCEIVER_RESP,
         "ESME_RBINDFAIL",
-        "".to_string()
+        "".to_string(),
     );
 
     let mut buffer = Vec::new();

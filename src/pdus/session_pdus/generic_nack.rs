@@ -1,5 +1,5 @@
-use crate::common::{PduError, HEADER_LEN, GENERIC_NACK, get_status_code, get_status_description};
-use std::io::{Write, Read, Cursor};
+use crate::common::{get_status_code, get_status_description, PduError, GENERIC_NACK, HEADER_LEN};
+use std::io::{Cursor, Read, Write};
 
 /// Represents a Generic NACK PDU.
 ///
@@ -77,12 +77,12 @@ impl GenericNack {
             return Err(PduError::BufferTooShort);
         }
         let mut cursor = Cursor::new(buffer);
-        
+
         // Skip Length (4) and ID (4)
         cursor.set_position(8);
 
         let mut bytes = [0u8; 4];
-        
+
         // Status
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
