@@ -68,3 +68,79 @@ fn test_splitter_sar() {
     assert!(pdu2_body.len() <= 254);
     // Note: SAR TLVs are added by the caller, so we can't test them here.
 }
+
+#[test]
+fn test_submit_sm_validation_errors() {
+    // Service type too long
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![]);
+    req.service_type = "1234567".to_string(); // 7 chars (max 6)
+    let mut buf = Vec::new();
+    assert!(req.encode(&mut buf).is_err());
+
+    // Source addr too long
+    let req = SubmitSmRequest::new(1, "A".repeat(22), "dst".into(), vec![]);
+    assert!(req.encode(&mut buf).is_err());
+
+    // Dest addr too long
+    let req = SubmitSmRequest::new(1, "src".into(), "B".repeat(22), vec![]);
+    assert!(req.encode(&mut buf).is_err());
+
+    // Schedule time too long
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![]);
+    req.schedule_delivery_time = "A".repeat(18);
+    assert!(req.encode(&mut buf).is_err());
+
+    // Validity period too long
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![]);
+    req.validity_period = "A".repeat(18);
+    assert!(req.encode(&mut buf).is_err());
+
+    // Message too long (should use payload TLV instead, but encode just errors for now)
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![0; 255]);
+    assert!(req.encode(&mut buf).is_err());
+}
+
+#[test]
+fn test_submit_sm_tlvs_and_segmentation_info() {
+    // Test that we can extract segmentation info when using TLVs
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), b"Part2".to_vec());
+
+    // Manually add SAR TLVs
+    req.add_tlv(smpp_codec::tlv::Tlv::new_u16(
+        smpp_codec::tlv::tags::SAR_MSG_REF_NUM,
+        0x1234,
+    ));
+    req.add_tlv(smpp_codec::tlv::Tlv::new_u16(
+        smpp_codec::tlv::tags::SAR_TOTAL_SEGMENTS,
+        2,
+    ));
+    req.add_tlv(smpp_codec::tlv::Tlv::new_u16(
+        smpp_codec::tlv::tags::SAR_SEGMENT_SEQNUM,
+        2,
+    ));
+
+    let info = req
+        .get_segmentation_info()
+        .expect("Should find segmentation info");
+    assert_eq!(info.ref_num, 0x1234);
+    assert_eq!(info.total_segments, 2);
+    assert_eq!(info.seq_num, 2);
+}
+
+#[test]
+fn test_submit_sm_segmentation_info_udh_16bit_ref() {
+    // Test 16-bit reference number UDH (IE ID 0x08)
+    // UDH: Len(6) 08 04 Ref1 Ref2 Tot Seq
+    let mut udh = vec![0x06, 0x08, 0x04, 0xAB, 0xCD, 0x02, 0x02];
+    udh.extend_from_slice(b"Content");
+
+    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), udh);
+    req.esm_class = 0x40; // UDHI Set
+
+    let info = req
+        .get_segmentation_info()
+        .expect("Should find 16-bit UDH info");
+    assert_eq!(info.ref_num, 0xABCD);
+    assert_eq!(info.total_segments, 2);
+    assert_eq!(info.seq_num, 2);
+}

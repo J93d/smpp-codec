@@ -355,9 +355,15 @@ impl FromStr for DeliveryReceipt {
             text: String::new(),
         };
 
-        // Standard DLRs use space-separated key:value pairs.
-        // Note: 'text' is usually the last field and can contain spaces.
-        let parts: Vec<&str> = s.splitn(9, ' ').collect();
+        // Helper to normalize the input string for easier parsing
+        // "submit date" -> "submit_date", "done date" -> "done_date"
+        let s_clean = s
+            .replace("submit date", "submit_date")
+            .replace("done date", "done_date");
+
+        // Standard sequence: id, sub, dlvrd, submit_date, done_date, stat, err, text
+        // 8 fields typical. parsing 'text' last allows it to contain spaces.
+        let parts: Vec<&str> = s_clean.splitn(8, ' ').collect();
 
         for part in parts {
             let kv: Vec<&str> = part.splitn(2, ':').collect();
