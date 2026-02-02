@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = { path = "." } # Or git url
+smpp-codec = 0.1.0 # Or git url
 ```
 
 ### Example: Binding as Transceiver
