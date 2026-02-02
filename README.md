@@ -75,7 +75,6 @@ fn main() {
 ```
 
 ### 3. Deliver Short Message
-(Included in `examples/deliver_sm.rs`)
 
 ```rust
 use smpp_codec::pdus::{DeliverSmRequest, MessageSplitter, SplitMode, EncodingType};
