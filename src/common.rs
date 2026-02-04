@@ -86,6 +86,15 @@ pub const CMD_BROADCAST_SM: u32 = 0x00000111;
 /// Command ID for Broadcast SM Response.
 pub const CMD_BROADCAST_SM_RESP: u32 = 0x80000112;
 
+/// Command ID for Query Broadcast SM.
+pub const CMD_QUERY_BROADCAST_SM: u32 = 0x00000112;
+/// Command ID for Query Broadcast SM Response.
+pub const CMD_QUERY_BROADCAST_SM_RESP: u32 = 0x80000112;
+/// Command ID for Cancel Broadcast SM.
+pub const CMD_CANCEL_BROADCAST_SM: u32 = 0x00000113;
+/// Command ID for Cancel Broadcast SM Response.
+pub const CMD_CANCEL_BROADCAST_SM_RESP: u32 = 0x80000113;
+
 /// Standard Header Length
 pub const HEADER_LEN: usize = 16;
 

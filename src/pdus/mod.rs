@@ -6,8 +6,11 @@ pub mod session_pdus;
 pub mod submission_pdus;
 
 pub use crate::splitter::{EncodingType, MessageSplitter, SplitMode};
+pub use ancillary_pdus::{CancelBroadcastSm, CancelBroadcastSmResp};
 pub use ancillary_pdus::{CancelSmRequest, CancelSmResponse};
 pub use ancillary_pdus::{MessageState, QuerySmRequest, QuerySmResponse};
+pub use ancillary_pdus::{QueryBroadcastSm, QueryBroadcastSmResp};
+pub use ancillary_pdus::{ReplaceSm, ReplaceSmResp};
 pub use broadcast_pdus::{BroadcastSm, BroadcastSmResp};
 pub use delivery_pdus::{DataSm, DataSmResp, DeliverSmRequest, DeliverSmResponse, DeliveryReceipt};
 pub use session_pdus::alert_notification::AlertNotification;

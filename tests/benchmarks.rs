@@ -207,6 +207,32 @@ fn benchmark_suite() {
         iterations
     );
 
+    bench_all!(
+        SubmitMulti,
+        "SubmitMulti",
+        SubmitMulti::new(
+            1001,
+            "Source".to_string(),
+            vec![
+                Destination::SmeAddress {
+                    ton: Ton::International,
+                    npi: Npi::Isdn,
+                    address: "123".to_string()
+                },
+                Destination::DistributionList("List".to_string())
+            ],
+            b"Payload".to_vec()
+        ),
+        iterations
+    );
+
+    bench_all!(
+        SubmitMultiResp,
+        "SubmitMultiResp",
+        SubmitMultiResp::new(1001, "ESME_ROK", "msg_id".into(), vec![]),
+        iterations
+    );
+
     // --- Delivery PDUs ---
 
     bench_all!(
@@ -225,6 +251,25 @@ fn benchmark_suite() {
         DeliverSmResponse,
         "DeliverSmResponse",
         DeliverSmResponse::new(200, "ESME_ROK"),
+        iterations
+    );
+
+    bench_all!(
+        DataSm,
+        "DataSm",
+        DataSm::new(
+            3001,
+            "Source".to_string(),
+            "Dest".to_string(),
+            b"Data Payload".to_vec()
+        ),
+        iterations
+    );
+
+    bench_all!(
+        DataSmResp,
+        "DataSmResp",
+        DataSmResp::new(3001, "ESME_ROK", "msg_id".into()),
         iterations
     );
 
@@ -262,6 +307,77 @@ fn benchmark_suite() {
             MessageState::Delivered as u8,
             0
         ),
+        iterations
+    );
+
+    bench_all!(
+        BroadcastSm,
+        "BroadcastSm",
+        BroadcastSm::new(
+            2001,
+            "ServiceAlert".to_string(),
+            b"Payload".to_vec(),
+            smpp_codec::tlv::Tlv::new(0x0606, vec![0x00])
+        ),
+        iterations
+    );
+
+    bench_all!(
+        BroadcastSmResp,
+        "BroadcastSmResp",
+        BroadcastSmResp::new(2001, "ESME_ROK", "msg_id".into()),
+        iterations
+    );
+
+    bench_all!(
+        ReplaceSm,
+        "ReplaceSm",
+        ReplaceSm::new(
+            4001,
+            "msg_123".to_string(),
+            "Source".to_string(),
+            b"New Content".to_vec()
+        ),
+        iterations
+    );
+
+    bench_all!(
+        ReplaceSmResp,
+        "ReplaceSmResp",
+        ReplaceSmResp::new(4001, "ESME_ROK"),
+        iterations
+    );
+
+    bench_all!(
+        QueryBroadcastSm,
+        "QueryBroadcastSm",
+        QueryBroadcastSm::new(2002, "bc_msg_1".to_string(), "Source".to_string()),
+        iterations
+    );
+
+    bench_all!(
+        QueryBroadcastSmResp,
+        "QueryBroadcastSmResp",
+        QueryBroadcastSmResp::new(2002, "ESME_ROK", "bc_msg_1".to_string()),
+        iterations
+    );
+
+    bench_all!(
+        CancelBroadcastSm,
+        "CancelBroadcastSm",
+        CancelBroadcastSm::new(
+            3002,
+            "CMT".to_string(),
+            "bc_msg_2".to_string(),
+            "Source".to_string()
+        ),
+        iterations
+    );
+
+    bench_all!(
+        CancelBroadcastSmResp,
+        "CancelBroadcastSmResp",
+        CancelBroadcastSmResp::new(3002, "ESME_ROK"),
         iterations
     );
 

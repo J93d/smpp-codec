@@ -20,10 +20,10 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 ## Message Submission
 - [x] `submit_sm`
 - [x] `submit_sm_resp`
-- [ ] `submit_multi`
-- [ ] `submit_multi_resp`
-- [ ] `data_sm`
-- [ ] `data_sm_resp`
+- [x] `submit_multi`
+- [x] `submit_multi_resp`
+- [x] `data_sm`
+- [x] `data_sm_resp`
 
 ## Message Delivery
 - [x] `deliver_sm` (Support for Delivery Receipts implemented)
@@ -34,8 +34,13 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 - [x] `query_sm_resp`
 - [x] `cancel_sm`
 - [x] `cancel_sm_resp`
-- [ ] `replace_sm`
-- [ ] `replace_sm_resp`
+- [x] `replace_sm`
+- [x] `replace_sm_resp`
 
 ## Ancillary Operations
-- [ ] Broadcast SM (Optional/Advanced)
+- [x] `broadcast_sm`
+- [x] `broadcast_sm_resp`
+- [x] `query_broadcast_sm`
+- [x] `query_broadcast_sm_resp`
+- [x] `cancel_broadcast_sm`
+- [x] `cancel_broadcast_sm_resp`
