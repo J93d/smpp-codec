@@ -1,4 +1,4 @@
-use crate::common::{Npi, PduError, Ton, CMD_SUBMIT_SM, HEADER_LEN};
+use crate::common::{read_c_string, write_c_string, Npi, PduError, Ton, CMD_SUBMIT_SM, HEADER_LEN};
 use crate::encoding::MessageBody;
 use crate::tlv::{tags, Tlv};
 use std::io::{Cursor, Read, Write};
@@ -69,7 +69,7 @@ impl SubmitSmRequest {
             priority_flag: 0,
             schedule_delivery_time: String::new(),
             validity_period: String::new(),
-            registered_delivery: 1, // Default: Request delivery receipt
+            registered_delivery: 0, // Default: Don't request delivery receipt
             replace_if_present_flag: 0,
             data_coding: 0, // Default: SMSC Default
             sm_default_msg_id: 0,
@@ -217,21 +217,21 @@ impl SubmitSmRequest {
         // Body Parsing
         let mut u8_buf = [0u8; 1];
 
-        let service_type = crate::common::read_c_string(&mut cursor)?;
+        let service_type = read_c_string(&mut cursor)?;
 
         // Source
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
-        let source_addr = crate::common::read_c_string(&mut cursor)?;
+        let source_addr = read_c_string(&mut cursor)?;
 
         // Dest
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_npi = Npi::from(u8_buf[0]);
-        let dest_addr = crate::common::read_c_string(&mut cursor)?;
+        let dest_addr = read_c_string(&mut cursor)?;
 
         // Flags
         cursor.read_exact(&mut u8_buf)?;
@@ -241,8 +241,8 @@ impl SubmitSmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let priority_flag = u8_buf[0];
 
-        let schedule_delivery_time = crate::common::read_c_string(&mut cursor)?;
-        let validity_period = crate::common::read_c_string(&mut cursor)?;
+        let schedule_delivery_time = read_c_string(&mut cursor)?;
+        let validity_period = read_c_string(&mut cursor)?;
 
         cursor.read_exact(&mut u8_buf)?;
         let registered_delivery = u8_buf[0];
@@ -366,10 +366,4 @@ impl SubmitSmRequest {
                 }
             })
     }
-}
-
-// Helpers
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
 }

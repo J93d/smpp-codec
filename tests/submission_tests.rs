@@ -96,7 +96,7 @@ fn test_submit_sm_validation_errors() {
     assert!(req.encode(&mut buf).is_err());
 
     // Message too long (should use payload TLV instead, but encode just errors for now)
-    let mut req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![0; 255]);
+    let req = SubmitSmRequest::new(1, "src".into(), "dst".into(), vec![0; 255]);
     assert!(req.encode(&mut buf).is_err());
 }
 

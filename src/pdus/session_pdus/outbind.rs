@@ -1,4 +1,4 @@
-use crate::common::{write_c_string, PduError, CMD_OUTBIND, HEADER_LEN};
+use crate::common::{read_c_string, write_c_string, PduError, CMD_OUTBIND, HEADER_LEN};
 use std::io::{Cursor, Read, Write};
 
 /// Represents an Outbind PDU.
@@ -112,8 +112,8 @@ impl OutbindRequest {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // Body
-        let system_id = crate::common::read_c_string(&mut cursor)?;
-        let password = crate::common::read_c_string(&mut cursor)?;
+        let system_id = read_c_string(&mut cursor)?;
+        let password = read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,

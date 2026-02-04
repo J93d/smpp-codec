@@ -1,4 +1,6 @@
-use crate::common::{get_status_code, Npi, PduError, Ton, CMD_QUERY_SM, HEADER_LEN};
+use crate::common::{
+    get_status_code, read_c_string, write_c_string, Npi, PduError, Ton, CMD_QUERY_SM, HEADER_LEN,
+};
 use std::io::{Cursor, Read, Write};
 
 // --- Request ---
@@ -62,7 +64,7 @@ impl QuerySmRequest {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        let message_id = crate::common::read_c_string(&mut cursor)?;
+        let message_id = read_c_string(&mut cursor)?;
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
@@ -70,7 +72,7 @@ impl QuerySmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
 
-        let source_addr = crate::common::read_c_string(&mut cursor)?;
+        let source_addr = read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -167,8 +169,8 @@ impl QuerySmResponse {
         let error_code: u8;
 
         if command_status == 0 && buffer.len() > HEADER_LEN {
-            message_id = crate::common::read_c_string(&mut cursor)?;
-            final_date = crate::common::read_c_string(&mut cursor)?;
+            message_id = read_c_string(&mut cursor)?;
+            final_date = read_c_string(&mut cursor)?;
 
             let mut u8_buf = [0u8; 1];
             cursor.read_exact(&mut u8_buf)?;
@@ -194,10 +196,4 @@ impl QuerySmResponse {
             status_description,
         })
     }
-}
-
-// Helpers
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
 }

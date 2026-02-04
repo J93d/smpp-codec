@@ -15,7 +15,7 @@ fn test_enquire_link_req() {
 }
 
 #[test]
-#[test]
+
 fn test_enquire_link_resp() {
     let resp = EnquireLinkResponse::new(123, "ESME_ROK");
 

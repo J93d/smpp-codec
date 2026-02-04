@@ -1,4 +1,4 @@
-use crate::common::{BindMode, Npi, PduError, Ton, HEADER_LEN};
+use crate::common::{read_c_string, write_c_string, BindMode, Npi, PduError, Ton, HEADER_LEN};
 use std::io::{Cursor, Read, Write};
 
 /// Represents a Bind Request PDU (Receiver, Transmitter, or Transceiver).
@@ -182,9 +182,9 @@ impl BindRequest {
         let sequence_number = u32::from_be_bytes(bytes);
 
         // 3. Read Body (C-Strings and u8s)
-        let system_id = crate::common::read_c_string(&mut cursor)?;
-        let password = crate::common::read_c_string(&mut cursor)?;
-        let system_type = crate::common::read_c_string(&mut cursor)?;
+        let system_id = read_c_string(&mut cursor)?;
+        let password = read_c_string(&mut cursor)?;
+        let system_type = read_c_string(&mut cursor)?;
 
         // Simple u8 reads
         let mut u8_buf = [0u8; 1];
@@ -197,7 +197,7 @@ impl BindRequest {
         cursor.read_exact(&mut u8_buf)?;
         let addr_npi = Npi::from(u8_buf[0]); // Convert byte -> Enum
 
-        let address_range = crate::common::read_c_string(&mut cursor)?;
+        let address_range = read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,
@@ -211,11 +211,4 @@ impl BindRequest {
             address_range,
         })
     }
-}
-
-// --- Helpers (Private to this module) ---
-
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
 }

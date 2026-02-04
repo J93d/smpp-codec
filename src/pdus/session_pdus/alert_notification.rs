@@ -1,4 +1,6 @@
-use crate::common::{Npi, PduError, Ton, CMD_ALERT_NOTIFICATION, HEADER_LEN};
+use crate::common::{
+    read_c_string, write_c_string, Npi, PduError, Ton, CMD_ALERT_NOTIFICATION, HEADER_LEN,
+};
 use crate::tlv::Tlv;
 use std::io::{Cursor, Read, Write};
 
@@ -159,13 +161,13 @@ impl AlertNotification {
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
-        let source_addr = crate::common::read_c_string(&mut cursor)?;
+        let source_addr = read_c_string(&mut cursor)?;
 
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_npi = Npi::from(u8_buf[0]);
-        let esme_addr = crate::common::read_c_string(&mut cursor)?;
+        let esme_addr = read_c_string(&mut cursor)?;
 
         // Optional Params (TLVs)
         let mut optional_params = Vec::new();
@@ -184,10 +186,4 @@ impl AlertNotification {
             optional_params,
         })
     }
-}
-
-// Helpers
-fn write_c_string(w: &mut impl Write, s: &str) -> std::io::Result<()> {
-    w.write_all(s.as_bytes())?;
-    w.write_all(&[0])
 }

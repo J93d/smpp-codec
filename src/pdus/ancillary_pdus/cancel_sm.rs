@@ -1,6 +1,6 @@
 use crate::common::{
-    get_status_code, get_status_description, write_c_string, Npi, PduError, Ton, CMD_CANCEL_SM,
-    CMD_CANCEL_SM_RESP, HEADER_LEN,
+    get_status_code, get_status_description, read_c_string, write_c_string, Npi, PduError, Ton,
+    CMD_CANCEL_SM, CMD_CANCEL_SM_RESP, HEADER_LEN,
 };
 use std::io::{Cursor, Read, Write};
 
@@ -76,21 +76,21 @@ impl CancelSmRequest {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
-        let service_type = crate::common::read_c_string(&mut cursor)?;
-        let message_id = crate::common::read_c_string(&mut cursor)?;
+        let service_type = read_c_string(&mut cursor)?;
+        let message_id = read_c_string(&mut cursor)?;
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
-        let source_addr = crate::common::read_c_string(&mut cursor)?;
+        let source_addr = read_c_string(&mut cursor)?;
 
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_npi = Npi::from(u8_buf[0]);
-        let dest_addr = crate::common::read_c_string(&mut cursor)?;
+        let dest_addr = read_c_string(&mut cursor)?;
 
         Ok(Self {
             sequence_number,

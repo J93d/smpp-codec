@@ -1,12 +1,12 @@
 //! # SMPP Codec
 //!
-//! `smpp-codec` is a Rust library for encoding and decoding SMPP 3.4 PDUs (Protocol Data Units).
+//! `smpp-codec` is a Rust library for encoding and decoding SMPP 3.4 / 5.0 PDUs (Protocol Data Units).
 //! It provides a type-safe and efficient way to handle SMPP messages, suitable for building SMSCs (Short Message Service Centers)
 //! or ESMEs (External Short Message Entities).
 //!
 //! ## Features
 //!
-//! *   Full support for SMPP 3.4 PDUs.
+//! *   Full support for SMPP 3.4 / 5.0 PDUs.
 //! *   Strongly typed structures for all standard operations (Bind, SubmitSm, DeliverSm, etc.).
 //! *   Support for TLVs (Tagged Length Values) / Optional Parameters.
 //! *   Easy-to-use API for encoding and decoding.

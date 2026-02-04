@@ -1,5 +1,5 @@
 // bind_response.rs (Handles both Encoder and Decoder)
-use crate::common::{get_status_code, get_status_description, PduError, HEADER_LEN};
+use crate::common::{get_status_code, get_status_description, read_c_string, PduError, HEADER_LEN};
 use std::io::{Cursor, Read, Write};
 
 /// Represents a Bind Response PDU.
@@ -144,7 +144,7 @@ impl BindResponse {
             // The cursor is currently at pos 16 (end of header).
             // Read system_id (C-String)
             if command_status == 0 {
-                system_id = crate::common::read_c_string(&mut cursor)?;
+                system_id = read_c_string(&mut cursor)?;
             } else {
                 system_id = String::new();
             }

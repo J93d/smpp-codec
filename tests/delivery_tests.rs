@@ -34,7 +34,7 @@ fn test_deliver_sm_validation_errors() {
     assert!(req.encode(&mut buf).is_err());
 
     // Source addr too long
-    let mut req = DeliverSmRequest::new(1, "A".repeat(22), "dst".into(), vec![]);
+    let req = DeliverSmRequest::new(1, "A".repeat(22), "dst".into(), vec![]);
     assert!(req.encode(&mut buf).is_err());
 
     // Dest addr too long
@@ -42,7 +42,7 @@ fn test_deliver_sm_validation_errors() {
     assert!(req.encode(&mut buf).is_err());
 
     // Message too long
-    let mut req = DeliverSmRequest::new(1, "src".into(), "dst".into(), vec![0; 255]);
+    let req = DeliverSmRequest::new(1, "src".into(), "dst".into(), vec![0; 255]);
     assert!(req.encode(&mut buf).is_err());
 }
 
@@ -112,4 +112,8 @@ fn test_deliver_sm_resp_encoding_decoding() {
     assert_eq!(decoded.sequence_number, 999);
     assert_eq!(decoded.command_status, 0);
     assert_eq!(decoded.status_description, "ESME_ROK");
+    assert_eq!(decoded.message_id, "");
+
+    // Verify buffer length is 17 (16 Header + 1 Null Byte)
+    assert_eq!(buffer.len(), 17);
 }

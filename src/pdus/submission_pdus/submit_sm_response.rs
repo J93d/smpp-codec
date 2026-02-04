@@ -1,5 +1,6 @@
 use crate::common::{
-    get_status_code, get_status_description, PduError, CMD_SUBMIT_SM_RESP, HEADER_LEN,
+    get_status_code, get_status_description, read_c_string, PduError, CMD_SUBMIT_SM_RESP,
+    HEADER_LEN,
 };
 use std::io::{Cursor, Read, Write};
 
@@ -103,7 +104,7 @@ impl SubmitSmResponse {
         // Body
         // 3. Read Body (message_id)
         let message_id: String = if buffer.len() > HEADER_LEN {
-            crate::common::read_c_string(&mut cursor)?
+            read_c_string(&mut cursor)?
         } else {
             String::new()
         };

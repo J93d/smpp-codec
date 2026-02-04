@@ -81,11 +81,17 @@ pub const CMD_ALERT_NOTIFICATION_RESP: u32 = 0x80000102;
 /// Generic NACK.
 pub const GENERIC_NACK: u32 = 0x80000000;
 
-// Standard Header Length
+/// Command ID for Broadcast SM.
+pub const CMD_BROADCAST_SM: u32 = 0x00000111;
+/// Command ID for Broadcast SM Response.
+pub const CMD_BROADCAST_SM_RESP: u32 = 0x80000112;
+
+/// Standard Header Length
 pub const HEADER_LEN: usize = 16;
 
-/// SMPP Interface Version 3.4
-pub const SMPP_INTERFACE_VERSION: u8 = 0x34;
+/// SMPP Interface Version
+pub const SMPP_INTERFACE_VERSION_34: u8 = 0x34;
+pub const SMPP_INTERFACE_VERSION_50: u8 = 0x50;
 
 /// Address Type of Number (TON)
 #[derive(Debug, Clone, Copy, PartialEq)]

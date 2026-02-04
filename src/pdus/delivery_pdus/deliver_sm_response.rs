@@ -1,18 +1,21 @@
 use crate::common::{
-    get_status_code, get_status_description, PduError, CMD_DELIVER_SM_RESP, HEADER_LEN,
+    get_status_code, get_status_description, read_c_string, write_c_string, PduError,
+    CMD_DELIVER_SM_RESP, HEADER_LEN,
 };
 use std::io::{Cursor, Read, Write};
 
 /// Represents a Deliver SM Response PDU.
 ///
 /// This PDU is sent by the ESME to acknowledge the receipt of a `DeliverSmRequest`.
-/// It typically contains no body other than the message ID (which is often unused or empty in v3.4 for this response).
+/// It contains a message_id (C-Octet String) which is typically NULL (empty) in v3.4 / v5.0.
 #[derive(Debug, Clone)]
 pub struct DeliverSmResponse {
     /// The sequence number of the PDU, matching the request.
     pub sequence_number: u32,
     /// The command status (e.g., 0 for ESME_ROK).
     pub command_status: u32,
+    /// The message ID (C-Octet String). Usually empty/null.
+    pub message_id: String,
     /// A human-readable description of the status.
     pub status_description: String,
 }
@@ -37,19 +40,26 @@ impl DeliverSmResponse {
         Self {
             sequence_number,
             command_status,
+            message_id: String::new(), // Default to empty
             status_description: status_name.to_string(),
         }
     }
 
     /// Encode the struct into raw bytes for the network.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
-        let command_len = HEADER_LEN as u32;
+        let mut body = Vec::new();
+        // Always write message_id if status is 0 (OK)
+        if self.command_status == 0 {
+            write_c_string(&mut body, &self.message_id)?;
+        }
+
+        let command_len = (HEADER_LEN + body.len()) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_DELIVER_SM_RESP.to_be_bytes())?;
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
+        writer.write_all(&body)?;
 
-        // DeliverSmResp typically has no body (message_id is unused in v3.4)
         Ok(())
     }
 
@@ -67,11 +77,19 @@ impl DeliverSmResponse {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
+        // Read Body (message_id) if present
+        let message_id = if buffer.len() > HEADER_LEN {
+            read_c_string(&mut cursor)?
+        } else {
+            String::new()
+        };
+
         let status_description = get_status_description(command_status);
 
         Ok(Self {
             sequence_number,
             command_status,
+            message_id,
             status_description,
         })
     }

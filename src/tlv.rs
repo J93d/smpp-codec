@@ -7,7 +7,7 @@ use crate::common::PduError;
 use std::io::{Cursor, Read, Write};
 
 // --- Standard SMPP Optional Parameter Tags ---
-/// Standard SMPP Optional Parameter Tags as defined in SMPP 3.4 Spec.
+/// Standard SMPP Optional Parameter Tags as defined in SMPP Spec (v3.4 / v5.0).
 pub mod tags {
     pub const DEST_ADDR_SUBUNIT: u16 = 0x0005;
     pub const DEST_NETWORK_TYPE: u16 = 0x0006;
@@ -46,6 +46,7 @@ pub mod tags {
     pub const DELIVERY_FAILURE_REASON: u16 = 0x0425;
     pub const MORE_MESSAGES_TO_SEND: u16 = 0x0426;
     pub const MESSAGE_STATE: u16 = 0x0427;
+    pub const CONGESTION_STATE: u16 = 0x0428;
     pub const USSD_SERVICE_OP: u16 = 0x0501;
     pub const DISPLAY_TIME: u16 = 0x1201;
     pub const SMS_SIGNAL: u16 = 0x1203;
@@ -53,6 +54,15 @@ pub mod tags {
     pub const ALERT_ON_MESSAGE_DELIVERY: u16 = 0x130C;
     pub const ITS_REPLY_TYPE: u16 = 0x1380;
     pub const ITS_SESSION_INFO: u16 = 0x1383;
+    // --- Broadcast / Multicast specific (SMPP v5.0) ---
+    pub const BROADCAST_AREA_IDENTIFIER: u16 = 0x0606;
+    pub const BROADCAST_CONTENT_TYPE: u16 = 0x0601;
+    pub const BROADCAST_REP_NUM: u16 = 0x0602;
+    pub const BROADCAST_FREQUENCY_INTERVAL: u16 = 0x0603;
+    pub const BROADCAST_AREA_SUCCESS: u16 = 0x0608;
+    pub const BROADCAST_END_TIME: u16 = 0x0609;
+    pub const BROADCAST_SERVICE_GROUP: u16 = 0x060A;
+    pub const BROADCAST_CHANNEL_INDICATOR: u16 = 0x0600;
 }
 
 /// Helper function to get tag hex code from name (e.g., "SAR_MSG_REF_NUM" -> 0x020C)
@@ -98,6 +108,7 @@ pub fn get_tag_by_name(name: &str) -> u16 {
         "delivery_failure_reason" | "DELIVERY_FAILURE_REASON" => tags::DELIVERY_FAILURE_REASON,
         "more_messages_to_send" | "MORE_MESSAGES_TO_SEND" => tags::MORE_MESSAGES_TO_SEND,
         "message_state" | "MESSAGE_STATE" => tags::MESSAGE_STATE,
+        "congestion_state" | "CONGESTION_STATE" => tags::CONGESTION_STATE,
         "ussd_service_op" | "USSD_SERVICE_OP" => tags::USSD_SERVICE_OP,
         "display_time" | "DISPLAY_TIME" => tags::DISPLAY_TIME,
         "sms_signal" | "SMS_SIGNAL" => tags::SMS_SIGNAL,
@@ -107,6 +118,21 @@ pub fn get_tag_by_name(name: &str) -> u16 {
         }
         "its_reply_type" | "ITS_REPLY_TYPE" => tags::ITS_REPLY_TYPE,
         "its_session_info" | "ITS_SESSION_INFO" => tags::ITS_SESSION_INFO,
+        // --- Broadcast / Multicast specific (SMPP v5.0) ---
+        "broadcast_area_identifier" | "BROADCAST_AREA_IDENTIFIER" => {
+            tags::BROADCAST_AREA_IDENTIFIER
+        }
+        "broadcast_content_type" | "BROADCAST_CONTENT_TYPE" => tags::BROADCAST_CONTENT_TYPE,
+        "broadcast_rep_num" | "BROADCAST_REP_NUM" => tags::BROADCAST_REP_NUM,
+        "broadcast_frequency_interval" | "BROADCAST_FREQUENCY_INTERVAL" => {
+            tags::BROADCAST_FREQUENCY_INTERVAL
+        }
+        "broadcast_area_success" | "BROADCAST_AREA_SUCCESS" => tags::BROADCAST_AREA_SUCCESS,
+        "broadcast_end_time" | "BROADCAST_END_TIME" => tags::BROADCAST_END_TIME,
+        "broadcast_service_group" | "BROADCAST_SERVICE_GROUP" => tags::BROADCAST_SERVICE_GROUP,
+        "broadcast_channel_indicator" | "BROADCAST_CHANNEL_INDICATOR" => {
+            tags::BROADCAST_CHANNEL_INDICATOR
+        }
         _ => 0,
     }
 }
