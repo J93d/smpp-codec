@@ -127,7 +127,7 @@ fn main() {
 
 ## Running cargo test --test benchmarks --release -- --nocapture
 
-| Request Name              | Encoding Time | Enc Rate (Mop/s) | Decoding Time | Dec Rate (Mop/s) |
+
 |---------------------------|---------------|------------------|---------------|------------------|
 | Request Name              | Encoding Time | Enc Rate (Mop/s) | Decoding Time | Dec Rate (Mop/s) |
 |---------------------------|---------------|------------------|---------------|------------------|
