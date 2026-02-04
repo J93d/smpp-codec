@@ -2,7 +2,6 @@ use smpp_codec::pdus::{
     CancelBroadcastSm, CancelBroadcastSmResp, QueryBroadcastSm, QueryBroadcastSmResp, ReplaceSm,
     ReplaceSmResp,
 };
-use smpp_codec::tlv::{tags, Tlv};
 
 fn main() {
     println!("=== Ancillary PDUs Example ===");

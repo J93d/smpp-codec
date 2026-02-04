@@ -61,11 +61,9 @@ impl OutbindRequest {
             return Err(PduError::StringTooLong("password".into(), 9));
         }
 
-        let mut body = Vec::new();
-        write_c_string(&mut body, &self.system_id)?;
-        write_c_string(&mut body, &self.password)?;
-
-        let command_len = (HEADER_LEN + body.len()) as u32;
+        // Calculate body length
+        let body_len = self.system_id.len() + 1 + self.password.len() + 1;
+        let command_len = (HEADER_LEN + body_len) as u32;
 
         // Header
         writer.write_all(&command_len.to_be_bytes())?;
@@ -74,7 +72,8 @@ impl OutbindRequest {
         writer.write_all(&self.sequence_number.to_be_bytes())?;
 
         // Body
-        writer.write_all(&body)?;
+        write_c_string(writer, &self.system_id)?;
+        write_c_string(writer, &self.password)?;
 
         Ok(())
     }

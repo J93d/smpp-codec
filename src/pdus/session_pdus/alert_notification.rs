@@ -94,31 +94,34 @@ impl AlertNotification {
             return Err(PduError::StringTooLong("esme_addr".into(), 65));
         }
 
-        let mut body = Vec::new();
+        // Calculate body length
+        let mut body_len = 1 + 1 + self.source_addr.len() + 1 + // Source Address
+                           1 + 1 + self.esme_addr.len() + 1;    // ESME Address
 
-        // Source Address
-        body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
-        write_c_string(&mut body, &self.source_addr)?;
-
-        // ESME Address
-        body.write_all(&[self.esme_addr_ton as u8, self.esme_addr_npi as u8])?;
-        write_c_string(&mut body, &self.esme_addr)?;
-
-        // Optional Params
-        // [Change] Simplified TLV Encoding
+        // Calculate TLV length
         for tlv in &self.optional_params {
-            tlv.encode(&mut body)?;
+            body_len += 4 + tlv.value.len();
         }
 
         // Header
-        let command_len = (HEADER_LEN + body.len()) as u32;
+        let command_len = (HEADER_LEN + body_len) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_ALERT_NOTIFICATION.to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
 
-        // Body
-        writer.write_all(&body)?;
+        // Body - Source Address
+        writer.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
+        write_c_string(writer, &self.source_addr)?;
+
+        // Body - ESME Address
+        writer.write_all(&[self.esme_addr_ton as u8, self.esme_addr_npi as u8])?;
+        write_c_string(writer, &self.esme_addr)?;
+
+        // Optional Params
+        for tlv in &self.optional_params {
+            tlv.encode(writer)?;
+        }
 
         Ok(())
     }
