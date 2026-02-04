@@ -19,9 +19,10 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 smpp-codec = 0.1.0
-
+```
 Or
-
+```toml
+[dependencies]
 smpp-codec = { git = "https://github.com/J93d/smpp-codec.git" }
 ```
 
