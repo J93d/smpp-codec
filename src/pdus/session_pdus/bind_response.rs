@@ -5,7 +5,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Bind Response PDU.
 ///
 /// Sent by the SMSC in response to a Bind Request.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BindResponse {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error

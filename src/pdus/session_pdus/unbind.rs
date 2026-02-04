@@ -4,7 +4,7 @@ use crate::common::{
 use std::io::{Cursor, Read, Write};
 
 // --- Unbind Request ---
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnbindRequest {
     pub sequence_number: u32,
 }
@@ -81,7 +81,7 @@ impl UnbindRequest {
 }
 
 // --- Unbind Response ---
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnbindResponse {
     pub sequence_number: u32,
     pub command_status: u32,

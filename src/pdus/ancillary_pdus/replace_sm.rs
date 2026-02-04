@@ -9,7 +9,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Replace SM PDU.
 ///
 /// This PDU is used to replace a previously submitted short message that is still pending delivery.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ReplaceSm {
     pub sequence_number: u32,
     pub message_id: String, // The ID of the message to replace
@@ -164,7 +164,7 @@ impl ReplaceSm {
 // --- Response ---
 
 /// Represents a Replace SM Response PDU.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ReplaceSmResp {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error

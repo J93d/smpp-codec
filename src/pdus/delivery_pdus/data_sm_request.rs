@@ -6,7 +6,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// Used to transfer data between the SMSC and the ESME.
 /// It is an alternative to `SubmitSm` and `DeliverSm`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DataSm {
     pub sequence_number: u32,
     pub service_type: String,

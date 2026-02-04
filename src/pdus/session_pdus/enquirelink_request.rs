@@ -5,7 +5,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents an Enquire Link PDU.
 ///
 /// Used to check the health of the connection.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EnquireLinkRequest {
     pub sequence_number: u32,
 }

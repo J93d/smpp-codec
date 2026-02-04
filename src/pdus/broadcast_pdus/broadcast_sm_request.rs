@@ -8,7 +8,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Broadcast SM Request PDU.
 ///
 /// Used to broadcast a message to multiple recipients in a specific area.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BroadcastSm {
     pub sequence_number: u32,
     pub service_type: String,

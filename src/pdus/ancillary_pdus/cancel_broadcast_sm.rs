@@ -10,7 +10,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Cancel Broadcast SM PDU.
 ///
 /// This PDU is used to cancel a previously submitted broadcast message.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CancelBroadcastSm {
     pub sequence_number: u32,
     pub service_type: String,
@@ -138,7 +138,7 @@ impl CancelBroadcastSm {
 // --- Response ---
 
 /// Represents a Cancel Broadcast SM Response PDU.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CancelBroadcastSmResp {
     pub sequence_number: u32,
     pub command_status: u32, // 0 = OK, others = Error

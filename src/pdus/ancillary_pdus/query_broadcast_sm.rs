@@ -10,7 +10,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Query Broadcast SM PDU.
 ///
 /// This PDU is used to query the status of a previously submitted broadcast message.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct QueryBroadcastSm {
     pub sequence_number: u32,
     pub message_id: String,
@@ -119,7 +119,7 @@ impl QueryBroadcastSm {
 // --- Response ---
 
 /// Represents a Query Broadcast SM Response PDU.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct QueryBroadcastSmResp {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error

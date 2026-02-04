@@ -1,5 +1,5 @@
 use smpp_codec::common::{Npi, Ton};
-use smpp_codec::pdus::{Destination, SubmitMulti, SubmitMultiResp, UnsuccessSme};
+use smpp_codec::pdus::{Destination, SubmitMulti, SubmitMultiResp, UnsuccessfulDelivery};
 
 #[test]
 fn test_submit_multi_encoding_decoding() {
@@ -62,7 +62,7 @@ fn test_submit_multi_resp_success() {
 
 #[test]
 fn test_submit_multi_resp_partial_success() {
-    let unsuccess = UnsuccessSme {
+    let unsuccess = UnsuccessfulDelivery {
         ton: Ton::National,
         npi: Npi::Isdn,
         address: "9999".to_string(),

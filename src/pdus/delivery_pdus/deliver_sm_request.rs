@@ -9,7 +9,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// This PDU is issued by the SMSC to send a short message to the ESME (Client)
 /// or to deliver a delivery receipt (DLR).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DeliverSmRequest {
     /// The sequence number of the PDU.
     pub sequence_number: u32,

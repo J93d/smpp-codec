@@ -5,7 +5,7 @@ use crate::tlv::Tlv;
 use std::io::Read;
 use std::io::{Cursor, Write};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Destination {
     SmeAddress { ton: Ton, npi: Npi, address: String },
     DistributionList(String),
@@ -14,7 +14,7 @@ pub enum Destination {
 /// Represents a Submit Multi PDU.
 ///
 /// Used to submit a short message to multiple recipients (SME addresses or Distribution Lists).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SubmitMulti {
     pub sequence_number: u32,
     pub service_type: String,

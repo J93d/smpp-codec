@@ -4,7 +4,7 @@ use crate::common::{
 };
 use std::io::{Cursor, Read, Write};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SubmitSmResponse {
     pub sequence_number: u32,
     pub command_status: u32,

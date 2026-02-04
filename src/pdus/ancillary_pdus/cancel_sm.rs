@@ -6,7 +6,7 @@ use std::io::{Cursor, Read, Write};
 
 // --- Request ---
 /// Represents a Cancel SM Request PDU.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CancelSmRequest {
     pub sequence_number: u32,
     pub service_type: String,
@@ -108,7 +108,7 @@ impl CancelSmRequest {
 
 // --- Response ---
 // CancelSmResp has NO BODY. It is just a header.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CancelSmResponse {
     pub sequence_number: u32,
     pub command_status: u32,

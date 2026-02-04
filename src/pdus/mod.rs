@@ -25,4 +25,4 @@ pub use session_pdus::unbind::UnbindResponse;
 pub use submission_pdus::SubmitSmRequest;
 pub use submission_pdus::SubmitSmResponse;
 pub use submission_pdus::{Destination, SubmitMulti};
-pub use submission_pdus::{SubmitMultiResp, UnsuccessSme};
+pub use submission_pdus::{SubmitMultiResp, UnsuccessfulDelivery};

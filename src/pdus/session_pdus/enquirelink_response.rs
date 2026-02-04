@@ -7,7 +7,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents an Enquire Link Response PDU.
 ///
 /// Sent in response to an Enquire Link Request.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct EnquireLinkResponse {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error

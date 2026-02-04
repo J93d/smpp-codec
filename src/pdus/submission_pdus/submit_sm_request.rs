@@ -3,7 +3,7 @@ use crate::encoding::MessageBody;
 use crate::tlv::{tags, Tlv};
 use std::io::{Cursor, Read, Write};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SubmitSmRequest {
     pub sequence_number: u32,
     pub service_type: String, // Max 6 chars

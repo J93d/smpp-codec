@@ -7,7 +7,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents an Alert Notification PDU.
 ///
 /// Sent by the SMSC to the ESME to provide information about a message state (e.g., delivered).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AlertNotification {
     pub sequence_number: u32,
     pub source_addr_ton: Ton,

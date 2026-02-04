@@ -9,7 +9,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Broadcast SM Response PDU.
 ///
 /// Sent by the SMSC in response to a Broadcast SM Request.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BroadcastSmResp {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error

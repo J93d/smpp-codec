@@ -8,7 +8,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// This PDU is sent by the ESME to acknowledge the receipt of a `DeliverSmRequest`.
 /// It contains a message_id (C-Octet String) which is typically NULL (empty) in v3.4 / v5.0.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct DeliverSmResponse {
     /// The sequence number of the PDU, matching the request.
     pub sequence_number: u32,

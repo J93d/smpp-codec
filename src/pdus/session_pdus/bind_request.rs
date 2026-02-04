@@ -4,7 +4,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Bind Request PDU (Receiver, Transmitter, or Transceiver).
 ///
 /// This PDU is used to initiate a session with the SMSC.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BindRequest {
     pub sequence_number: u32,
     pub mode: BindMode,

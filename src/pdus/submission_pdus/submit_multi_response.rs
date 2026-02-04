@@ -6,8 +6,8 @@ use crate::common::{
 use std::io::{Cursor, Read, Write};
 
 /// Represents an unsuccessful SME in a Submit Multi Response.
-#[derive(Debug, Clone)]
-pub struct UnsuccessSme {
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnsuccessfulDelivery {
     pub ton: Ton,
     pub npi: Npi,
     pub address: String,
@@ -17,13 +17,13 @@ pub struct UnsuccessSme {
 /// Represents a Submit Multi Response PDU.
 ///
 /// Sent by the SMSC in response to a Submit Multi Request.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SubmitMultiResp {
     pub sequence_number: u32,
     pub command_status: u32,        // 0 = OK, others = Error
     pub status_description: String, // Human-readable description of status
     pub message_id: String,
-    pub unsuccess_smes: Vec<UnsuccessSme>,
+    pub unsuccess_smes: Vec<UnsuccessfulDelivery>,
 }
 
 impl SubmitMultiResp {
@@ -32,7 +32,7 @@ impl SubmitMultiResp {
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::{SubmitMultiResp, UnsuccessSme};
+    /// use smpp_codec::pdus::{SubmitMultiResp, UnsuccessfulDelivery};
     ///
     /// let resp = SubmitMultiResp::new(
     ///     1,
@@ -45,7 +45,7 @@ impl SubmitMultiResp {
         sequence_number: u32,
         status_name: &str,
         message_id: String,
-        unsuccess_smes: Vec<UnsuccessSme>,
+        unsuccess_smes: Vec<UnsuccessfulDelivery>,
     ) -> Self {
         let command_status = get_status_code(status_name);
         Self {
@@ -127,7 +127,7 @@ impl SubmitMultiResp {
                 cursor.read_exact(&mut err_bytes)?;
                 let error_status = u32::from_be_bytes(err_bytes);
 
-                unsuccess_smes.push(UnsuccessSme {
+                unsuccess_smes.push(UnsuccessfulDelivery {
                     ton,
                     npi,
                     address,

@@ -4,7 +4,7 @@ use crate::common::{
 use std::io::{Cursor, Read, Write};
 
 // --- Request ---
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct QuerySmRequest {
     pub sequence_number: u32,
     pub message_id: String,
@@ -85,7 +85,7 @@ impl QuerySmRequest {
 }
 
 /// Query_SM Response
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct QuerySmResponse {
     pub sequence_number: u32,
     pub command_status: u32,

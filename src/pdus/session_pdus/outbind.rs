@@ -4,7 +4,7 @@ use std::io::{Cursor, Read, Write};
 /// Represents an Outbind PDU.
 ///
 /// Sent by the SMSC to the ESME to request the ESME to initiate a Bind.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct OutbindRequest {
     pub sequence_number: u32,
     pub system_id: String,
