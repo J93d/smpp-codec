@@ -1,6 +1,6 @@
 use smpp_codec::pdus::{EnquireLinkRequest, EnquireLinkResponse};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Enquire Link Example ===");
 
     // 1. EnquireLink Request
@@ -8,7 +8,7 @@ fn main() {
     let enquire_link = EnquireLinkRequest::new(100);
     println!("Request: {:?}", enquire_link);
     let mut buf = Vec::new();
-    enquire_link.encode(&mut buf).unwrap();
+    enquire_link.encode(&mut buf)?;
     println!("Encoded {} bytes", buf.len());
 
     // 2. EnquireLink Response
@@ -17,6 +17,7 @@ fn main() {
     println!("Response: {:?}", resp);
 
     let mut buf2 = Vec::new();
-    resp.encode(&mut buf2).unwrap();
+    resp.encode(&mut buf2)?;
     println!("Encoded {} bytes", buf2.len());
+    Ok(())
 }

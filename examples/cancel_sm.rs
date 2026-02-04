@@ -1,6 +1,6 @@
 use smpp_codec::pdus::{CancelSmRequest, CancelSmResponse};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Cancel SM Example ===");
 
     // 1. Request
@@ -13,10 +13,11 @@ fn main() {
     println!("Cancel Request: {:?}", cancel);
 
     let mut buf = Vec::new();
-    cancel.encode(&mut buf).unwrap();
+    cancel.encode(&mut buf)?;
     println!("Encoded {} bytes", buf.len());
 
     // 2. Response
     let resp = CancelSmResponse::new(200, "ESME_ROK");
     println!("Cancel Response: {:?}", resp);
+    Ok(())
 }

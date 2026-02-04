@@ -8,9 +8,9 @@ A Rust library for encoding and decoding Short Message Peer-to-Peer (SMPP) v3.4 
 
 ## Features
 
-- **PDU Support**: Currently supports Session Management PDUs (Bind, Unbind, EnquireLink, AlertNotification, Outlbind, GenericNack).
+- **PDU Support**: Supports all PDU's as per SMPP v5.0 specifications.
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
-- **Zero-Dependency Core**: Built with standard library usages (mostly) to keep it lightweight.
+- **Zero-Dependency Core**: Built with standard library + rand.
 
 ## Usage
 
@@ -18,7 +18,11 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = 0.1.0 # Or git url
+smpp-codec = 0.1.0
+
+Or
+
+smpp-codec = { git = "https://github.com/J93d/smpp-codec.git" }
 ```
 
 ### Example: Binding as Transceiver
@@ -36,9 +40,15 @@ fn main() {
     ).with_address_range(Ton::International, Npi::Isdn, "12345".to_string());
 
     let mut buffer = Vec::new();
-    bind_req.encode(&mut buffer).unwrap();
-    
-    // Send `buffer` over TCP stream...
+    match bind_req.encode(&mut buffer) {
+        Ok(_) => {
+            bind_req.encode(&mut buffer);    
+            // Send `buffer` over TCP stream...
+        }
+        Err(e) => {
+            eprintln!("Failed to encode: {:?}", e);
+        }
+    }
 }
 ```
 
@@ -50,12 +60,12 @@ use smpp_codec::pdus::{SubmitSmRequest, MessageSplitter, SplitMode, EncodingType
 fn main() {
     let text = "Hello, world!".to_string();
     
-    // Split message (handles encoding and valid chunking)
+    // 1. Split message (handles encoding and valid chunking)
     let (parts, data_coding) = MessageSplitter::split(
         text,
         EncodingType::Gsm7Bit, 
         SplitMode::Udh // Use UDH for concatenation
-    ).unwrap();
+    ).expect("Failed to split message");
 
     // Iterate over parts and send each PDU
     for (i, part) in parts.into_iter().enumerate() {
@@ -68,7 +78,7 @@ fn main() {
         submit_req.data_coding = data_coding; // Important: Set correct encoding!
 
         let mut buffer = Vec::new();
-        submit_req.encode(&mut buffer).unwrap();
+        submit_req.encode(&mut buffer).expect("Failed to encode PDU");
         // Send buffer...
     }
 }
@@ -87,7 +97,7 @@ fn main() {
         text,
         EncodingType::Gsm7Bit, 
         SplitMode::Udh 
-    ).unwrap();
+    ).expect("Failed to split message");
     
     let parts_len = parts.len();
 
@@ -106,7 +116,7 @@ fn main() {
         }
 
         let mut buffer = Vec::new();
-        deliver_req.encode(&mut buffer).unwrap();
+        deliver_req.encode(&mut buffer).expect("Failed to encode PDU");
         // Send buffer...
     }
 }
@@ -121,7 +131,7 @@ fn main() {
     let unbind_req = UnbindRequest::new(3); // Sequence Number
 
     let mut buffer = Vec::new();
-    unbind_req.encode(&mut buffer).unwrap();
+    unbind_req.encode(&mut buffer).expect("Failed to encode PDU");
 }
 ```
 

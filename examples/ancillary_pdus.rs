@@ -3,7 +3,7 @@ use smpp_codec::pdus::{
     ReplaceSmResp,
 };
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Ancillary PDUs Example ===");
 
     // --- ReplaceSm ---
@@ -17,10 +17,10 @@ fn main() {
     println!("Created Request: {:?}", replace_req);
 
     let mut buffer = Vec::new();
-    replace_req.encode(&mut buffer).unwrap();
+    replace_req.encode(&mut buffer)?;
     println!("Encoded length: {} bytes", buffer.len());
 
-    let decoded_req = ReplaceSm::decode(&buffer).unwrap();
+    let decoded_req = ReplaceSm::decode(&buffer)?;
     println!("Decoded Request Sequence: {}", decoded_req.sequence_number);
 
     let replace_resp = ReplaceSmResp::new(1001, "ESME_ROK");
@@ -32,9 +32,9 @@ fn main() {
     println!("Created Request: {:?}", query_req);
 
     let mut buffer = Vec::new();
-    query_req.encode(&mut buffer).unwrap();
+    query_req.encode(&mut buffer)?;
 
-    let decoded_query = QueryBroadcastSm::decode(&buffer).unwrap();
+    let decoded_query = QueryBroadcastSm::decode(&buffer)?;
     println!("Decoded Query Message ID: {}", decoded_query.message_id);
 
     let query_resp = QueryBroadcastSmResp::new(2001, "ESME_ROK", "bc_msg_001".to_string());
@@ -51,11 +51,12 @@ fn main() {
     println!("Created Request: {:?}", cancel_req);
 
     let mut buffer = Vec::new();
-    cancel_req.encode(&mut buffer).unwrap();
+    cancel_req.encode(&mut buffer)?;
 
-    let decoded_cancel = CancelBroadcastSm::decode(&buffer).unwrap();
+    let decoded_cancel = CancelBroadcastSm::decode(&buffer)?;
     println!("Decoded Cancel Message ID: {}", decoded_cancel.message_id);
 
     let cancel_resp = CancelBroadcastSmResp::new(3001, "ESME_ROK");
     println!("Created Response: {:?}", cancel_resp);
+    Ok(())
 }

@@ -1,6 +1,6 @@
 use smpp_codec::pdus::{MessageState, QuerySmRequest, QuerySmResponse};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Query SM Example ===");
 
     // 1. Request
@@ -8,7 +8,7 @@ fn main() {
     println!("Query Request: {:?}", query);
 
     let mut buf = Vec::new();
-    query.encode(&mut buf).unwrap();
+    query.encode(&mut buf)?;
     println!("Encoded {} bytes", buf.len());
 
     // 2. Response
@@ -21,4 +21,5 @@ fn main() {
         0, // error_code
     );
     println!("Query Response: {:?}", resp);
+    Ok(())
 }

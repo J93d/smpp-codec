@@ -1,6 +1,6 @@
 use smpp_codec::pdus::{DeliverSmRequest, EncodingType, MessageSplitter, SplitMode};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Deliver SM Example (Incoming Message) ===");
 
     // Simulate a long incoming message content
@@ -10,7 +10,7 @@ fn main() {
 
     // 1. Split message
     let (parts, data_coding) =
-        MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh).unwrap();
+        MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh)?;
 
     println!("Split into {} parts.", parts.len());
     let parts_len = parts.len();
@@ -32,7 +32,7 @@ fn main() {
         }
 
         let mut buffer = Vec::new();
-        deliver_req.encode(&mut buffer).unwrap();
+        deliver_req.encode(&mut buffer)?;
 
         println!(
             "Part {}: Sequence {}, Encoded {} bytes. UDHI bit set: {}",
@@ -42,4 +42,5 @@ fn main() {
             (deliver_req.esm_class & 0x40) != 0
         );
     }
+    Ok(())
 }

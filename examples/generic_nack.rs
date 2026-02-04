@@ -1,6 +1,6 @@
 use smpp_codec::pdus::GenericNack;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Generic Nack Example ===");
 
     // 1. Create Generic Nack
@@ -14,10 +14,11 @@ fn main() {
 
     // 2. Encode
     let mut buf = Vec::new();
-    nack.encode(&mut buf).unwrap();
+    nack.encode(&mut buf)?;
     println!("Encoded {} bytes", buf.len());
 
     // 3. Decode verification
-    let decoded = GenericNack::decode(&buf).unwrap();
+    let decoded = GenericNack::decode(&buf)?;
     println!("Decoded Command Status: 0x{:08X}", decoded.command_status);
+    Ok(())
 }

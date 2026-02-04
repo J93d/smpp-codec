@@ -310,6 +310,31 @@ impl From<std::io::Error> for PduError {
     }
 }
 
+impl std::fmt::Display for PduError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PduError::Io(err) => write!(f, "IO Error: {}", err),
+            PduError::Utf8(err) => write!(f, "UTF8 Error: {}", err),
+            PduError::BufferTooShort => write!(f, "Buffer contains insufficient data"),
+            PduError::InvalidCommandId(id) => write!(f, "Invalid Command ID: 0x{:08X}", id),
+            PduError::StringTooLong(field, max) => {
+                write!(f, "String too long for field '{}' (max: {})", field, max)
+            }
+            PduError::InvalidLength => write!(f, "Invalid length for field"),
+        }
+    }
+}
+
+impl std::error::Error for PduError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            PduError::Io(err) => Some(err),
+            PduError::Utf8(err) => Some(err),
+            _ => None,
+        }
+    }
+}
+
 /// optimized helper to read a C-Style string from a Cursor<&[u8]>
 pub fn read_c_string(cursor: &mut std::io::Cursor<&[u8]>) -> Result<String, PduError> {
     let current_pos = cursor.position() as usize;

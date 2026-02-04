@@ -1,6 +1,6 @@
 use smpp_codec::pdus::OutbindRequest;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Outbind Example ===");
 
     // 1. Create Outbind Request
@@ -15,6 +15,7 @@ fn main() {
 
     // 2. Encode
     let mut buffer = Vec::new();
-    outbind.encode(&mut buffer).unwrap();
+    outbind.encode(&mut buffer)?;
     println!("Encoded {} bytes", buffer.len());
+    Ok(())
 }

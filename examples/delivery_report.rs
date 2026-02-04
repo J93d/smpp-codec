@@ -1,6 +1,6 @@
 use smpp_codec::pdus::{DeliverSmRequest, DeliveryReceipt};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Delivery Report Example ===");
 
     // 1. Create a Delivery Receipt object
@@ -31,11 +31,11 @@ fn main() {
 
     // 3. Encode
     let mut buffer = Vec::new();
-    pdu.encode(&mut buffer).expect("Failed to encode");
+    pdu.encode(&mut buffer)?;
     println!("Encoded PDU size: {} bytes", buffer.len());
 
     // 4. Decode
-    let decoded_pdu = DeliverSmRequest::decode(&buffer).expect("Failed to decode");
+    let decoded_pdu = DeliverSmRequest::decode(&buffer)?;
     println!("\nDecoded PDU: {:?}", decoded_pdu);
 
     // 5. Parse Receipt from PDU
@@ -47,4 +47,5 @@ fn main() {
     } else {
         println!("Failed to parse receipt from decoded PDU!");
     }
+    Ok(())
 }

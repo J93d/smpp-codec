@@ -2,7 +2,7 @@ use smpp_codec::common::{Npi, Ton};
 use smpp_codec::pdus::AlertNotification;
 use smpp_codec::tlv::Tlv;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== SMPP Alert Notification Example ===");
 
     // 1. Create Alert Notification
@@ -23,6 +23,7 @@ fn main() {
 
     // 3. Encode
     let mut buf = Vec::new();
-    alert.encode(&mut buf).unwrap();
+    alert.encode(&mut buf)?;
     println!("Encoded {} bytes", buf.len());
+    Ok(())
 }
