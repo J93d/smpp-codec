@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = { path = "." } # Or git url
+smpp-codec = 0.1.0 # Or git url
 ```
 
 ### Example: Binding as Transceiver
@@ -75,7 +75,6 @@ fn main() {
 ```
 
 ### 3. Deliver Short Message
-(Included in `examples/deliver_sm.rs`)
 
 ```rust
 use smpp_codec::pdus::{DeliverSmRequest, MessageSplitter, SplitMode, EncodingType};
