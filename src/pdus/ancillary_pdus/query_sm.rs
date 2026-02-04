@@ -33,21 +33,22 @@ impl QuerySmRequest {
             return Err(PduError::StringTooLong("source_addr".into(), 21));
         }
 
-        // 2. Buffer Body to Calculate Length
-        let mut body = Vec::new();
-        write_c_string(&mut body, &self.message_id)?;
-        body.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
-        write_c_string(&mut body, &self.source_addr)?;
+        // 2. Calculate Length Upfront
+        let body_len = self.message_id.len() + 1 +
+                       1 + 1 + // source_addr_ton, source_addr_npi
+                       self.source_addr.len() + 1;
 
         // 3. Write Header
-        let command_len = (HEADER_LEN + body.len()) as u32;
+        let command_len = (HEADER_LEN + body_len) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_QUERY_SM.to_be_bytes())?;
         writer.write_all(&0u32.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
 
         // 4. Write Body
-        writer.write_all(&body)?;
+        write_c_string(writer, &self.message_id)?;
+        writer.write_all(&[self.source_addr_ton as u8, self.source_addr_npi as u8])?;
+        write_c_string(writer, &self.source_addr)?;
 
         Ok(())
     }
@@ -132,20 +133,25 @@ impl QuerySmResponse {
     }
 
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
-        let mut body = Vec::new();
+        let body_len = if self.command_status == 0 {
+            self.message_id.len() + 1 +
+            self.final_date.len() + 1 +
+            1 + 1 // message_state, error_code
+        } else {
+            0
+        };
 
-        if self.command_status == 0 {
-            write_c_string(&mut body, &self.message_id)?;
-            write_c_string(&mut body, &self.final_date)?;
-            body.write_all(&[self.message_state, self.error_code])?;
-        }
-
-        let command_len = (HEADER_LEN + body.len()) as u32;
+        let command_len = (HEADER_LEN + body_len) as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&crate::common::CMD_QUERY_SM_RESP.to_be_bytes())?;
         writer.write_all(&self.command_status.to_be_bytes())?;
         writer.write_all(&self.sequence_number.to_be_bytes())?;
-        writer.write_all(&body)?;
+
+        if self.command_status == 0 {
+            write_c_string(writer, &self.message_id)?;
+            write_c_string(writer, &self.final_date)?;
+            writer.write_all(&[self.message_state, self.error_code])?;
+        }
 
         Ok(())
     }

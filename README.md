@@ -127,38 +127,38 @@ fn main() {
 
 ## Running cargo test --test benchmarks --release -- --nocapture
 
-| Request Name              | Encoding Time | Enc Rate (op/s) | Decoding Time | Dec Rate (op/s) |
-|---------------------------|---------------|-----------------|---------------|-----------------|
-| BindRequest               | 2.64ms        | 37881657.70     | 22.04ms       | 4537534.49      |
-| BindResponse              | 6.29ms        | 15901537.68     | 12.05ms       | 8297791.13      |
-| OutbindRequest            | 40.08ms       | 2495159.39      | 13.03ms       | 7677130.60      |
-| UnbindRequest             | 462.70µs      | 216122757.73    | 237.50µs      | 421052631.58    |
-| UnbindResponse            | 429.70µs      | 232720502.68    | 4.77ms        | 20980634.87     |
-| EnquireLinkRequest        | 451.20µs      | 221631205.67    | 237.00µs      | 421940928.27    |
-| EnquireLinkResponse       | 583.00µs      | 171526586.62    | 4.73ms        | 21159542.95     |
-| GenericNack               | 381.10µs      | 262398320.65    | 4.75ms        | 21049086.47     |
-| AlertNotification         | 40.76ms       | 2453445.86      | 13.70ms       | 7299429.91      |
-| SubmitSmRequest           | 7.57ms        | 13218071.75     | 23.06ms       | 4336701.50      |
-| SubmitSmRequest (Multi)   | 22.05ms       | 13603036.20     | 71.18ms       | 4214850.60      |
-| SubmitSmResponse          | 12.62ms       | 7925751.56      | 11.08ms       | 9027552.09      |
-| SubmitMulti               | 3.60ms        | 27774691.70     | 36.44ms       | 2744237.10      |
-| SubmitMultiResp           | 6.22ms        | 16085187.15     | 11.46ms       | 8728212.20      |
-| DeliverSmRequest          | 6.80ms        | 14708045.30     | 23.41ms       | 4271259.12      |
-| DeliverSmResponse         | 5.93ms        | 16861984.66     | 6.11ms        | 16356439.53     |
-| DataSm                    | 2.42ms        | 41252423.58     | 26.95ms       | 3711070.87      |
-| DataSmResp                | 5.89ms        | 16986292.06     | 11.20ms       | 8926260.16      |
-| CancelSmRequest           | 1.74ms        | 57580468.71     | 19.65ms       | 5089213.92      |
-| CancelSmResponse          | 396.20µs      | 252397778.90    | 5.38ms        | 18591161.76     |
-| QuerySmRequest            | 38.56ms       | 2593058.38      | 13.10ms       | 7632422.53      |
-| QuerySmResponse           | 39.48ms       | 2533101.30      | 11.77ms       | 8494228.17      |
-| BroadcastSm               | 3.71ms        | 26928773.39     | 28.19ms       | 3547571.16      |
-| BroadcastSmResp           | 6.21ms        | 16115516.02     | 11.21ms       | 8918776.70      |
-| ReplaceSm                 | 1.91ms        | 52383446.83     | 20.55ms       | 4865493.43      |
-| ReplaceSmResp             | 432.00µs      | 231481481.48    | 5.41ms        | 18474726.57     |
-| QueryBroadcastSm          | 1.06ms        | 94082227.87     | 13.74ms       | 7280192.78      |
-| QueryBroadcastSmResp      | 820.80µs      | 121832358.67    | 11.32ms       | 8832049.74      |
-| CancelBroadcastSm         | 1.50ms        | 66498204.55     | 21.59ms       | 4632052.88      |
-| CancelBroadcastSmResp     | 381.10µs      | 262398320.65    | 5.32ms        | 18786398.65     |
+| Request Name              | Encoding Time | Enc Rate (Mop/s) | Decoding Time | Dec Rate (Mop/s) |
+|---------------------------|---------------|------------------|---------------|------------------|
+| BindRequest               | 2.81ms        | 35.57            | 30.16ms       | 3.32             |
+| BindResponse              | 7.69ms        | 13.01            | 14.29ms       | 7.00             |
+| OutbindRequest            | 45.92ms       | 2.18             | 12.79ms       | 7.82             |
+| UnbindRequest             | 0.45ms        | 219.93           | 0.20ms        | 498.01           |
+| UnbindResponse            | 0.40ms        | 249.38           | 4.95ms        | 20.19            |
+| EnquireLinkRequest        | 0.45ms        | 221.63           | 0.20ms        | 498.50           |
+| EnquireLinkResponse       | 0.45ms        | 219.93           | 4.97ms        | 20.10            |
+| GenericNack               | 0.43ms        | 234.69           | 4.94ms        | 20.25            |
+| AlertNotification         | 40.81ms       | 2.45             | 13.48ms       | 7.42             |
+| SubmitSmRequest           | 6.23ms        | 16.06            | 23.30ms       | 4.29             |
+| SubmitSmRequest (Multi)   | 20.80ms       | 14.42            | 70.57ms       | 4.25             |
+| SubmitSmResponse          | 12.51ms       | 7.99             | 11.20ms       | 8.93             |
+| SubmitMulti               | 3.79ms        | 26.35            | 36.07ms       | 2.77             |
+| SubmitMultiResp           | 6.13ms        | 16.32            | 10.88ms       | 9.19             |
+| DeliverSmRequest          | 5.95ms        | 16.80            | 22.92ms       | 4.36             |
+| DeliverSmResponse         | 5.95ms        | 16.81            | 6.02ms        | 16.62            |
+| DataSm                    | 2.41ms        | 41.48            | 26.02ms       | 3.84             |
+| DataSmResp                | 6.44ms        | 15.53            | 11.31ms       | 8.84             |
+| CancelSmRequest           | 1.69ms        | 59.11            | 23.29ms       | 4.29             |
+| CancelSmResponse          | 0.39ms        | 255.36           | 5.45ms        | 18.35            |
+| QuerySmRequest            | 1.18ms        | 84.92            | 13.04ms       | 7.67             |
+| QuerySmResponse           | 1.01ms        | 99.39            | 12.63ms       | 7.92             |
+| BroadcastSm               | 4.22ms        | 23.67            | 28.09ms       | 3.56             |
+| BroadcastSmResp           | 6.20ms        | 16.13            | 11.35ms       | 8.81             |
+| ReplaceSm                 | 1.89ms        | 53.05            | 20.75ms       | 4.82             |
+| ReplaceSmResp             | 0.41ms        | 241.66           | 5.38ms        | 18.60            |
+| QueryBroadcastSm          | 1.06ms        | 94.27            | 13.79ms       | 7.25             |
+| QueryBroadcastSmResp      | 0.81ms        | 124.15           | 11.43ms       | 8.75             |
+| CancelBroadcastSm         | 1.55ms        | 64.31            | 21.59ms       | 4.63             |
+| CancelBroadcastSmResp     | 0.37ms        | 268.89           | 5.54ms        | 18.06            |
 
 ## License
 

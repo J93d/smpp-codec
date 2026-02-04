@@ -3,7 +3,6 @@ use smpp_codec::pdus::{
     ReplaceSmResp,
 };
 use smpp_codec::tlv::{tags, Tlv};
-use std::io::Cursor;
 
 fn main() {
     println!("=== Ancillary PDUs Example ===");
