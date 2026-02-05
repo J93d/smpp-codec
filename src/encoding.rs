@@ -1,4 +1,6 @@
-// src/encoding.rs
+//! # Content Encoding/Decoding Module
+//!
+//! This module contains encoding/decoding logic for message content
 use std::collections::HashMap;
 
 const GSM_BASIC_CHARSET: &str = "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞ\x1bÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ`¿abcdefghijklmnopqrstuvwxyzäöñüà";
