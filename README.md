@@ -12,6 +12,10 @@ A Rust library for encoding and decoding Short Message Peer-to-Peer (SMPP) v3.4 
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
 - **Zero-Dependency Core**: Built with standard library + rand.
 
+## Compatibility
+
+The minimum supported Rust version (MSRV) is **1.63.0**.
+
 ## Usage
 
 Add this to your `Cargo.toml`:
