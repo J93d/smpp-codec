@@ -43,7 +43,6 @@
 
 #![warn(missing_docs)]
 // Expose the common module (constants, errors, enums)
-// Expose the common module (constants, errors, enums)
 /// Common constants, enums, and error types.
 pub mod common;
 /// Encoding and decoding utilities (GSM 7-bit, etc.).
