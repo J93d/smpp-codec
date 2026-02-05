@@ -1,3 +1,7 @@
+//! # Message Content Splitter
+//!
+//! This module contains logic for splitting large message content into pre-defined length
+
 use crate::encoding;
 // use rand::Rng; // Deprecated/Unused
 
