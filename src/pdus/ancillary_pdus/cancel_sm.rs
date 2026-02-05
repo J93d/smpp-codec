@@ -8,18 +8,28 @@ use std::io::{Cursor, Read, Write};
 /// Represents a Cancel SM Request PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CancelSmRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type
     pub service_type: String,
+    /// Message ID of the message to cancel
     pub message_id: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// Destination Address Type of Number
     pub dest_addr_ton: Ton,
+    /// Destination Address Numbering Plan Indicator
     pub dest_addr_npi: Npi,
+    /// Destination Address
     pub dest_addr: String,
 }
 
 impl CancelSmRequest {
+    /// Create a new Cancel SM Request.
     pub fn new(
         sequence_number: u32,
         message_id: String,
@@ -39,6 +49,7 @@ impl CancelSmRequest {
         }
     }
 
+    /// Encode the PDU into the writer.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // Calculate body length upfront to avoid double buffering
         let body_len = self.service_type.len() + 1 + // C-String
@@ -65,6 +76,7 @@ impl CancelSmRequest {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
@@ -108,10 +120,14 @@ impl CancelSmRequest {
 
 // --- Response ---
 // CancelSmResp has NO BODY. It is just a header.
+/// Represents a Cancel SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CancelSmResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Command Status
     pub command_status: u32,
+    /// Status Description
     pub status_description: String,
 }
 
@@ -134,6 +150,7 @@ impl CancelSmResponse {
         }
     }
 
+    /// Encode the PDU into the writer.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         writer.write_all(&(HEADER_LEN as u32).to_be_bytes())?;
         writer.write_all(&CMD_CANCEL_SM_RESP.to_be_bytes())?;
@@ -142,6 +159,7 @@ impl CancelSmResponse {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);

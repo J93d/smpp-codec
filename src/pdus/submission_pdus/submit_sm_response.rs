@@ -4,11 +4,16 @@ use crate::common::{
 };
 use std::io::{Cursor, Read, Write};
 
+/// Represents a Submit SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SubmitSmResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Command Status (0 = OK, others = Error)
     pub command_status: u32,
+    /// Message ID (C-Octet String)
     pub message_id: String, // C-Octet String (Max 65 chars)
+    /// Human-readable description of status
     pub status_description: String,
 }
 

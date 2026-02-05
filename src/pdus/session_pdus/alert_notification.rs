@@ -9,13 +9,21 @@ use std::io::{Cursor, Read, Write};
 /// Sent by the SMSC to the ESME to provide information about a message state (e.g., delivered).
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlertNotification {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address (Sender)
     pub source_addr: String, // Max 65
+    /// ESME Address Type of Number
     pub esme_addr_ton: Ton,
+    /// ESME Address Numbering Plan Indicator
     pub esme_addr_npi: Npi,
+    /// ESME Address (Receiver)
     pub esme_addr: String, // Max 65
+    /// Optional TLVs
     pub optional_params: Vec<Tlv>,
 }
 
@@ -48,6 +56,7 @@ impl AlertNotification {
     }
 
     // Builder for TON/NPI
+    /// Builder for setting Source Address TON/NPI/Address.
     pub fn with_source_addr(mut self, ton: Ton, npi: Npi, addr: String) -> Self {
         self.source_addr_ton = ton;
         self.source_addr_npi = npi;
@@ -55,6 +64,7 @@ impl AlertNotification {
         self
     }
 
+    /// Builder for setting ESME Address TON/NPI/Address.
     pub fn with_esme_addr(mut self, ton: Ton, npi: Npi, addr: String) -> Self {
         self.esme_addr_ton = ton;
         self.esme_addr_npi = npi;
@@ -96,7 +106,7 @@ impl AlertNotification {
 
         // Calculate body length
         let mut body_len = 1 + 1 + self.source_addr.len() + 1 + // Source Address
-                           1 + 1 + self.esme_addr.len() + 1;    // ESME Address
+                           1 + 1 + self.esme_addr.len() + 1; // ESME Address
 
         // Calculate TLV length
         for tlv in &self.optional_params {

@@ -2,11 +2,12 @@ use crate::common::{PduError, CMD_ENQUIRE_LINK, HEADER_LEN};
 use std::io::{Cursor, Read, Write};
 
 // --- EnquireLink Request ---
-/// Represents an Enquire Link PDU.
+/// Represents an Enquire Link Request PDU.
 ///
 /// Used to check the health of the connection.
 #[derive(Debug, Clone, PartialEq)]
 pub struct EnquireLinkRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
 }
 

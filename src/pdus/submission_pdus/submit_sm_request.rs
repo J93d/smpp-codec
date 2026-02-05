@@ -4,32 +4,56 @@ use crate::tlv::{tags, Tlv};
 use std::io::{Cursor, Read, Write};
 
 #[derive(Debug, Clone, PartialEq)]
+/// Request to submit a short message (SubmitSm)
 pub struct SubmitSmRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type (e.g., "CMT", "CPT")
     pub service_type: String, // Max 6 chars
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String, // Max 21 chars
+    /// Destination Address Type of Number
     pub dest_addr_ton: Ton,
+    /// Destination Address Numbering Plan Indicator
     pub dest_addr_npi: Npi,
+    /// Destination Address
     pub dest_addr: String, // Max 21 chars
+    /// ESM Class (Message Mode, Message Type, GSM Features)
     pub esm_class: u8,
+    /// Protocol Identifier
     pub protocol_id: u8,
+    /// Priority Level
     pub priority_flag: u8,
+    /// Scheduled Delivery Time (YYMMDDhhmmsstn00)
     pub schedule_delivery_time: String, // Max 17 chars
-    pub validity_period: String,        // Max 17 chars
+    /// Validity Period (YYMMDDhhmmsstn00)
+    pub validity_period: String, // Max 17 chars
+    /// Registered Delivery (Delivery Receipt Request)
     pub registered_delivery: u8,
+    /// Replace If Present Flag
     pub replace_if_present_flag: u8,
+    /// Data Coding Scheme (DCS)
     pub data_coding: u8,
+    /// SMSC Default Message ID
     pub sm_default_msg_id: u8,
+    /// Short Message Data
     pub short_message: Vec<u8>, // Max 254 octets
+    /// Optional Parameters (TLVs)
     pub optional_params: Vec<Tlv>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
+/// Information about message segmentation/concatenation
 pub struct SegmentationInfo {
+    /// Reference Number (to group segments)
     pub ref_num: u16,
+    /// Total number of segments
     pub total_segments: u8,
+    /// Sequence number of this segment (1-based)
     pub seq_num: u8,
 }
 
@@ -288,6 +312,7 @@ impl SubmitSmRequest {
         })
     }
 
+    /// Retrieve segmentation information if present (via SAR headers or UDH).
     pub fn get_segmentation_info(&self) -> Option<SegmentationInfo> {
         // STRATEGY 1: Check SAR TLVs (Simpler)
         // We need all three SAR tags to be present.
@@ -346,6 +371,7 @@ impl SubmitSmRequest {
         None
     }
 
+    /// Parse the message body based on the `data_coding` and `esm_class` (UDHI).
     pub fn parse_message(&self) -> MessageBody {
         let has_udh = (self.esm_class & 0x40) != 0;
         crate::encoding::process_body(&self.short_message, self.data_coding, has_udh)

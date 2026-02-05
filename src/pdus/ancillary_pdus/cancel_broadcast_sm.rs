@@ -12,12 +12,19 @@ use std::io::{Cursor, Read, Write};
 /// This PDU is used to cancel a previously submitted broadcast message.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CancelBroadcastSm {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type
     pub service_type: String,
+    /// Message ID of the message to cancel
     pub message_id: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// Optional TLVs
     pub optional_params: Vec<Tlv>,
 }
 
@@ -140,13 +147,17 @@ impl CancelBroadcastSm {
 /// Represents a Cancel Broadcast SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CancelBroadcastSmResp {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Command Status (0 = OK, others = Error)
     pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
-                             // Body is empty (header only)
+                                    // Body is empty (header only)
 }
 
 impl CancelBroadcastSmResp {
+    /// Create a new Cancel Broadcast SM Response PDU.
     /// Create a new Cancel Broadcast SM Response PDU.
     pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
@@ -162,6 +173,11 @@ impl CancelBroadcastSmResp {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    /// Encode the PDU into the writer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the write fails.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
@@ -171,6 +187,11 @@ impl CancelBroadcastSmResp {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short or malformed.
     /// Decode the PDU from the buffer.
     ///
     /// # Errors

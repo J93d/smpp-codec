@@ -4,8 +4,12 @@ use crate::common::{
 use std::io::{Cursor, Read, Write};
 
 // --- Unbind Request ---
+/// Represents an Unbind Request PDU.
+///
+/// Used to request the termination of a session.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnbindRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
 }
 
@@ -81,10 +85,16 @@ impl UnbindRequest {
 }
 
 // --- Unbind Response ---
+/// Represents an Unbind Response PDU.
+///
+/// Sent by the SMSC in response to an Unbind Request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnbindResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Command Status (0 = OK, others = Error)
     pub command_status: u32,
+    /// Human-readable description of status
     pub status_description: String,
 }
 

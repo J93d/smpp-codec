@@ -9,8 +9,11 @@ use std::io::{Cursor, Read, Write};
 /// Sent in response to an Enquire Link Request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct EnquireLinkResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
 }
 

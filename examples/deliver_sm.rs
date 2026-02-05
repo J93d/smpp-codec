@@ -9,8 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Incoming Text Length: {}", text.len());
 
     // 1. Split message
-    let (parts, data_coding) =
-        MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh)?;
+    let (parts, data_coding) = MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh)?;
 
     println!("Split into {} parts.", parts.len());
     let parts_len = parts.len();

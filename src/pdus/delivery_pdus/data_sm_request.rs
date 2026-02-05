@@ -8,17 +8,29 @@ use std::io::{Cursor, Read, Write};
 /// It is an alternative to `SubmitSm` and `DeliverSm`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DataSm {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type
     pub service_type: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// Destination Address Type of Number
     pub dest_addr_ton: Ton,
+    /// Destination Address Numbering Plan Indicator
     pub dest_addr_npi: Npi,
+    /// Destination Address
     pub dest_addr: String,
+    /// ESM Class
     pub esm_class: u8,
+    /// Registered Delivery
     pub registered_delivery: u8,
+    /// Data Coding Scheme
     pub data_coding: u8,
+    /// Optional Parameters (Payload goes here via 'message_payload')
     pub optional_params: Vec<Tlv>, // Payload goes here via 'message_payload'
 }
 

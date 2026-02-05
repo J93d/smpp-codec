@@ -11,15 +11,25 @@ use std::io::{Cursor, Read, Write};
 /// This PDU is used to replace a previously submitted short message that is still pending delivery.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReplaceSm {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// The ID of the message to replace
     pub message_id: String, // The ID of the message to replace
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// Scheduled Delivery Time
     pub schedule_delivery_time: String,
+    /// Validity Period
     pub validity_period: String,
+    /// Registered Delivery
     pub registered_delivery: u8,
+    /// SMSC Default Message ID
     pub sm_default_msg_id: u8,
+    /// The NEW message body
     pub short_message: Vec<u8>, // The NEW message body
 }
 
@@ -166,8 +176,11 @@ impl ReplaceSm {
 /// Represents a Replace SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ReplaceSmResp {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
 }
 

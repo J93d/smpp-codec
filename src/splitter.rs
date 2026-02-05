@@ -1,20 +1,29 @@
 use crate::encoding;
 // use rand::Rng; // Deprecated/Unused
 
+/// Supported text encodings for splitting.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EncodingType {
+    /// GSM 7-bit default alphabet
     Gsm7Bit,
+    /// Latin1 (ISO-8859-1)
     Latin1,
+    /// UCS2 (UTF-16BE like)
     Ucs2,
 }
 
+/// Mode of message splitting.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SplitMode {
+    /// Use User Data Header (UDH) for concatenation
     Udh,
+    /// Use Segmentation and Reassembly (SAR) TLVs
     Sar,
+    /// Do not split, treat as single large payload
     Payload,
 }
 
+/// Helper struct for splitting messages.
 pub struct MessageSplitter;
 
 impl MessageSplitter {

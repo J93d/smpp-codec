@@ -8,9 +8,13 @@ use std::io::{Cursor, Read, Write};
 /// Represents an unsuccessful SME in a Submit Multi Response.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnsuccessfulDelivery {
+    /// Type of Number
     pub ton: Ton,
+    /// Numbering Plan Indicator
     pub npi: Npi,
+    /// Address that failed
     pub address: String,
+    /// Error status code (ESME_Rx...)
     pub error_status: u32,
 }
 
@@ -19,10 +23,15 @@ pub struct UnsuccessfulDelivery {
 /// Sent by the SMSC in response to a Submit Multi Request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SubmitMultiResp {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
+    /// Message ID allocated by the SMSC
     pub message_id: String,
+    /// List of unsuccessful deliveries (if any)
     pub unsuccess_smes: Vec<UnsuccessfulDelivery>,
 }
 

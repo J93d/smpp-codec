@@ -6,8 +6,11 @@ use std::io::{Cursor, Read, Write};
 /// Sent by the SMSC to the ESME to request the ESME to initiate a Bind.
 #[derive(Debug, Clone, PartialEq)]
 pub struct OutbindRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// System ID identifying the ESME
     pub system_id: String,
+    /// Password for authentication
     pub password: String,
 }
 

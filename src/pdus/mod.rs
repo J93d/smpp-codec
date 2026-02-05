@@ -1,8 +1,13 @@
 // 1. Declare the directory modules
+/// Ancillary PDUs (Cancel, Replace, Query)
 pub mod ancillary_pdus;
+/// Broadcast PDUs
 pub mod broadcast_pdus;
+/// Delivery PDUs (DeliverSm, DataSm)
 pub mod delivery_pdus;
+/// Session PDUs (Bind, Unbind, EnquireLink)
 pub mod session_pdus;
+/// Submission PDUs (SubmitSm, SubmitMulti)
 pub mod submission_pdus;
 
 pub use crate::splitter::{EncodingType, MessageSplitter, SplitMode};

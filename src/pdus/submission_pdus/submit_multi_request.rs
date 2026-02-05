@@ -6,8 +6,18 @@ use std::io::Read;
 use std::io::{Cursor, Write};
 
 #[derive(Debug, Clone, PartialEq)]
+/// Destination for Submit Multi (SME Address or Distribution List)
 pub enum Destination {
-    SmeAddress { ton: Ton, npi: Npi, address: String },
+    /// Normal SME Address
+    SmeAddress {
+        /// Type of Number
+        ton: Ton,
+        /// Numbering Plan Indicator
+        npi: Npi,
+        /// Address
+        address: String,
+    },
+    /// Distribution List Name
     DistributionList(String),
 }
 
@@ -16,22 +26,39 @@ pub enum Destination {
 /// Used to submit a short message to multiple recipients (SME addresses or Distribution Lists).
 #[derive(Debug, Clone, PartialEq)]
 pub struct SubmitMulti {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type
     pub service_type: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// List of Destinations (Max 255)
     pub destinations: Vec<Destination>,
+    /// ESM Class
     pub esm_class: u8,
+    /// Protocol Identifier
     pub protocol_id: u8,
+    /// Priority Level
     pub priority_flag: u8,
+    /// Scheduled Delivery Time
     pub schedule_delivery_time: String,
+    /// Validity Period
     pub validity_period: String,
+    /// Registered Delivery
     pub registered_delivery: u8,
+    /// Replace If Present Flag
     pub replace_if_present_flag: u8,
+    /// Data Coding Scheme
     pub data_coding: u8,
+    /// SMSC Default Message ID
     pub sm_default_msg_id: u8,
+    /// Short Message Data
     pub short_message: Vec<u8>,
+    /// Optional Parameters (TLVs)
     pub optional_params: Vec<Tlv>,
 }
 

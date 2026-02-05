@@ -41,11 +41,23 @@
 //! bind_req.encode(&mut buffer).unwrap();
 //! ```
 
+#![warn(missing_docs)]
 // Expose the common module (constants, errors, enums)
+// Expose the common module (constants, errors, enums)
+/// Common constants, enums, and error types.
 pub mod common;
+/// Encoding and decoding utilities (GSM 7-bit, etc.).
 pub mod encoding;
+/// Tag-Length-Value (TLV) support.
 pub mod tlv;
 
 // Expose the PDUs module (the structs for specific operations)
+/// PDU definitions and submodules.
 pub mod pdus;
+/// Message splitting and concatenation utilities.
 pub mod splitter;
+
+#[cfg(test)]
+mod tests {
+    doc_comment::doctest!("../README.md");
+}

@@ -10,18 +10,31 @@ use std::io::{Cursor, Read, Write};
 /// Used to broadcast a message to multiple recipients in a specific area.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BroadcastSm {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Service Type (e.g., "CMT", "CPT")
     pub service_type: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address (Sender)
     pub source_addr: String,
+    /// Message ID (Usually empty in Request, used in Response)
     pub message_id: String, // Usually empty in Request, used in Response
+    /// Priority Flag
     pub priority_flag: u8,
+    /// Scheduled Delivery Time
     pub schedule_delivery_time: String,
+    /// Validity Period
     pub validity_period: String,
+    /// Replace If Present Flag
     pub replace_if_present_flag: u8,
+    /// Data Coding Scheme
     pub data_coding: u8,
+    /// SMSC Default Message ID
     pub sm_default_msg_id: u8,
+    /// Optional Parameters (TLV). Must contain 'broadcast_area_identifier'
     pub optional_params: Vec<Tlv>, // Critical: Must contain 'broadcast_area_identifier'
 }
 

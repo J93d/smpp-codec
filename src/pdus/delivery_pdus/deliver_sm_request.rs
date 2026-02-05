@@ -282,11 +282,13 @@ impl DeliverSmRequest {
         })
     }
 
+    /// Parse the message body based on the `data_coding` and `esm_class` (UDHI).
     pub fn parse_message(&self) -> MessageBody {
         let has_udh = (self.esm_class & 0x40) != 0;
         crate::encoding::process_body(&self.short_message, self.data_coding, has_udh)
     }
 
+    /// Creates a new Delivery Receipt (DLR) to be sent as a DeliverSm.
     pub fn new_receipt(
         sequence_number: u32,
         source: String,
@@ -303,6 +305,8 @@ impl DeliverSmRequest {
         pdu
     }
 
+    /// Attempts to parse the short message content as a Delivery Reciept.
+    /// Returns `None` if the ESM Class does not indicate a receipt (0x04) or parsing fails.
     pub fn parse_receipt(&self) -> Option<DeliveryReceipt> {
         // Check if the ESM Class has the receipt bit (0x04) set
         if (self.esm_class & 0x04) != 0 {
@@ -318,16 +322,26 @@ impl DeliverSmRequest {
 use std::fmt;
 use std::str::FromStr;
 
+/// Use to parse/format the text content of a Delivery Receipt (Appendix B).
+/// e.g. "id:24534 sub:001 dlvrd:001 submit date:1609211000 done date:1609211001 stat:DELIVRD err:000 text:Hello"
 #[derive(Debug, Clone)]
 pub struct DeliveryReceipt {
+    /// Message ID allocated by the SMSC
     pub message_id: String,
+    /// Number of short messages originally submitted
     pub submitted_count: u32,
+    /// Number of short messages delivered
     pub delivered_count: u32,
+    /// Time when the message was submitted (YYMMDDhhmm)
     pub submit_date: String, // Format: YYMMDDhhmm
-    pub done_date: String,   // Format: YYMMDDhhmm
-    pub status: String,      // e.g., "DELIVRD", "EXPIRED", "UNDELIV"
-    pub error_code: u32,     // Network specific error
-    pub text: String,        // First 20 chars of original msg
+    /// Time when the message reached a terminal state (YYMMDDhhmm)
+    pub done_date: String, // Format: YYMMDDhhmm
+    /// The final status of the message (e.g., "DELIVRD", "EXPIRED", "UNDELIV")
+    pub status: String, // e.g., "DELIVRD", "EXPIRED", "UNDELIV"
+    /// Network specific error code
+    pub error_code: u32, // Network specific error
+    /// The first 20 characters of the original short message
+    pub text: String, // First 20 chars of original msg
 }
 
 impl fmt::Display for DeliveryReceipt {

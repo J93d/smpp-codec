@@ -12,11 +12,17 @@ use std::io::{Cursor, Read, Write};
 /// This PDU is used to query the status of a previously submitted broadcast message.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QueryBroadcastSm {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Message ID
     pub message_id: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
+    /// Optional TLVs
     pub optional_params: Vec<Tlv>,
 }
 
@@ -121,14 +127,20 @@ impl QueryBroadcastSm {
 /// Represents a Query Broadcast SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QueryBroadcastSmResp {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
+    /// Message ID
     pub message_id: String,
+    /// Optional TLVs (Likely contains 'message_state', 'broadcast_area_success')
     pub optional_params: Vec<Tlv>, // Likely contains 'message_state', 'broadcast_area_success'
 }
 
 impl QueryBroadcastSmResp {
+    /// Create a new Query Broadcast SM Response PDU.
     /// Create a new Query Broadcast SM Response PDU.
     pub fn new(sequence_number: u32, status_name: &str, message_id: String) -> Self {
         let command_status = get_status_code(status_name);
@@ -141,6 +153,11 @@ impl QueryBroadcastSmResp {
         }
     }
 
+    /// Encode the PDU into the writer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the write fails.
     /// Encode the PDU into the writer.
     ///
     /// # Errors
@@ -169,6 +186,11 @@ impl QueryBroadcastSmResp {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short or malformed.
     /// Decode the PDU from the buffer.
     ///
     /// # Errors

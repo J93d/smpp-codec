@@ -100,18 +100,26 @@ pub const HEADER_LEN: usize = 16;
 
 /// SMPP Interface Version
 pub const SMPP_INTERFACE_VERSION_34: u8 = 0x34;
+/// SMPP Interface Version 5.0
 pub const SMPP_INTERFACE_VERSION_50: u8 = 0x50;
 
 /// Address Type of Number (TON)
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum Ton {
+    /// Unknown
     Unknown = 0x00,
+    /// International
     International = 0x01,
+    /// National
     National = 0x02,
+    /// Network Specific
     NetworkSpecific = 0x03,
+    /// Subscriber Number
     SubscriberNumber = 0x04,
+    /// Alphanumeric
     Alphanumeric = 0x05,
+    /// Abbreviated
     Abbreviated = 0x06,
 }
 
@@ -133,15 +141,25 @@ impl From<u8> for Ton {
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum Npi {
+    /// Unknown
     Unknown = 0x00,
+    /// ISDN
     Isdn = 0x01,
+    /// Data
     Data = 0x03,
+    /// Telex
     Telex = 0x04,
+    /// Land Mobile
     LandMobile = 0x06,
+    /// National
     National = 0x08,
+    /// Private
     Private = 0x09,
+    /// ERMES
     Ermes = 0x0A,
+    /// Internet
     Internet = 0x0E,
+    /// WAP
     Wap = 0x12,
 }
 
@@ -275,14 +293,19 @@ pub fn get_status_code(name: &str) -> u32 {
     }
 }
 
+/// Bind Mode (Receiver, Transmitter, Transceiver)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BindMode {
+    /// Receiver Mode
     Receiver,
+    /// Transmitter Mode
     Transmitter,
+    /// Transceiver Mode
     Transceiver,
 }
 
 impl BindMode {
+    /// Returns the Command ID corresponding to the Bind Mode
     pub fn command_id(&self) -> u32 {
         match self {
             BindMode::Receiver => CMD_BIND_RECEIVER,
@@ -293,13 +316,20 @@ impl BindMode {
 }
 
 // Custom Error for PDU operations
+/// Error type for PDU operations
 #[derive(Debug)]
 pub enum PduError {
+    /// IO Error
     Io(std::io::Error),
+    /// UTF-8 Conversion Error
     Utf8(std::string::FromUtf8Error),
+    /// Buffer is too short to contain expected data
     BufferTooShort,
+    /// Invalid Command ID encountered
     InvalidCommandId(u32),
+    /// String exceeds maximum allowed length
     StringTooLong(String, usize), // Field name, Max len
+    /// Invalid Length for a field
     InvalidLength,
 }
 

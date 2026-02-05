@@ -6,8 +6,11 @@ use std::io::{Cursor, Read, Write};
 /// Sent when a PDU cannot be identified or is malformed (e.g., invalid Command ID).
 #[derive(Debug, Clone, PartialEq)]
 pub struct GenericNack {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// The error code explaining why the NACK was sent
     pub command_status: u32, // The error code explaining why the NACK was sent
+    /// Human-readable status name
     pub status_name: String,
 }
 

@@ -7,12 +7,18 @@ use std::io::{Cursor, Read, Write};
 /// Sent by the SMSC in response to a Bind Request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BindResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
-    pub command_id: u32,            // e.g., 0x80000009 (bind_transceiver_resp)
-    pub system_id: String,          // SMSC ID
-    pub optional_params: Vec<u8>,   // Rarely used in Bind Resp, but allowed
+    /// Command ID (e.g., 0x80000009 for bind_transceiver_resp)
+    pub command_id: u32, // e.g., 0x80000009 (bind_transceiver_resp)
+    /// System ID identifying the SMSC
+    pub system_id: String, // SMSC ID
+    /// Optional TLV parameters
+    pub optional_params: Vec<u8>, // Rarely used in Bind Resp, but allowed
 }
 
 impl BindResponse {

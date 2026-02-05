@@ -9,59 +9,112 @@ use std::io::{Cursor, Read, Write};
 // --- Standard SMPP Optional Parameter Tags ---
 /// Standard SMPP Optional Parameter Tags as defined in SMPP Spec (v3.4 / v5.0).
 pub mod tags {
+    /// Destination Address Subunit
     pub const DEST_ADDR_SUBUNIT: u16 = 0x0005;
+    /// Destination Network Type
     pub const DEST_NETWORK_TYPE: u16 = 0x0006;
+    /// Destination Bearer Type
     pub const DEST_BEARER_TYPE: u16 = 0x0007;
+    /// Destination Telematics ID
     pub const DEST_TELEMATICS_ID: u16 = 0x0008;
+    /// Source Address Subunit
     pub const SOURCE_ADDR_SUBUNIT: u16 = 0x000D;
+    /// Source Network Type
     pub const SOURCE_NETWORK_TYPE: u16 = 0x000E;
+    /// Source Bearer Type
     pub const SOURCE_BEARER_TYPE: u16 = 0x000F;
+    /// Source Telematics ID
     pub const SOURCE_TELEMATICS_ID: u16 = 0x0010;
+    /// QoS Time To Live
     pub const QOS_TIME_TO_LIVE: u16 = 0x0017;
+    /// Payload Type
     pub const PAYLOAD_TYPE: u16 = 0x0019;
+    /// Additional Status Info Text
     pub const ADDITIONAL_STATUS_INFO_TEXT: u16 = 0x001D;
+    /// Receipted Message ID
     pub const RECEIPTED_MESSAGE_ID: u16 = 0x001E;
+    /// MS Message Wait Facilities
     pub const MS_MSG_WAIT_FACILITIES: u16 = 0x0030;
+    /// Privacy Indicator
     pub const PRIVACY_INDICATOR: u16 = 0x0201;
+    /// Source Subaddress
     pub const SOURCE_SUBADDRESS: u16 = 0x0202;
+    /// Destination Subaddress
     pub const DEST_SUBADDRESS: u16 = 0x0203;
+    /// User Message Reference
     pub const USER_MESSAGE_REFERENCE: u16 = 0x0204;
+    /// User Response Code
     pub const USER_RESPONSE_CODE: u16 = 0x0205;
+    /// Source Port
     pub const SOURCE_PORT: u16 = 0x020A;
+    /// Destination Port
     pub const DESTINATION_PORT: u16 = 0x020B;
+    /// SAR Message Reference Number
     pub const SAR_MSG_REF_NUM: u16 = 0x020C;
+    /// Language Indicator
     pub const LANGUAGE_INDICATOR: u16 = 0x020D;
+    /// SAR Total Segments
     pub const SAR_TOTAL_SEGMENTS: u16 = 0x020E;
+    /// SAR Segment Sequence Number
     pub const SAR_SEGMENT_SEQNUM: u16 = 0x020F;
+    /// SC Interface Version
     pub const SC_INTERFACE_VERSION: u16 = 0x0210;
+    /// Callback Number Presentation Indicator
     pub const CALLBACK_NUM_PRES_IND: u16 = 0x0302;
+    /// Callback Number Alphanumeric Tag
     pub const CALLBACK_NUM_ATAG: u16 = 0x0303;
+    /// Number of Messages
     pub const NUMBER_OF_MESSAGES: u16 = 0x0304;
+    /// Callback Number
     pub const CALLBACK_NUM: u16 = 0x0381;
+    /// DPF Result
     pub const DPF_RESULT: u16 = 0x0420;
+    /// Set DPF
     pub const SET_DPF: u16 = 0x0421;
+    /// MS Availability Status
     pub const MS_AVAILABILITY_STATUS: u16 = 0x0422;
+    /// Network Error Code
     pub const NETWORK_ERROR_CODE: u16 = 0x0423;
+    /// Message Payload
     pub const MESSAGE_PAYLOAD: u16 = 0x0424;
+    /// Delivery Failure Reason
     pub const DELIVERY_FAILURE_REASON: u16 = 0x0425;
+    /// More Messages To Send
     pub const MORE_MESSAGES_TO_SEND: u16 = 0x0426;
+    /// Message State
     pub const MESSAGE_STATE: u16 = 0x0427;
+    /// Congestion State
     pub const CONGESTION_STATE: u16 = 0x0428;
+    /// USSD Service Op
     pub const USSD_SERVICE_OP: u16 = 0x0501;
+    /// Display Time
     pub const DISPLAY_TIME: u16 = 0x1201;
+    /// SMS Signal
     pub const SMS_SIGNAL: u16 = 0x1203;
+    /// MS Validity
     pub const MS_VALIDITY: u16 = 0x1204;
+    /// Alert On Message Delivery
     pub const ALERT_ON_MESSAGE_DELIVERY: u16 = 0x130C;
+    /// ITS Reply Type
     pub const ITS_REPLY_TYPE: u16 = 0x1380;
+    /// ITS Session Info
     pub const ITS_SESSION_INFO: u16 = 0x1383;
     // --- Broadcast / Multicast specific (SMPP v5.0) ---
+    /// Broadcast Area Identifier
     pub const BROADCAST_AREA_IDENTIFIER: u16 = 0x0606;
+    /// Broadcast Content Type
     pub const BROADCAST_CONTENT_TYPE: u16 = 0x0601;
+    /// Broadcast Repetition Number
     pub const BROADCAST_REP_NUM: u16 = 0x0602;
+    /// Broadcast Frequency Interval
     pub const BROADCAST_FREQUENCY_INTERVAL: u16 = 0x0603;
+    /// Broadcast Area Success
     pub const BROADCAST_AREA_SUCCESS: u16 = 0x0608;
+    /// Broadcast End Time
     pub const BROADCAST_END_TIME: u16 = 0x0609;
+    /// Broadcast Service Group
     pub const BROADCAST_SERVICE_GROUP: u16 = 0x060A;
+    /// Broadcast Channel Indicator
     pub const BROADCAST_CHANNEL_INDICATOR: u16 = 0x0600;
 }
 
@@ -137,14 +190,19 @@ pub fn get_tag_by_name(name: &str) -> u16 {
     }
 }
 
+/// Tag-Length-Value (TLV) Parameter
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tlv {
+    /// The tag identifier for the parameter
     pub tag: u16,
+    /// The length of the value field
     pub length: u16,
+    /// The value of the parameter
     pub value: Vec<u8>,
 }
 
 impl Tlv {
+    /// Creates a new TLV with the given tag and value.
     pub fn new(tag: u16, value: Vec<u8>) -> Self {
         Self {
             tag,
@@ -159,34 +217,39 @@ impl Tlv {
         Self::new(tag, value)
     }
 
+    /// Creates a new TLV with a single u8 value.
     pub fn new_u8(tag: u16, val: u8) -> Self {
         Self::new(tag, vec![val])
     }
 
-    // Convenience: create u8 TLV from name
+    /// Convenience: create u8 TLV from name
     pub fn new_u8_from_name(name: &str, val: u8) -> Self {
         Self::new(get_tag_by_name(name), vec![val])
     }
 
+    /// Creates a new TLV with a u16 value (Big Endian).
     pub fn new_u16(tag: u16, val: u16) -> Self {
         Self::new(tag, val.to_be_bytes().to_vec())
     }
 
-    // Convenience: create u16 TLV from name
+    /// Convenience: create u16 TLV from name
     pub fn new_u16_from_name(name: &str, val: u16) -> Self {
         Self::new(get_tag_by_name(name), val.to_be_bytes().to_vec())
     }
 
+    /// Creates a new TLV with a C-style string value (null-terminated).
     pub fn new_string(tag: u16, val: &str) -> Self {
         let mut v = val.as_bytes().to_vec();
         v.push(0); // Null terminator
         Self::new(tag, v)
     }
 
+    /// Creates a new TLV with a raw payload.
     pub fn new_payload(tag: u16, val: Vec<u8>) -> Self {
         Self::new(tag, val)
     }
 
+    /// Encodes the TLV into the writer.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         writer.write_all(&self.tag.to_be_bytes())?;
         writer.write_all(&self.length.to_be_bytes())?;
@@ -194,6 +257,7 @@ impl Tlv {
         Ok(())
     }
 
+    /// Decodes a TLV from the cursor.
     pub fn decode(cursor: &mut Cursor<&[u8]>) -> Result<Option<Self>, PduError> {
         let pos = cursor.position();
         let len = cursor.get_ref().len() as u64;
@@ -222,6 +286,7 @@ impl Tlv {
     }
 
     // --- Getters ---
+    /// Returns the value as a u8 (if length is 1).
     pub fn value_as_u8(&self) -> Result<u8, PduError> {
         if self.value.len() != 1 {
             return Err(PduError::InvalidLength);
@@ -229,6 +294,7 @@ impl Tlv {
         Ok(self.value[0])
     }
 
+    /// Returns the value as a u16 (if length is 2).
     pub fn value_as_u16(&self) -> Result<u16, PduError> {
         if self.value.len() != 2 {
             return Err(PduError::InvalidLength);
@@ -236,6 +302,7 @@ impl Tlv {
         Ok(u16::from_be_bytes([self.value[0], self.value[1]]))
     }
 
+    /// Returns the value as a String (removes trailing null if present).
     pub fn value_as_string(&self) -> Result<String, PduError> {
         let v = if !self.value.is_empty() && self.value[self.value.len() - 1] == 0 {
             &self.value[..self.value.len() - 1]

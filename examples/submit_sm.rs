@@ -8,8 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Original Text Length: {}", text.len());
 
     // 1. Split message (handles encoding and valid chunking with UDH)
-    let (parts, data_coding) =
-        MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh)?;
+    let (parts, data_coding) = MessageSplitter::split(text, EncodingType::Gsm7Bit, SplitMode::Udh)?;
 
     println!("Split into {} parts using UDH concatenation.", parts.len());
     let parts_len = parts.len();

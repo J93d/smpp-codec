@@ -6,14 +6,23 @@ use std::io::{Cursor, Read, Write};
 /// This PDU is used to initiate a session with the SMSC.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BindRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Bind Mode (Receiver, Transmitter, Transceiver)
     pub mode: BindMode,
+    /// System ID (Username)
     pub system_id: String,
+    /// Password
     pub password: String,
+    /// System Type (Verification of system type)
     pub system_type: String,
+    /// Interface Version (e.g., 0x34 for SMPP 3.4)
     pub interface_version: u8,
+    /// Address Type of Number (TON)
     pub addr_ton: Ton,
+    /// Address Numbering Plan Indicator (NPI)
     pub addr_npi: Npi,
+    /// Address Range (Regular Expression for routing)
     pub address_range: String,
 }
 
@@ -48,6 +57,7 @@ impl BindRequest {
         }
     }
 
+    /// Builder pattern helper to set the address range fields.
     pub fn with_address_range(mut self, ton: Ton, npi: Npi, range: String) -> Self {
         self.addr_ton = ton;
         self.addr_npi = npi;

@@ -11,10 +11,15 @@ use std::io::{Cursor, Read, Write};
 /// Sent by the SMSC in response to a Broadcast SM Request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BroadcastSmResp {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
-    pub command_status: u32,        // 0 = OK, others = Error
+    /// Command Status (0 = OK, others = Error)
+    pub command_status: u32, // 0 = OK, others = Error
+    /// Human-readable description of status
     pub status_description: String, // Human-readable description of status
+    /// Message ID
     pub message_id: String,
+    /// Optional TLVs (Can return 'broadcast_area_success')
     pub optional_params: Vec<Tlv>, // Can return 'broadcast_area_success'
 }
 

@@ -4,16 +4,25 @@ use crate::common::{
 use std::io::{Cursor, Read, Write};
 
 // --- Request ---
+/// Represents a Query SM Request PDU.
+///
+/// Used to query the status of a previously submitted message.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QuerySmRequest {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Message ID of the message to query
     pub message_id: String,
+    /// Source Address Type of Number
     pub source_addr_ton: Ton,
+    /// Source Address Numbering Plan Indicator
     pub source_addr_npi: Npi,
+    /// Source Address
     pub source_addr: String,
 }
 
 impl QuerySmRequest {
+    /// Create a new Query SM Request.
     pub fn new(sequence_number: u32, message_id: String, source_addr: String) -> Self {
         Self {
             sequence_number,
@@ -24,6 +33,11 @@ impl QuerySmRequest {
         }
     }
 
+    /// Encode the PDU into the writer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the write fails or strings are too long.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         // 1. Validation
         if self.message_id.len() > 64 {
@@ -53,6 +67,11 @@ impl QuerySmRequest {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short or malformed.
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
@@ -85,33 +104,49 @@ impl QuerySmRequest {
     }
 }
 
-/// Query_SM Response
+/// Represents a Query SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QuerySmResponse {
+    /// Sequence number of the PDU
     pub sequence_number: u32,
+    /// Command Status
     pub command_status: u32,
+    /// Message ID
     pub message_id: String,
+    /// Final Date (Format: YYMMDDhhmmsstn00)
     pub final_date: String,
+    /// Message State (See [`MessageState`])
     pub message_state: u8,
+    /// Error Code (Network specific error code)
     pub error_code: u8,
+    /// Status Description
     pub status_description: String,
 }
 
-// Message States (SMPP v3.4 Spec section 5.2.28)
+/// Message States (as per SMPP v3.4 Spec section 5.2.28)
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum MessageState {
+    /// Message is in enroute state
     Enroute = 1,
+    /// Message is delivered
     Delivered = 2,
+    /// Message validity period has expired
     Expired = 3,
+    /// Message has been deleted
     Deleted = 4,
+    /// Message is undeliverable
     Undeliverable = 5,
+    /// Message is in accepted state
     Accepted = 6,
+    /// Message is in invalid state
     Unknown = 7,
+    /// Message is in rejected state
     Rejected = 8,
 }
 
 impl QuerySmResponse {
+    /// Create a new Query SM Response.
     pub fn new(
         sequence_number: u32,
         status_name: &str,
@@ -132,11 +167,14 @@ impl QuerySmResponse {
         }
     }
 
+    /// Encode the PDU into the writer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the write fails.
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
         let body_len = if self.command_status == 0 {
-            self.message_id.len() + 1 +
-            self.final_date.len() + 1 +
-            1 + 1 // message_state, error_code
+            self.message_id.len() + 1 + self.final_date.len() + 1 + 1 + 1 // message_state, error_code
         } else {
             0
         };
@@ -156,6 +194,11 @@ impl QuerySmResponse {
         Ok(())
     }
 
+    /// Decode the PDU from the buffer.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`PduError`] if the buffer is too short or malformed.
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);

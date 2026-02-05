@@ -44,3 +44,8 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 - [x] `query_broadcast_sm_resp`
 - [x] `cancel_broadcast_sm`
 - [x] `cancel_broadcast_sm_resp`
+
+## Code Quality
+- [x] Full Documentation (All public items documented, 0 warnings)
+- [x] README Examples Tested
+
