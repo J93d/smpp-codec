@@ -14,7 +14,7 @@
 
 ## Features
 
-- **PDU Support**: Supports all PDU's as per SMPP v5.0 specifications.
+- **PDU Support**: Supports all PDU's as per [SMPP v5.0](https://smpp.org/SMPP_v5.pdf) specifications.
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
 - **Dependency**: Built with standard library + rand.
 
@@ -28,7 +28,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = 0.1.0
+smpp-codec = 0.2.0
 ```
 Or
 ```toml
@@ -36,7 +36,9 @@ Or
 smpp-codec = { git = "https://github.com/J93d/smpp-codec.git" }
 ```
 
-### Example: Binding as Transceiver
+## [Examples:](https://github.com/J93d/smpp-codec/tree/master/examples)
+
+### [Binding as Transceiver](https://github.com/J93d/smpp-codec/blob/master/examples/bind_transceiver.rs)
 
 ```rust
 use smpp_codec::common::{BindMode, Ton, Npi};
@@ -63,7 +65,7 @@ fn main() {
 }
 ```
 
-### Submit Short Message
+### [Submit Short Message](https://github.com/J93d/smpp-codec/blob/master/examples/submit_sm.rs)
 
 ```rust
 use smpp_codec::pdus::{SubmitSmRequest, MessageSplitter, SplitMode, EncodingType};
@@ -95,7 +97,7 @@ fn main() {
 }
 ```
 
-### Deliver Short Message
+### [Deliver Short Message](https://github.com/J93d/smpp-codec/blob/master/examples/deliver_sm.rs)
 
 ```rust
 use smpp_codec::pdus::{DeliverSmRequest, MessageSplitter, SplitMode, EncodingType};
@@ -133,7 +135,7 @@ fn main() {
 }
 ```
 
-### Unbind
+### [Unbind](https://github.com/J93d/smpp-codec/blob/master/examples/unbind.rs)
 
 ```rust
 use smpp_codec::pdus::UnbindRequest;
