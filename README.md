@@ -16,7 +16,7 @@
 
 - **PDU Support**: Supports all PDU's as per [SMPP v5.0](https://smpp.org/SMPP_v5.pdf) specifications.
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
-- **Dependency**: Built with standard library + rand.
+- **Dependency**: Built with standard library + [rand](https://crates.io/crates/rand/0.9.2).
 
 ## Compatibility
 
