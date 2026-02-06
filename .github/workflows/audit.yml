@@ -29,8 +29,12 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       # Step 1: Run Tests (to ensure code works)
-      - name: Run Tests
-        run: cargo test --verbose
+      - name: Install Tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Run Tests & Generate Coverage
+        run: |
+          cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Lcov
 
       # Step 2: Run SonarCloud Scanner
       # This action automatically downloads and runs the scanner for you
