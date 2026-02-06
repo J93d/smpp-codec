@@ -1,0 +1,41 @@
+name: Audit
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Critical: Disables shallow clone for better analysis
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # Optional: Cache dependencies to make this run faster next time
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # Step 1: Run Tests (to ensure code works)
+      - name: Run Tests
+        run: cargo test --verbose
+
+      # Step 2: Run SonarCloud Scanner
+      # This action automatically downloads and runs the scanner for you
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Built-in, no setup needed
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    
