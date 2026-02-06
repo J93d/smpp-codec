@@ -47,7 +47,7 @@ jobs:
       # Step 2: Run SonarCloud Scanner
       # This action automatically downloads and runs the scanner for you
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Built-in, no setup needed
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    
