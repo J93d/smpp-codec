@@ -63,3 +63,39 @@ fn test_data_sm_resp_failure() {
     // On failure body might be empty or partial, message_id empty
     assert!(decoded.message_id.is_empty());
 }
+
+#[test]
+fn test_data_sm_full_fields() {
+    use smpp_codec::common::{Npi, Ton};
+
+    let mut req = DataSm::new(
+        3002,
+        "src".to_string(),
+        "dst".to_string(),
+        b"Payload".to_vec(),
+    );
+
+    req.service_type = "CMT".to_string();
+    req.source_addr_ton = Ton::National;
+    req.source_addr_npi = Npi::Telex;
+    req.dest_addr_ton = Ton::International;
+    req.dest_addr_npi = Npi::Isdn;
+    req.esm_class = 0x40;
+    req.registered_delivery = 1;
+    req.data_coding = 0x01;
+
+    let mut buffer = Vec::new();
+    req.encode(&mut buffer).expect("Encode failed");
+
+    let decoded = DataSm::decode(&buffer).expect("Decode failed");
+
+    assert_eq!(decoded.sequence_number, 3002);
+    assert_eq!(decoded.service_type, "CMT");
+    assert_eq!(decoded.source_addr_ton, Ton::National);
+    assert_eq!(decoded.source_addr_npi, Npi::Telex);
+    assert_eq!(decoded.dest_addr_ton, Ton::International);
+    assert_eq!(decoded.dest_addr_npi, Npi::Isdn);
+    assert_eq!(decoded.esm_class, 0x40);
+    assert_eq!(decoded.registered_delivery, 1);
+    assert_eq!(decoded.data_coding, 0x01);
+}

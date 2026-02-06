@@ -28,7 +28,15 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # Step 1: Run Tests (to ensure code works)
+      # Step A: Check Formatting (Fails if code is messy)
+      - name: Check Formatting
+        run: cargo fmt -- --check
+
+      # Step B: Run Clippy (Fails if code has warnings)
+      - name: Check Lints (Clippy)
+        run: cargo clippy --all-features -- -D warnings
+
+      # Step C: Install Tarpaulin
       - name: Install Tarpaulin
         run: cargo install cargo-tarpaulin
 

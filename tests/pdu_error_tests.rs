@@ -126,3 +126,58 @@ fn test_deliver_sm_response_error() {
     assert_eq!(decoded.sequence_number, 4);
     assert_eq!(decoded.command_status, 0x00000008);
 }
+
+#[test]
+fn test_pdu_error_traits() {
+    use smpp_codec::common::PduError;
+    use std::io::{Error, ErrorKind};
+
+    // Test From<io::Error>
+    let io_err = Error::new(ErrorKind::UnexpectedEof, "EOF");
+    let pdu_err = PduError::from(io_err);
+    assert!(matches!(pdu_err, PduError::Io(_)));
+
+    // Test Display
+    let err = PduError::BufferTooShort;
+    assert_eq!(format!("{}", err), "Buffer contains insufficient data");
+
+    let err = PduError::InvalidCommandId(0x12345678);
+    assert_eq!(format!("{}", err), "Invalid Command ID: 0x12345678");
+
+    let err = PduError::StringTooLong("sys_id".into(), 16);
+    assert_eq!(
+        format!("{}", err),
+        "String too long for field 'sys_id' (max: 16)"
+    );
+
+    // Test std::error::Error trait
+    fn assert_is_error<T: std::error::Error>() {}
+    assert_is_error::<PduError>();
+}
+
+#[test]
+fn test_read_c_string_errors() {
+    use smpp_codec::common::read_c_string;
+    use smpp_codec::common::PduError;
+    use std::io::Cursor;
+
+    // Buffer too short (empty)
+    let data = vec![];
+    let mut cursor = Cursor::new(&data[..]);
+    let res = read_c_string(&mut cursor);
+    assert!(matches!(res.unwrap_err(), PduError::Io(_)));
+
+    // Missing null terminator
+    let data = b"Hello".to_vec();
+    let mut cursor = Cursor::new(&data[..]);
+    let res = read_c_string(&mut cursor);
+    // Depending on implementation, this might read to EOF and error, or just return mismatched results from `read_until`.
+    // Current impl uses `read_until(0, ...)` which returns bytes read. If 0 bytes or no 0 found, it's EOF.
+    assert!(matches!(res.unwrap_err(), PduError::Io(_)));
+
+    // Invalid UTF-8
+    let data = vec![0xFF, 0xFF, 0x00];
+    let mut cursor = Cursor::new(&data[..]);
+    let res = read_c_string(&mut cursor);
+    assert!(matches!(res.unwrap_err(), PduError::Utf8(_)));
+}

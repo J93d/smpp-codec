@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/smpp-codec"><img alt="Crates.io" src="https://img.shields.io/crates/v/smpp-codec"></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=J93d_smpp-codec"><img alt="Coverage" src="https://img.shields.io/sonar/coverage/J93d_smpp-codec?server=https%3A%2F%2Fsonarcloud.io"></a>
   <a href="https://docs.rs/smpp-codec"><img alt="Documentation" src="https://img.shields.io/docsrs/smpp-codec"></a>
   <a href="https://opensource.org/license/apache-2-0"><img alt="License: Apache 2.0" src="https://img.shields.io/github/license/j93d/smpp-codec"></a>
 </p>

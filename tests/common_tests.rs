@@ -1,4 +1,7 @@
-use smpp_codec::common::{get_status_code, get_status_description, Npi, Ton};
+use smpp_codec::common::{
+    get_status_code, get_status_description, BindMode, Npi, PduError, Ton, CMD_BIND_RECEIVER,
+    CMD_BIND_TRANSCEIVER, CMD_BIND_TRANSMITTER,
+};
 
 #[test]
 fn test_ton_conversion() {
@@ -42,4 +45,38 @@ fn test_status_codes() {
     assert_eq!(get_status_code("ESME_ROK"), 0x00000000);
     assert_eq!(get_status_code("ESME_RTHROTTLED"), 0x00000058);
     assert_eq!(get_status_code("NON_EXISTENT"), 0x000000FF);
+}
+
+#[test]
+fn test_bind_mode_command_ids() {
+    assert_eq!(BindMode::Receiver.command_id(), CMD_BIND_RECEIVER);
+    assert_eq!(BindMode::Transmitter.command_id(), CMD_BIND_TRANSMITTER);
+    assert_eq!(BindMode::Transceiver.command_id(), CMD_BIND_TRANSCEIVER);
+}
+
+#[test]
+fn test_pdu_error_display() {
+    let err = PduError::BufferTooShort;
+    assert_eq!(format!("{}", err), "Buffer contains insufficient data");
+
+    let err = PduError::InvalidCommandId(0x12345678);
+    assert_eq!(format!("{}", err), "Invalid Command ID: 0x12345678");
+
+    let err = PduError::StringTooLong("my_field".to_string(), 10);
+    assert_eq!(
+        format!("{}", err),
+        "String too long for field 'my_field' (max: 10)"
+    );
+
+    let err = PduError::InvalidLength;
+    assert_eq!(format!("{}", err), "Invalid length for field");
+
+    // Test From<std::io::Error>
+    let io_err = std::io::Error::new(std::io::ErrorKind::Other, "oh no");
+    let pdu_err = PduError::from(io_err);
+    if let PduError::Io(e) = pdu_err {
+        assert_eq!(format!("{}", e), "oh no");
+    } else {
+        panic!("Expected PduError::Io");
+    }
 }
