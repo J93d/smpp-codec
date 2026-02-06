@@ -13,7 +13,7 @@
 //!
 //! ## Performance Tips
 //!
-//! this library is designed to be compatible with any `std::io::Write` implementation.
+//! This library is designed to be compatible with any `std::io::Write` implementation.
 //! When encoding PDUs directly to a network stream, **always use buffering**.
 //!
 //! *   **Recommended**: Encode to a `Vec<u8>` first, then write the vector to the stream.
