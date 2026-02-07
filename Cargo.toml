@@ -1,6 +1,6 @@
 [package]
 name = "smpp-codec"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A comprehensive SMPP 3.4 protocol codec for Rust."
 repository = "https://github.com/J93d/smpp-codec"
@@ -9,6 +9,12 @@ keywords = ["smpp", "sms", "codec", "protocol", "telecom"]
 categories = ["encoding", "network-programming"]
 license = "Apache-2.0"
 rust-version = "1.63.0"
+exclude = [
+    ".github",
+    ".gitignore",
+    "sonar-project.properties",
+    "PROGRESS.md",
+]
 
 [dependencies]
 rand = "0.9.2"
