@@ -2,7 +2,7 @@
 name = "smpp-codec"
 version = "0.2.0"
 edition = "2021"
-description = "A comprehensive SMPP 3.4 protocol codec for Rust."
+description = "A comprehensive SMPP v5 protocol codec for Rust."
 repository = "https://github.com/J93d/smpp-codec"
 readme = "README.md"
 keywords = ["smpp", "sms", "codec", "protocol", "telecom"]

@@ -49,24 +49,19 @@ pub const CMD_SUBMIT_MULTI_SM: u32 = 0x00000021;
 pub const CMD_SUBMIT_MULTI_SM_RESP: u32 = 0x80000021;
 
 /// Command ID for Query SM.
-pub const CMD_QUERY_SM: u32 = 0x00000022;
+pub const CMD_QUERY_SM: u32 = 0x00000003;
 /// Command ID for Query SM Response.
-pub const CMD_QUERY_SM_RESP: u32 = 0x80000022;
+pub const CMD_QUERY_SM_RESP: u32 = 0x80000003;
 
 /// Command ID for Cancel SM.
-pub const CMD_CANCEL_SM: u32 = 0x00000023;
+pub const CMD_CANCEL_SM: u32 = 0x00000008;
 /// Command ID for Cancel SM Response.
-pub const CMD_CANCEL_SM_RESP: u32 = 0x80000023;
+pub const CMD_CANCEL_SM_RESP: u32 = 0x80000008;
 
 /// Command ID for Replace SM.
-pub const CMD_REPLACE_SM: u32 = 0x00000024;
+pub const CMD_REPLACE_SM: u32 = 0x00000007;
 /// Command ID for Replace SM Response.
-pub const CMD_REPLACE_SM_RESP: u32 = 0x80000024;
-
-/// Command ID for Submit SM Multi (Reserved).
-pub const CMD_SUBMIT_SM_MULTI: u32 = 0x00000025;
-/// Command ID for Submit SM Multi Response (Reserved).
-pub const CMD_SUBMIT_SM_MULTI_RESP: u32 = 0x80000025;
+pub const CMD_REPLACE_SM_RESP: u32 = 0x80000007;
 
 /// Command ID for Data SM.
 pub const CMD_DATA_SM: u32 = 0x00000103;
@@ -90,6 +85,7 @@ pub const CMD_BROADCAST_SM_RESP: u32 = 0x80000112;
 pub const CMD_QUERY_BROADCAST_SM: u32 = 0x00000112;
 /// Command ID for Query Broadcast SM Response.
 pub const CMD_QUERY_BROADCAST_SM_RESP: u32 = 0x80000112;
+
 /// Command ID for Cancel Broadcast SM.
 pub const CMD_CANCEL_BROADCAST_SM: u32 = 0x00000113;
 /// Command ID for Cancel Broadcast SM Response.
