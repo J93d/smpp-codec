@@ -29,7 +29,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = 0.2.0
+smpp-codec = 0.2.1
 ```
 Or
 ```toml
