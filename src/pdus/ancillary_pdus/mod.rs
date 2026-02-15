@@ -9,8 +9,8 @@ pub mod query_sm;
 /// Replace SM PDU.
 pub mod replace_sm;
 
-pub use cancel_broadcast_sm::{CancelBroadcastSm, CancelBroadcastSmResp};
+pub use cancel_broadcast_sm::{CancelBroadcastSmRequest, CancelBroadcastSmResponse};
 pub use cancel_sm::{CancelSmRequest, CancelSmResponse};
-pub use query_broadcast_sm::{QueryBroadcastSm, QueryBroadcastSmResp};
+pub use query_broadcast_sm::{QueryBroadcastSmRequest, QueryBroadcastSmResponse};
 pub use query_sm::{MessageState, QuerySmRequest, QuerySmResponse};
-pub use replace_sm::{ReplaceSm, ReplaceSmResp};
+pub use replace_sm::{ReplaceSmRequest, ReplaceSmResponse};

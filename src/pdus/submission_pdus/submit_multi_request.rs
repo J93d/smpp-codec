@@ -25,7 +25,7 @@ pub enum Destination {
 ///
 /// Used to submit a short message to multiple recipients (SME addresses or Distribution Lists).
 #[derive(Debug, Clone, PartialEq)]
-pub struct SubmitMulti {
+pub struct SubmitMultiRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Service Type
@@ -62,13 +62,13 @@ pub struct SubmitMulti {
     pub optional_params: Vec<Tlv>,
 }
 
-impl SubmitMulti {
+impl SubmitMultiRequest {
     /// Create a new Submit Multi PDU.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::{SubmitMulti, Destination};
+    /// use smpp_codec::pdus::{SubmitMultiRequest, Destination};
     /// use smpp_codec::common::{Ton, Npi};
     ///
     /// let dest1 = Destination::SmeAddress {
@@ -78,7 +78,7 @@ impl SubmitMulti {
     /// };
     /// let dest2 = Destination::DistributionList("MyList".to_string());
     ///
-    /// let pdu = SubmitMulti::new(
+    /// let pdu = SubmitMultiRequest::new(
     ///     1,
     ///     "Source".to_string(),
     ///     vec![dest1, dest2],

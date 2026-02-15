@@ -7,7 +7,7 @@ use std::io::{Cursor, Read, Write};
 /// Used to transfer data between the SMSC and the ESME.
 /// It is an alternative to `SubmitSm` and `DeliverSm`.
 #[derive(Debug, Clone, PartialEq)]
-pub struct DataSm {
+pub struct DataSmRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Service Type
@@ -34,15 +34,15 @@ pub struct DataSm {
     pub optional_params: Vec<Tlv>, // Payload goes here via 'message_payload'
 }
 
-impl DataSm {
+impl DataSmRequest {
     /// Create a new Data SM Request.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::DataSm;
+    /// use smpp_codec::pdus::DataSmRequest;
     ///
-    /// let pdu = DataSm::new(
+    /// let pdu = DataSmRequest::new(
     ///     1,
     ///     "Source".to_string(),
     ///     "Dest".to_string(),
@@ -70,7 +70,7 @@ impl DataSm {
             optional_params: Vec::new(),
         };
 
-        // DataSm relies on TLV for the body
+        // DataSmRequest relies on TLV for the body
         pdu.add_tlv(Tlv::new(tags::MESSAGE_PAYLOAD, payload));
         pdu
     }

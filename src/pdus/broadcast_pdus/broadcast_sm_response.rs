@@ -10,7 +10,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// Sent by the SMSC in response to a Broadcast SM Request.
 #[derive(Debug, Clone, PartialEq)]
-pub struct BroadcastSmResp {
+pub struct BroadcastSmResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -23,15 +23,15 @@ pub struct BroadcastSmResp {
     pub optional_params: Vec<Tlv>, // Can return 'broadcast_area_success'
 }
 
-impl BroadcastSmResp {
+impl BroadcastSmResponse {
     /// Create a new Broadcast SM Response.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::BroadcastSmResp;
+    /// use smpp_codec::pdus::BroadcastSmResponse;
     ///
-    /// let resp = BroadcastSmResp::new(
+    /// let resp = BroadcastSmResponse::new(
     ///     1,
     ///     "ESME_ROK",
     ///     "MessageID".to_string(),

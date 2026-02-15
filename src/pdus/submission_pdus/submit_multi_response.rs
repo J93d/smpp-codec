@@ -22,7 +22,7 @@ pub struct UnsuccessfulDelivery {
 ///
 /// Sent by the SMSC in response to a Submit Multi Request.
 #[derive(Debug, Clone, PartialEq)]
-pub struct SubmitMultiResp {
+pub struct SubmitMultiResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -35,15 +35,15 @@ pub struct SubmitMultiResp {
     pub unsuccess_smes: Vec<UnsuccessfulDelivery>,
 }
 
-impl SubmitMultiResp {
+impl SubmitMultiResponse {
     /// Create a new Submit Multi Response.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::{SubmitMultiResp, UnsuccessfulDelivery};
+    /// use smpp_codec::pdus::{SubmitMultiResponse, UnsuccessfulDelivery};
     ///
-    /// let resp = SubmitMultiResp::new(
+    /// let resp = SubmitMultiResponse::new(
     ///     1,
     ///     "ESME_ROK",
     ///     "MessageID".to_string(),

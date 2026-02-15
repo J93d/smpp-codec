@@ -11,7 +11,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// This PDU is used to query the status of a previously submitted broadcast message.
 #[derive(Debug, Clone, PartialEq)]
-pub struct QueryBroadcastSm {
+pub struct QueryBroadcastSmRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Message ID
@@ -26,15 +26,15 @@ pub struct QueryBroadcastSm {
     pub optional_params: Vec<Tlv>,
 }
 
-impl QueryBroadcastSm {
+impl QueryBroadcastSmRequest {
     /// Create a new Query Broadcast SM PDU.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::QueryBroadcastSm;
+    /// use smpp_codec::pdus::QueryBroadcastSmRequest;
     ///
-    /// let pdu = QueryBroadcastSm::new(
+    /// let pdu = QueryBroadcastSmRequest::new(
     ///     1,
     ///     "bc_msg_123".to_string(),
     ///     "Source".to_string(),
@@ -126,7 +126,7 @@ impl QueryBroadcastSm {
 
 /// Represents a Query Broadcast SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
-pub struct QueryBroadcastSmResp {
+pub struct QueryBroadcastSmResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -139,7 +139,7 @@ pub struct QueryBroadcastSmResp {
     pub optional_params: Vec<Tlv>, // Likely contains 'message_state', 'broadcast_area_success'
 }
 
-impl QueryBroadcastSmResp {
+impl QueryBroadcastSmResponse {
     /// Create a new Query Broadcast SM Response PDU.
     /// Create a new Query Broadcast SM Response PDU.
     pub fn new(sequence_number: u32, status_name: &str, message_id: String) -> Self {

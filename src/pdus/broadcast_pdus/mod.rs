@@ -3,5 +3,5 @@ pub mod broadcast_sm_request;
 /// Broadcast SM Response.
 pub mod broadcast_sm_response;
 
-pub use broadcast_sm_request::BroadcastSm;
-pub use broadcast_sm_response::BroadcastSmResp;
+pub use broadcast_sm_request::BroadcastSmRequest;
+pub use broadcast_sm_response::BroadcastSmResponse;

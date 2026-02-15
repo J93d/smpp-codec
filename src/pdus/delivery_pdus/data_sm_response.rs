@@ -9,7 +9,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// Sent by the SMSC in response to a Data SM Request.
 #[derive(Debug, Clone, PartialEq)]
-pub struct DataSmResp {
+pub struct DataSmResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -22,15 +22,15 @@ pub struct DataSmResp {
     pub optional_params: Vec<Tlv>,
 }
 
-impl DataSmResp {
+impl DataSmResponse {
     /// Create a new Data SM Response.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::DataSmResp;
+    /// use smpp_codec::pdus::DataSmResponse;
     ///
-    /// let resp = DataSmResp::new(
+    /// let resp = DataSmResponse::new(
     ///     1,
     ///     "ESME_ROK",
     ///     "MessageID".to_string(),

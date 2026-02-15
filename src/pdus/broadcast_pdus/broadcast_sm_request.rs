@@ -9,7 +9,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// Used to broadcast a message to multiple recipients in a specific area.
 #[derive(Debug, Clone, PartialEq)]
-pub struct BroadcastSm {
+pub struct BroadcastSmRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Service Type (e.g., "CMT", "CPT")
@@ -38,17 +38,17 @@ pub struct BroadcastSm {
     pub optional_params: Vec<Tlv>, // Critical: Must contain 'broadcast_area_identifier'
 }
 
-impl BroadcastSm {
+impl BroadcastSmRequest {
     /// Create a new Broadcast SM Request.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::BroadcastSm;
+    /// use smpp_codec::pdus::BroadcastSmRequest;
     /// use smpp_codec::tlv::{Tlv, tags};
     ///
     /// let area_tlv = Tlv::new(tags::BROADCAST_AREA_IDENTIFIER, vec![0x01]);
-    /// let pdu = BroadcastSm::new(
+    /// let pdu = BroadcastSmRequest::new(
     ///     1,
     ///     "Source".to_string(),
     ///     b"Hello".to_vec(),

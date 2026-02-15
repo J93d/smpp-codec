@@ -11,7 +11,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// This PDU is used to cancel a previously submitted broadcast message.
 #[derive(Debug, Clone, PartialEq)]
-pub struct CancelBroadcastSm {
+pub struct CancelBroadcastSmRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Service Type
@@ -28,15 +28,15 @@ pub struct CancelBroadcastSm {
     pub optional_params: Vec<Tlv>,
 }
 
-impl CancelBroadcastSm {
+impl CancelBroadcastSmRequest {
     /// Create a new Cancel Broadcast SM PDU.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::CancelBroadcastSm;
+    /// use smpp_codec::pdus::CancelBroadcastSmRequest;
     ///
-    /// let pdu = CancelBroadcastSm::new(
+    /// let pdu = CancelBroadcastSmRequest::new(
     ///     1,
     ///     "CMT".to_string(),
     ///     "bc_msg_123".to_string(),
@@ -146,7 +146,7 @@ impl CancelBroadcastSm {
 
 /// Represents a Cancel Broadcast SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
-pub struct CancelBroadcastSmResp {
+pub struct CancelBroadcastSmResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -156,7 +156,7 @@ pub struct CancelBroadcastSmResp {
                                     // Body is empty (header only)
 }
 
-impl CancelBroadcastSmResp {
+impl CancelBroadcastSmResponse {
     /// Create a new Cancel Broadcast SM Response PDU.
     /// Create a new Cancel Broadcast SM Response PDU.
     pub fn new(sequence_number: u32, status_name: &str) -> Self {

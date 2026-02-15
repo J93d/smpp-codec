@@ -10,7 +10,7 @@ use std::io::{Cursor, Read, Write};
 ///
 /// This PDU is used to replace a previously submitted short message that is still pending delivery.
 #[derive(Debug, Clone, PartialEq)]
-pub struct ReplaceSm {
+pub struct ReplaceSmRequest {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// The ID of the message to replace
@@ -33,15 +33,15 @@ pub struct ReplaceSm {
     pub short_message: Vec<u8>, // The NEW message body
 }
 
-impl ReplaceSm {
+impl ReplaceSmRequest {
     /// Create a new Replace SM PDU.
     ///
     /// # Examples
     ///
     /// ```
-    /// use smpp_codec::pdus::ReplaceSm;
+    /// use smpp_codec::pdus::ReplaceSmRequest;
     ///
-    /// let pdu = ReplaceSm::new(
+    /// let pdu = ReplaceSmRequest::new(
     ///     1,
     ///     "msg_123".to_string(),
     ///     "Source".to_string(),
@@ -175,7 +175,7 @@ impl ReplaceSm {
 
 /// Represents a Replace SM Response PDU.
 #[derive(Debug, Clone, PartialEq)]
-pub struct ReplaceSmResp {
+pub struct ReplaceSmResponse {
     /// Sequence number of the PDU
     pub sequence_number: u32,
     /// Command Status (0 = OK, others = Error)
@@ -184,7 +184,7 @@ pub struct ReplaceSmResp {
     pub status_description: String, // Human-readable description of status
 }
 
-impl ReplaceSmResp {
+impl ReplaceSmResponse {
     /// Create a new Replace SM Response PDU.
     pub fn new(sequence_number: u32, status_name: &str) -> Self {
         let command_status = get_status_code(status_name);
