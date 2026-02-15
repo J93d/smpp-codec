@@ -19,7 +19,10 @@ fn main() {
     // 2. Encode
     let mut buffer = Vec::new();
     match req.encode(&mut buffer) {
-        Ok(_) => println!("Successfully encoded DataSmRequest PDU: {} bytes", buffer.len()),
+        Ok(_) => println!(
+            "Successfully encoded DataSmRequest PDU: {} bytes",
+            buffer.len()
+        ),
         Err(e) => eprintln!("Failed to encode PDU: {:?}", e),
     }
 

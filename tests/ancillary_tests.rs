@@ -1,7 +1,8 @@
 use smpp_codec::common::{Npi, Ton};
 use smpp_codec::pdus::{
-    CancelBroadcastSmRequest, CancelBroadcastSmResponse, CancelSmRequest, CancelSmResponse, QueryBroadcastSmRequest,
-    QueryBroadcastSmResponse, QuerySmRequest, QuerySmResponse, ReplaceSmRequest, ReplaceSmResponse,
+    CancelBroadcastSmRequest, CancelBroadcastSmResponse, CancelSmRequest, CancelSmResponse,
+    QueryBroadcastSmRequest, QueryBroadcastSmResponse, QuerySmRequest, QuerySmResponse,
+    ReplaceSmRequest, ReplaceSmResponse,
 };
 
 #[test]

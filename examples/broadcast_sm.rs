@@ -16,7 +16,8 @@ fn main() {
     let payload = b"Emergency Alert: Weather Warning".to_vec();
 
     // 2. Create BroadcastSmRequest PDU
-    let mut req = BroadcastSmRequest::new(2001, "ServiceAlert".to_string(), payload.clone(), area_tlv);
+    let mut req =
+        BroadcastSmRequest::new(2001, "ServiceAlert".to_string(), payload.clone(), area_tlv);
 
     // Set optional parameters
     req.priority_flag = 3; // Urgent

@@ -3,7 +3,8 @@ use smpp_codec::pdus::{QueryBroadcastSmRequest, QueryBroadcastSmResponse};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== QueryBroadcastSmRequest Example ===");
 
-    let query_req = QueryBroadcastSmRequest::new(2001, "bc_msg_001".to_string(), "SourceAddr".to_string());
+    let query_req =
+        QueryBroadcastSmRequest::new(2001, "bc_msg_001".to_string(), "SourceAddr".to_string());
     println!("Created Request: {:?}", query_req);
 
     let mut buffer = Vec::new();

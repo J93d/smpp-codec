@@ -1,5 +1,7 @@
 use smpp_codec::common::{Npi, Ton};
-use smpp_codec::pdus::{Destination, SubmitMultiRequest, SubmitMultiResponse, UnsuccessfulDelivery};
+use smpp_codec::pdus::{
+    Destination, SubmitMultiRequest, SubmitMultiResponse, UnsuccessfulDelivery,
+};
 
 #[test]
 fn test_submit_multi_encoding_decoding() {
