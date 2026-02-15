@@ -1,9 +1,9 @@
-use smpp_codec::pdus::{DataSm, DataSmResp};
+use smpp_codec::pdus::{DataSmRequest, DataSmResponse};
 use smpp_codec::tlv::tags;
 
 #[test]
 fn test_data_sm_encoding_decoding() {
-    let mut req = DataSm::new(
+    let mut req = DataSmRequest::new(
         3001,
         "Source".to_string(),
         "Dest".to_string(),
@@ -17,7 +17,7 @@ fn test_data_sm_encoding_decoding() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = DataSm::decode(&buffer).expect("Decode failed");
+    let decoded = DataSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 3001);
     assert_eq!(decoded.service_type, "CMT");
@@ -38,12 +38,12 @@ fn test_data_sm_encoding_decoding() {
 
 #[test]
 fn test_data_sm_resp_success() {
-    let resp = DataSmResp::new(3001, "ESME_ROK", "DATA-ID-123".to_string());
+    let resp = DataSmResponse::new(3001, "ESME_ROK", "DATA-ID-123".to_string());
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = DataSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = DataSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 3001);
     assert_eq!(decoded.command_status, 0);
@@ -52,12 +52,12 @@ fn test_data_sm_resp_success() {
 
 #[test]
 fn test_data_sm_resp_failure() {
-    let resp = DataSmResp::new(3001, "ESME_RSYSERR", "".to_string());
+    let resp = DataSmResponse::new(3001, "ESME_RSYSERR", "".to_string());
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = DataSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = DataSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_ne!(decoded.command_status, 0);
     // On failure body might be empty or partial, message_id empty
@@ -68,7 +68,7 @@ fn test_data_sm_resp_failure() {
 fn test_data_sm_full_fields() {
     use smpp_codec::common::{Npi, Ton};
 
-    let mut req = DataSm::new(
+    let mut req = DataSmRequest::new(
         3002,
         "src".to_string(),
         "dst".to_string(),
@@ -87,7 +87,7 @@ fn test_data_sm_full_fields() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = DataSm::decode(&buffer).expect("Decode failed");
+    let decoded = DataSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 3002);
     assert_eq!(decoded.service_type, "CMT");

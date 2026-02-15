@@ -1,4 +1,4 @@
-use smpp_codec::pdus::{BroadcastSm, BroadcastSmResp};
+use smpp_codec::pdus::{BroadcastSmRequest, BroadcastSmResponse};
 use smpp_codec::tlv::{tags, Tlv};
 
 #[test]
@@ -6,12 +6,12 @@ fn test_broadcast_sm_encoding_decoding() {
     let area_tlv = Tlv::new(tags::BROADCAST_AREA_IDENTIFIER, vec![0x01, 0x02, 0x03]);
     let payload = b"Broadcast Message".to_vec();
 
-    let req = BroadcastSm::new(2001, "Source".to_string(), payload.clone(), area_tlv);
+    let req = BroadcastSmRequest::new(2001, "Source".to_string(), payload.clone(), area_tlv);
 
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = BroadcastSm::decode(&buffer).expect("Decode failed");
+    let decoded = BroadcastSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 2001);
     assert_eq!(decoded.source_addr, "Source");
@@ -35,12 +35,12 @@ fn test_broadcast_sm_encoding_decoding() {
 
 #[test]
 fn test_broadcast_sm_resp_success() {
-    let resp = BroadcastSmResp::new(2001, "ESME_ROK", "BC-12345".to_string());
+    let resp = BroadcastSmResponse::new(2001, "ESME_ROK", "BC-12345".to_string());
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = BroadcastSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = BroadcastSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 2001);
     assert_eq!(decoded.command_status, 0);
@@ -49,7 +49,7 @@ fn test_broadcast_sm_resp_success() {
 
 #[test]
 fn test_broadcast_sm_resp_failure() {
-    let resp = BroadcastSmResp::new(
+    let resp = BroadcastSmResponse::new(
         2001,
         "ESME_RINVBCASTAREA", // Invalid broadcast area
         "".to_string(),
@@ -58,7 +58,7 @@ fn test_broadcast_sm_resp_failure() {
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = BroadcastSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = BroadcastSmResponse::decode(&buffer).expect("Decode failed");
 
     // Even on failure, BroadcastResp might return MessageID if partial, but here we passed empty.
     assert!(decoded.message_id.is_empty());
@@ -71,7 +71,7 @@ fn test_broadcast_sm_full_fields() {
     let area_tlv = Tlv::new(tags::BROADCAST_AREA_IDENTIFIER, vec![0x01]);
     let payload = b"Full Payload".to_vec();
 
-    let mut req = BroadcastSm::new(555, "SrcOrigin".to_string(), payload, area_tlv);
+    let mut req = BroadcastSmRequest::new(555, "SrcOrigin".to_string(), payload, area_tlv);
 
     // Set all fields
     req.service_type = "CMT".to_string();
@@ -88,7 +88,7 @@ fn test_broadcast_sm_full_fields() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = BroadcastSm::decode(&buffer).expect("Decode failed");
+    let decoded = BroadcastSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 555);
     assert_eq!(decoded.service_type, "CMT");

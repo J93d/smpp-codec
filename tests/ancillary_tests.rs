@@ -1,12 +1,12 @@
 use smpp_codec::common::{Npi, Ton};
 use smpp_codec::pdus::{
-    CancelBroadcastSm, CancelBroadcastSmResp, CancelSmRequest, CancelSmResponse, QueryBroadcastSm,
-    QueryBroadcastSmResp, QuerySmRequest, QuerySmResponse, ReplaceSm, ReplaceSmResp,
+    CancelBroadcastSmRequest, CancelBroadcastSmResponse, CancelSmRequest, CancelSmResponse, QueryBroadcastSmRequest,
+    QueryBroadcastSmResponse, QuerySmRequest, QuerySmResponse, ReplaceSmRequest, ReplaceSmResponse,
 };
 
 #[test]
 fn test_replace_sm() {
-    let req = ReplaceSm::new(
+    let req = ReplaceSmRequest::new(
         100,
         "msg_123".to_string(),
         "source".to_string(),
@@ -16,7 +16,7 @@ fn test_replace_sm() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = ReplaceSm::decode(&buffer).expect("Decode failed");
+    let decoded = ReplaceSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 100);
     assert_eq!(decoded.message_id, "msg_123");
@@ -25,12 +25,12 @@ fn test_replace_sm() {
 
 #[test]
 fn test_replace_sm_resp() {
-    let resp = ReplaceSmResp::new(100, "ESME_ROK");
+    let resp = ReplaceSmResponse::new(100, "ESME_ROK");
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = ReplaceSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = ReplaceSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 100);
     assert_eq!(decoded.command_status, 0);
@@ -38,12 +38,12 @@ fn test_replace_sm_resp() {
 
 #[test]
 fn test_query_broadcast_sm() {
-    let req = QueryBroadcastSm::new(200, "bc_msg_1".to_string(), "source".to_string());
+    let req = QueryBroadcastSmRequest::new(200, "bc_msg_1".to_string(), "source".to_string());
 
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = QueryBroadcastSm::decode(&buffer).expect("Decode failed");
+    let decoded = QueryBroadcastSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 200);
     assert_eq!(decoded.message_id, "bc_msg_1");
@@ -51,12 +51,12 @@ fn test_query_broadcast_sm() {
 
 #[test]
 fn test_query_broadcast_sm_resp() {
-    let resp = QueryBroadcastSmResp::new(200, "ESME_ROK", "bc_msg_1".to_string());
+    let resp = QueryBroadcastSmResponse::new(200, "ESME_ROK", "bc_msg_1".to_string());
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = QueryBroadcastSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = QueryBroadcastSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 200);
     assert_eq!(decoded.message_id, "bc_msg_1");
@@ -64,7 +64,7 @@ fn test_query_broadcast_sm_resp() {
 
 #[test]
 fn test_cancel_broadcast_sm() {
-    let req = CancelBroadcastSm::new(
+    let req = CancelBroadcastSmRequest::new(
         300,
         "CMT".to_string(),
         "bc_msg_2".to_string(),
@@ -74,7 +74,7 @@ fn test_cancel_broadcast_sm() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = CancelBroadcastSm::decode(&buffer).expect("Decode failed");
+    let decoded = CancelBroadcastSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 300);
     assert_eq!(decoded.message_id, "bc_msg_2");
@@ -83,12 +83,12 @@ fn test_cancel_broadcast_sm() {
 
 #[test]
 fn test_cancel_broadcast_sm_resp() {
-    let resp = CancelBroadcastSmResp::new(300, "ESME_ROK");
+    let resp = CancelBroadcastSmResponse::new(300, "ESME_ROK");
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = CancelBroadcastSmResp::decode(&buffer).expect("Decode failed");
+    let decoded = CancelBroadcastSmResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 300);
     assert_eq!(decoded.command_status, 0);
@@ -96,7 +96,7 @@ fn test_cancel_broadcast_sm_resp() {
 
 #[test]
 fn test_replace_sm_full_fields() {
-    let mut req = ReplaceSm::new(
+    let mut req = ReplaceSmRequest::new(
         101,
         "msg_original".to_string(),
         "source_addr".to_string(),
@@ -113,7 +113,7 @@ fn test_replace_sm_full_fields() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = ReplaceSm::decode(&buffer).expect("Decode failed");
+    let decoded = ReplaceSmRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 101);
     assert_eq!(decoded.source_addr_ton, Ton::International);
@@ -195,7 +195,7 @@ fn test_query_sm_validation_error() {
 #[test]
 fn test_query_sm_response() {
     // Success response with body
-    let mut resp = QuerySmResponse::new(
+    let resp = QuerySmResponse::new(
         500,
         "ESME_ROK",
         "msg_query".to_string(),

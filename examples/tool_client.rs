@@ -5,8 +5,8 @@ use smpp_codec::common::{
     CMD_SUBMIT_SM_RESP, CMD_UNBIND_RESP, HEADER_LEN,
 };
 use smpp_codec::pdus::{
-    AlertNotification, BindRequest, BroadcastSm, CancelBroadcastSm, CancelSmRequest, DataSm,
-    DeliverSmRequest, Destination, QueryBroadcastSm, QuerySmRequest, ReplaceSm, SubmitMulti,
+    AlertNotification, BindRequest, BroadcastSmRequest, CancelBroadcastSmRequest, CancelSmRequest, DataSmRequest,
+    DeliverSmRequest, Destination, QueryBroadcastSmRequest, QuerySmRequest, ReplaceSmRequest, SubmitMultiRequest,
     SubmitSmRequest, UnbindRequest,
 };
 use smpp_codec::tlv::{tags, Tlv};
@@ -89,9 +89,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send_pdu(&mut stream, &deliver_req)?;
     read_response(&mut stream, CMD_DELIVER_SM_RESP)?;
 
-    // 4. BroadcastSm with ALL fields
+    // 4. BroadcastSmRequest with ALL fields
     let area_tlv = Tlv::new(tags::BROADCAST_AREA_IDENTIFIER, vec![0x01, 0x02, 0x03]); // Dummy area
-    let mut broadcast_req = BroadcastSm::new(
+    let mut broadcast_req = BroadcastSmRequest::new(
         4,
         "source_addr".to_string(),
         b"Hello Broadcast".to_vec(),
@@ -114,18 +114,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send_pdu(&mut stream, &broadcast_req)?;
     read_response(&mut stream, CMD_BROADCAST_SM_RESP)?;
 
-    // 5. SubmitMulti
+    // 5. SubmitMultiRequest
     let dest1 = Destination::SmeAddress {
         ton: Ton::International,
         npi: Npi::Isdn,
         address: "111111".to_string(),
     };
     let dest2 = Destination::DistributionList("MyList".to_string());
-    let mut multi_req = SubmitMulti::new(
+    let mut multi_req = SubmitMultiRequest::new(
         5,
         "source_addr".to_string(),
         vec![dest1, dest2],
-        b"Hello SubmitMulti".to_vec(),
+        b"Hello SubmitMultiRequest".to_vec(),
     );
     multi_req.service_type = "CMT".to_string();
     send_pdu(&mut stream, &multi_req)?;
@@ -146,8 +146,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send_pdu(&mut stream, &cancel_req)?;
     read_response(&mut stream, CMD_CANCEL_SM_RESP)?;
 
-    // 8. ReplaceSm
-    let replace_req = ReplaceSm::new(
+    // 8. ReplaceSmRequest
+    let replace_req = ReplaceSmRequest::new(
         8,
         "MsgID_12345".to_string(),
         "source_addr".to_string(),
@@ -156,12 +156,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send_pdu(&mut stream, &replace_req)?;
     read_response(&mut stream, CMD_REPLACE_SM_RESP)?;
 
-    // 9. DataSm
-    let data_req = DataSm::new(
+    // 9. DataSmRequest
+    let data_req = DataSmRequest::new(
         9,
         "source_addr".to_string(),
         "dest_addr".to_string(),
-        b"Hello DataSm".to_vec(),
+        b"Hello DataSmRequest".to_vec(),
     );
     send_pdu(&mut stream, &data_req)?;
     read_response(&mut stream, CMD_DATA_SM_RESP)?;
@@ -171,14 +171,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     send_pdu(&mut stream, &alert_req)?;
     // No response expected
 
-    // 11. QueryBroadcastSm
+    // 11. QueryBroadcastSmRequest
     let query_bc_req =
-        QueryBroadcastSm::new(11, "BcastID_999".to_string(), "source_addr".to_string());
+        QueryBroadcastSmRequest::new(11, "BcastID_999".to_string(), "source_addr".to_string());
     send_pdu(&mut stream, &query_bc_req)?;
     read_response(&mut stream, CMD_QUERY_BROADCAST_SM_RESP)?;
 
-    // 12. CancelBroadcastSm
-    let cancel_bc_req = CancelBroadcastSm::new(
+    // 12. CancelBroadcastSmRequest
+    let cancel_bc_req = CancelBroadcastSmRequest::new(
         12,
         "CMT".to_string(),
         "BcastID_999".to_string(),
@@ -267,7 +267,7 @@ impl Encode for DeliverSmRequest {
         self.encode(writer)
     }
 }
-impl Encode for BroadcastSm {
+impl Encode for BroadcastSmRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }
@@ -277,7 +277,7 @@ impl Encode for UnbindRequest {
         self.encode(writer)
     }
 }
-impl Encode for SubmitMulti {
+impl Encode for SubmitMultiRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }
@@ -292,12 +292,12 @@ impl Encode for CancelSmRequest {
         self.encode(writer)
     }
 }
-impl Encode for ReplaceSm {
+impl Encode for ReplaceSmRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }
 }
-impl Encode for DataSm {
+impl Encode for DataSmRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }
@@ -307,12 +307,12 @@ impl Encode for AlertNotification {
         self.encode(writer)
     }
 }
-impl Encode for QueryBroadcastSm {
+impl Encode for QueryBroadcastSmRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }
 }
-impl Encode for CancelBroadcastSm {
+impl Encode for CancelBroadcastSmRequest {
     fn encode(&self, writer: &mut impl Write) -> Result<(), smpp_codec::common::PduError> {
         self.encode(writer)
     }

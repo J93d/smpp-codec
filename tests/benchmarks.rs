@@ -208,9 +208,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        SubmitMulti,
-        "SubmitMulti",
-        SubmitMulti::new(
+        SubmitMultiRequest,
+        "SubmitMultiRequest",
+        SubmitMultiRequest::new(
             1001,
             "Source".to_string(),
             vec![
@@ -227,9 +227,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        SubmitMultiResp,
-        "SubmitMultiResp",
-        SubmitMultiResp::new(1001, "ESME_ROK", "msg_id".into(), vec![]),
+        SubmitMultiResponse,
+        "SubmitMultiResponse",
+        SubmitMultiResponse::new(1001, "ESME_ROK", "msg_id".into(), vec![]),
         iterations
     );
 
@@ -255,9 +255,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        DataSm,
-        "DataSm",
-        DataSm::new(
+        DataSmRequest,
+        "DataSmRequest",
+        DataSmRequest::new(
             3001,
             "Source".to_string(),
             "Dest".to_string(),
@@ -267,9 +267,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        DataSmResp,
-        "DataSmResp",
-        DataSmResp::new(3001, "ESME_ROK", "msg_id".into()),
+        DataSmResponse,
+        "DataSmResponse",
+        DataSmResponse::new(3001, "ESME_ROK", "msg_id".into()),
         iterations
     );
 
@@ -311,9 +311,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        BroadcastSm,
-        "BroadcastSm",
-        BroadcastSm::new(
+        BroadcastSmRequest,
+        "BroadcastSmRequest",
+        BroadcastSmRequest::new(
             2001,
             "ServiceAlert".to_string(),
             b"Payload".to_vec(),
@@ -323,16 +323,16 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        BroadcastSmResp,
-        "BroadcastSmResp",
-        BroadcastSmResp::new(2001, "ESME_ROK", "msg_id".into()),
+        BroadcastSmResponse,
+        "BroadcastSmResponse",
+        BroadcastSmResponse::new(2001, "ESME_ROK", "msg_id".into()),
         iterations
     );
 
     bench_all!(
-        ReplaceSm,
-        "ReplaceSm",
-        ReplaceSm::new(
+        ReplaceSmRequest,
+        "ReplaceSmRequest",
+        ReplaceSmRequest::new(
             4001,
             "msg_123".to_string(),
             "Source".to_string(),
@@ -342,30 +342,30 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        ReplaceSmResp,
-        "ReplaceSmResp",
-        ReplaceSmResp::new(4001, "ESME_ROK"),
+        ReplaceSmResponse,
+        "ReplaceSmResponse",
+        ReplaceSmResponse::new(4001, "ESME_ROK"),
         iterations
     );
 
     bench_all!(
-        QueryBroadcastSm,
-        "QueryBroadcastSm",
-        QueryBroadcastSm::new(2002, "bc_msg_1".to_string(), "Source".to_string()),
+        QueryBroadcastSmRequest,
+        "QueryBroadcastSmRequest",
+        QueryBroadcastSmRequest::new(2002, "bc_msg_1".to_string(), "Source".to_string()),
         iterations
     );
 
     bench_all!(
-        QueryBroadcastSmResp,
-        "QueryBroadcastSmResp",
-        QueryBroadcastSmResp::new(2002, "ESME_ROK", "bc_msg_1".to_string()),
+        QueryBroadcastSmResponse,
+        "QueryBroadcastSmResponse",
+        QueryBroadcastSmResponse::new(2002, "ESME_ROK", "bc_msg_1".to_string()),
         iterations
     );
 
     bench_all!(
-        CancelBroadcastSm,
-        "CancelBroadcastSm",
-        CancelBroadcastSm::new(
+        CancelBroadcastSmRequest,
+        "CancelBroadcastSmRequest",
+        CancelBroadcastSmRequest::new(
             3002,
             "CMT".to_string(),
             "bc_msg_2".to_string(),
@@ -375,9 +375,9 @@ fn benchmark_suite() {
     );
 
     bench_all!(
-        CancelBroadcastSmResp,
-        "CancelBroadcastSmResp",
-        CancelBroadcastSmResp::new(3002, "ESME_ROK"),
+        CancelBroadcastSmResponse,
+        "CancelBroadcastSmResponse",
+        CancelBroadcastSmResponse::new(3002, "ESME_ROK"),
         iterations
     );
 

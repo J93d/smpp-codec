@@ -1,4 +1,4 @@
-use smpp_codec::pdus::BroadcastSm;
+use smpp_codec::pdus::BroadcastSmRequest;
 use smpp_codec::tlv::{tags, Tlv};
 
 fn main() {
@@ -15,8 +15,8 @@ fn main() {
 
     let payload = b"Emergency Alert: Weather Warning".to_vec();
 
-    // 2. Create BroadcastSm PDU
-    let mut req = BroadcastSm::new(2001, "ServiceAlert".to_string(), payload.clone(), area_tlv);
+    // 2. Create BroadcastSmRequest PDU
+    let mut req = BroadcastSmRequest::new(2001, "ServiceAlert".to_string(), payload.clone(), area_tlv);
 
     // Set optional parameters
     req.priority_flag = 3; // Urgent
@@ -25,14 +25,14 @@ fn main() {
     let mut buffer = Vec::new();
     match req.encode(&mut buffer) {
         Ok(_) => println!(
-            "Successfully encoded BroadcastSm PDU: {} bytes",
+            "Successfully encoded BroadcastSmRequest PDU: {} bytes",
             buffer.len()
         ),
         Err(e) => eprintln!("Failed to encode PDU: {:?}", e),
     }
 
     // 4. Decode
-    match BroadcastSm::decode(&buffer) {
+    match BroadcastSmRequest::decode(&buffer) {
         Ok(decoded) => {
             println!("Successfully decoded PDU.");
             println!("  Sequence: {}", decoded.sequence_number);

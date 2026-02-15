@@ -1,11 +1,11 @@
-use smpp_codec::pdus::DataSm;
+use smpp_codec::pdus::DataSmRequest;
 
 fn main() {
     println!("=== SMPP Data SM Example ===");
 
-    // 1. Create DataSm PDU
-    // DataSm is used for session-based data transfer, offering an alternative to Submit/Deliver.
-    let mut req = DataSm::new(
+    // 1. Create DataSmRequest PDU
+    // DataSmRequest is used for session-based data transfer, offering an alternative to Submit/Deliver.
+    let mut req = DataSmRequest::new(
         3001,
         "AppServer".to_string(),
         "MobileClient".to_string(),
@@ -19,12 +19,12 @@ fn main() {
     // 2. Encode
     let mut buffer = Vec::new();
     match req.encode(&mut buffer) {
-        Ok(_) => println!("Successfully encoded DataSm PDU: {} bytes", buffer.len()),
+        Ok(_) => println!("Successfully encoded DataSmRequest PDU: {} bytes", buffer.len()),
         Err(e) => eprintln!("Failed to encode PDU: {:?}", e),
     }
 
     // 3. Decode
-    match DataSm::decode(&buffer) {
+    match DataSmRequest::decode(&buffer) {
         Ok(decoded) => {
             println!("Successfully decoded PDU.");
             println!("  Sequence: {}", decoded.sequence_number);

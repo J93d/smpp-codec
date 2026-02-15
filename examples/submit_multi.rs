@@ -1,5 +1,5 @@
 use smpp_codec::common::{Npi, Ton};
-use smpp_codec::pdus::{Destination, SubmitMulti};
+use smpp_codec::pdus::{Destination, SubmitMultiRequest};
 
 fn main() {
     println!("=== SMPP Submit Multi Example ===");
@@ -19,8 +19,8 @@ fn main() {
 
     println!("Targeting {} destinations.", destinations.len());
 
-    // 2. Create SubmitMulti PDU
-    let mut req = SubmitMulti::new(
+    // 2. Create SubmitMultiRequest PDU
+    let mut req = SubmitMultiRequest::new(
         1001,
         "Sender".to_string(),
         destinations,
@@ -35,14 +35,14 @@ fn main() {
     let mut buffer = Vec::new();
     match req.encode(&mut buffer) {
         Ok(_) => println!(
-            "Successfully encoded SubmitMulti PDU: {} bytes",
+            "Successfully encoded SubmitMultiRequest PDU: {} bytes",
             buffer.len()
         ),
         Err(e) => eprintln!("Failed to encode PDU: {:?}", e),
     }
 
     // 4. (Simulated) Decode
-    match SubmitMulti::decode(&buffer) {
+    match SubmitMultiRequest::decode(&buffer) {
         Ok(decoded) => {
             println!("Successfully decoded PDU.");
             println!("  Sequence: {}", decoded.sequence_number);

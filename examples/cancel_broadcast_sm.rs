@@ -1,9 +1,9 @@
-use smpp_codec::pdus::{CancelBroadcastSm, CancelBroadcastSmResp};
+use smpp_codec::pdus::{CancelBroadcastSmRequest, CancelBroadcastSmResponse};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("=== CancelBroadcastSm Example ===");
+    println!("=== CancelBroadcastSmRequest Example ===");
 
-    let cancel_req = CancelBroadcastSm::new(
+    let cancel_req = CancelBroadcastSmRequest::new(
         3001,
         "CMT".to_string(),
         "bc_msg_002".to_string(),
@@ -14,10 +14,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = Vec::new();
     cancel_req.encode(&mut buffer)?;
 
-    let decoded_cancel = CancelBroadcastSm::decode(&buffer)?;
+    let decoded_cancel = CancelBroadcastSmRequest::decode(&buffer)?;
     println!("Decoded Cancel Message ID: {}", decoded_cancel.message_id);
 
-    let cancel_resp = CancelBroadcastSmResp::new(3001, "ESME_ROK");
+    let cancel_resp = CancelBroadcastSmResponse::new(3001, "ESME_ROK");
     println!("Created Response: {:?}", cancel_resp);
     Ok(())
 }

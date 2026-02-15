@@ -1,9 +1,9 @@
 use smpp_codec::common::{BindMode, Npi, Ton};
 use smpp_codec::pdus::{
-    BindRequest, BindResponse, BroadcastSm, BroadcastSmResp, CancelBroadcastSm,
-    CancelBroadcastSmResp, DataSm, DataSmResp, DeliverSmRequest, DeliverSmResponse,
-    EnquireLinkRequest, EnquireLinkResponse, QueryBroadcastSm, QueryBroadcastSmResp, ReplaceSm,
-    ReplaceSmResp, SubmitMulti, SubmitMultiResp, SubmitSmRequest, SubmitSmResponse, UnbindRequest,
+    BindRequest, BindResponse, BroadcastSmRequest, BroadcastSmResponse, CancelBroadcastSmRequest,
+    CancelBroadcastSmResponse, DataSmRequest, DataSmResponse, DeliverSmRequest, DeliverSmResponse,
+    EnquireLinkRequest, EnquireLinkResponse, QueryBroadcastSmRequest, QueryBroadcastSmResponse, ReplaceSmRequest,
+    ReplaceSmResponse, SubmitMultiRequest, SubmitMultiResponse, SubmitSmRequest, SubmitSmResponse, UnbindRequest,
     UnbindResponse,
 };
 use smpp_codec::tlv::Tlv;
@@ -92,75 +92,75 @@ fn test_submit_multi_roundtrip() {
         },
         Destination::DistributionList("MyList".into()),
     ];
-    let pdu = SubmitMulti::new(1, "src".into(), dests, b"multi msg".to_vec());
-    verify_roundtrip!(pdu, SubmitMulti);
+    let pdu = SubmitMultiRequest::new(1, "src".into(), dests, b"multi msg".to_vec());
+    verify_roundtrip!(pdu, SubmitMultiRequest);
 }
 
 #[test]
 fn test_submit_multi_resp_roundtrip() {
-    let pdu = SubmitMultiResp::new(1, "ESME_ROK", "msg_id".into(), vec![]);
-    verify_roundtrip!(pdu, SubmitMultiResp);
+    let pdu = SubmitMultiResponse::new(1, "ESME_ROK", "msg_id".into(), vec![]);
+    verify_roundtrip!(pdu, SubmitMultiResponse);
 }
 
 #[test]
 fn test_broadcast_sm_roundtrip() {
     let area_tlv = Tlv::new_u8(0x0606, 1); // Mock Area ID
-    let pdu = BroadcastSm::new(1, "src".into(), b"payload".to_vec(), area_tlv);
-    verify_roundtrip!(pdu, BroadcastSm);
+    let pdu = BroadcastSmRequest::new(1, "src".into(), b"payload".to_vec(), area_tlv);
+    verify_roundtrip!(pdu, BroadcastSmRequest);
 }
 
 #[test]
 fn test_broadcast_sm_resp_roundtrip() {
-    let pdu = BroadcastSmResp::new(1, "ESME_ROK", "msg_id".into());
-    verify_roundtrip!(pdu, BroadcastSmResp);
+    let pdu = BroadcastSmResponse::new(1, "ESME_ROK", "msg_id".into());
+    verify_roundtrip!(pdu, BroadcastSmResponse);
 }
 
 #[test]
 fn test_data_sm_roundtrip() {
-    let pdu = DataSm::new(1, "src".into(), "dst".into(), vec![]);
-    verify_roundtrip!(pdu, DataSm);
+    let pdu = DataSmRequest::new(1, "src".into(), "dst".into(), vec![]);
+    verify_roundtrip!(pdu, DataSmRequest);
 }
 
 #[test]
 fn test_data_sm_resp_roundtrip() {
-    let pdu = DataSmResp::new(1, "ESME_ROK", "msg_id".into());
-    verify_roundtrip!(pdu, DataSmResp);
+    let pdu = DataSmResponse::new(1, "ESME_ROK", "msg_id".into());
+    verify_roundtrip!(pdu, DataSmResponse);
 }
 
 #[test]
 fn test_replace_sm_roundtrip() {
-    let pdu = ReplaceSm::new(1, "msg_id_old".into(), "src".into(), b"new msg".to_vec());
-    verify_roundtrip!(pdu, ReplaceSm);
+    let pdu = ReplaceSmRequest::new(1, "msg_id_old".into(), "src".into(), b"new msg".to_vec());
+    verify_roundtrip!(pdu, ReplaceSmRequest);
 }
 
 #[test]
 fn test_replace_sm_resp_roundtrip() {
-    let pdu = ReplaceSmResp::new(1, "ESME_ROK");
-    verify_roundtrip!(pdu, ReplaceSmResp);
+    let pdu = ReplaceSmResponse::new(1, "ESME_ROK");
+    verify_roundtrip!(pdu, ReplaceSmResponse);
 }
 
 #[test]
 fn test_query_broadcast_sm_roundtrip() {
-    let pdu = QueryBroadcastSm::new(1, "msg_id".into(), "src".into());
-    verify_roundtrip!(pdu, QueryBroadcastSm);
+    let pdu = QueryBroadcastSmRequest::new(1, "msg_id".into(), "src".into());
+    verify_roundtrip!(pdu, QueryBroadcastSmRequest);
 }
 
 #[test]
 fn test_query_broadcast_sm_resp_roundtrip() {
-    let pdu = QueryBroadcastSmResp::new(1, "ESME_ROK", "msg_id".into());
-    verify_roundtrip!(pdu, QueryBroadcastSmResp);
+    let pdu = QueryBroadcastSmResponse::new(1, "ESME_ROK", "msg_id".into());
+    verify_roundtrip!(pdu, QueryBroadcastSmResponse);
 }
 
 #[test]
 fn test_cancel_broadcast_sm_roundtrip() {
-    let pdu = CancelBroadcastSm::new(1, "CMT".into(), "msg_id".into(), "src".into());
-    verify_roundtrip!(pdu, CancelBroadcastSm);
+    let pdu = CancelBroadcastSmRequest::new(1, "CMT".into(), "msg_id".into(), "src".into());
+    verify_roundtrip!(pdu, CancelBroadcastSmRequest);
 }
 
 #[test]
 fn test_cancel_broadcast_sm_resp_roundtrip() {
-    let pdu = CancelBroadcastSmResp::new(1, "ESME_ROK");
-    verify_roundtrip!(pdu, CancelBroadcastSmResp);
+    let pdu = CancelBroadcastSmResponse::new(1, "ESME_ROK");
+    verify_roundtrip!(pdu, CancelBroadcastSmResponse);
 }
 
 use smpp_codec::pdus::{CancelSmRequest, CancelSmResponse, QuerySmRequest, QuerySmResponse};

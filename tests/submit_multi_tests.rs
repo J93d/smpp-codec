@@ -1,5 +1,5 @@
 use smpp_codec::common::{Npi, Ton};
-use smpp_codec::pdus::{Destination, SubmitMulti, SubmitMultiResp, UnsuccessfulDelivery};
+use smpp_codec::pdus::{Destination, SubmitMultiRequest, SubmitMultiResponse, UnsuccessfulDelivery};
 
 #[test]
 fn test_submit_multi_encoding_decoding() {
@@ -10,7 +10,7 @@ fn test_submit_multi_encoding_decoding() {
     };
     let dest_dl = Destination::DistributionList("MyGroup".to_string());
 
-    let req = SubmitMulti::new(
+    let req = SubmitMultiRequest::new(
         1001,
         "Sender".to_string(),
         vec![dest_sme.clone(), dest_dl.clone()],
@@ -20,7 +20,7 @@ fn test_submit_multi_encoding_decoding() {
     let mut buffer = Vec::new();
     req.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = SubmitMulti::decode(&buffer).expect("Decode failed");
+    let decoded = SubmitMultiRequest::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 1001);
     assert_eq!(decoded.source_addr, "Sender");
@@ -47,12 +47,12 @@ fn test_submit_multi_encoding_decoding() {
 
 #[test]
 fn test_submit_multi_resp_success() {
-    let resp = SubmitMultiResp::new(1001, "ESME_ROK", "UUID-1001".to_string(), vec![]);
+    let resp = SubmitMultiResponse::new(1001, "ESME_ROK", "UUID-1001".to_string(), vec![]);
 
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = SubmitMultiResp::decode(&buffer).expect("Decode failed");
+    let decoded = SubmitMultiResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.sequence_number, 1001);
     assert_eq!(decoded.command_status, 0); // ESME_ROK
@@ -70,7 +70,7 @@ fn test_submit_multi_resp_partial_success() {
     };
 
     // 0x00000405 is specific error code often used for partial success/failure involved
-    // But SubmitMultiResp::new takes a string status.
+    // But SubmitMultiResponse::new takes a string status.
     // We'll manually construct or assume we pass a custom status if supported,
     // but here let's assume "ESME_ROK" (0) containing unsuccess SMEs is valid for test logic
     // OR we pass a recognized status name.
@@ -88,7 +88,7 @@ fn test_submit_multi_resp_partial_success() {
     // To properly test the 0x405 path, we'd need to ensure `get_status_code` supports it or we manually set it.
     // Since `new` uses `get_status_code`, let's assume we use success path for now to verify encoding of the list.
 
-    let resp = SubmitMultiResp::new(
+    let resp = SubmitMultiResponse::new(
         1001,
         "ESME_ROK",
         "UUID-PARTIAL".to_string(),
@@ -98,7 +98,7 @@ fn test_submit_multi_resp_partial_success() {
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = SubmitMultiResp::decode(&buffer).expect("Decode failed");
+    let decoded = SubmitMultiResponse::decode(&buffer).expect("Decode failed");
 
     assert_eq!(decoded.unsuccess_smes.len(), 1);
     assert_eq!(decoded.unsuccess_smes[0].address, "9999");
@@ -107,7 +107,7 @@ fn test_submit_multi_resp_partial_success() {
 
 #[test]
 fn test_submit_multi_resp_failure() {
-    let resp = SubmitMultiResp::new(
+    let resp = SubmitMultiResponse::new(
         1001,
         "ESME_RSYSERR", // Generic error
         "".to_string(),
@@ -117,7 +117,7 @@ fn test_submit_multi_resp_failure() {
     let mut buffer = Vec::new();
     resp.encode(&mut buffer).expect("Encode failed");
 
-    let decoded = SubmitMultiResp::decode(&buffer).expect("Decode failed");
+    let decoded = SubmitMultiResponse::decode(&buffer).expect("Decode failed");
 
     // On error (non-0 and non-0x405), body is empty (no msg ID, no list)
     assert_ne!(decoded.command_status, 0);

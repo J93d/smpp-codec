@@ -1,15 +1,15 @@
 use smpp_codec::common::{
-    get_status_description, BindMode, PduError, CMD_ALERT_NOTIFICATION, CMD_BIND_RECEIVER,
+    PduError, CMD_ALERT_NOTIFICATION, CMD_BIND_RECEIVER,
     CMD_BIND_TRANSCEIVER, CMD_BIND_TRANSMITTER, CMD_BROADCAST_SM, CMD_CANCEL_BROADCAST_SM,
     CMD_CANCEL_SM, CMD_DATA_SM, CMD_DELIVER_SM, CMD_ENQUIRE_LINK, CMD_QUERY_BROADCAST_SM,
     CMD_QUERY_SM, CMD_REPLACE_SM, CMD_SUBMIT_MULTI_SM, CMD_SUBMIT_SM, CMD_UNBIND, HEADER_LEN,
 };
 use smpp_codec::pdus::{
-    AlertNotification, BindRequest, BindResponse, BroadcastSm, BroadcastSmResp, CancelBroadcastSm,
-    CancelBroadcastSmResp, CancelSmRequest, CancelSmResponse, DataSm, DataSmResp, DeliverSmRequest,
-    DeliverSmResponse, EnquireLinkRequest, EnquireLinkResponse, QueryBroadcastSm,
-    QueryBroadcastSmResp, QuerySmRequest, QuerySmResponse, ReplaceSm, ReplaceSmResp, SubmitMulti,
-    SubmitMultiResp, SubmitSmRequest, SubmitSmResponse, UnbindRequest, UnbindResponse,
+    AlertNotification, BindRequest, BindResponse, BroadcastSmRequest, BroadcastSmResponse, CancelBroadcastSmRequest,
+    CancelBroadcastSmResponse, CancelSmRequest, CancelSmResponse, DataSmRequest, DataSmResponse, DeliverSmRequest,
+    DeliverSmResponse, EnquireLinkRequest, EnquireLinkResponse, QueryBroadcastSmRequest,
+    QueryBroadcastSmResponse, QuerySmRequest, QuerySmResponse, ReplaceSmRequest, ReplaceSmResponse, SubmitMultiRequest,
+    SubmitMultiResponse, SubmitSmRequest, SubmitSmResponse, UnbindRequest, UnbindResponse,
 };
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -120,15 +120,15 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn std::error::Error>
                 println!("Sent DeliverSm Response");
             }
             CMD_BROADCAST_SM => {
-                let req = BroadcastSm::decode(&full_pdu)?;
-                println!("Received BroadcastSm: {:#?}", req);
+                let req = BroadcastSmRequest::decode(&full_pdu)?;
+                println!("Received BroadcastSmRequest: {:#?}", req);
 
                 let resp =
-                    BroadcastSmResp::new(sequence_number, "ESME_ROK", "BcastID_999".to_string());
+                    BroadcastSmResponse::new(sequence_number, "ESME_ROK", "BcastID_999".to_string());
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent BroadcastSm Response");
+                println!("Sent BroadcastSmRequest Response");
             }
             CMD_ENQUIRE_LINK => {
                 let _req = EnquireLinkRequest::decode(&full_pdu)?;
@@ -140,9 +140,9 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn std::error::Error>
                 println!("Sent EnquireLink Response");
             }
             CMD_SUBMIT_MULTI_SM => {
-                let req = SubmitMulti::decode(&full_pdu)?;
-                println!("Received SubmitMulti: {:#?}", req);
-                let resp = SubmitMultiResp::new(
+                let req = SubmitMultiRequest::decode(&full_pdu)?;
+                println!("Received SubmitMultiRequest: {:#?}", req);
+                let resp = SubmitMultiResponse::new(
                     sequence_number,
                     "ESME_ROK",
                     "MsgID_Multi".to_string(),
@@ -151,7 +151,7 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn std::error::Error>
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent SubmitMulti Response");
+                println!("Sent SubmitMultiRequest Response");
             }
             CMD_QUERY_SM => {
                 let req = QuerySmRequest::decode(&full_pdu)?;
@@ -179,22 +179,22 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn std::error::Error>
                 println!("Sent CancelSm Response");
             }
             CMD_REPLACE_SM => {
-                let req = ReplaceSm::decode(&full_pdu)?;
-                println!("Received ReplaceSm: {:#?}", req);
-                let resp = ReplaceSmResp::new(sequence_number, "ESME_ROK");
+                let req = ReplaceSmRequest::decode(&full_pdu)?;
+                println!("Received ReplaceSmRequest: {:#?}", req);
+                let resp = ReplaceSmResponse::new(sequence_number, "ESME_ROK");
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent ReplaceSm Response");
+                println!("Sent ReplaceSmRequest Response");
             }
             CMD_DATA_SM => {
-                let req = DataSm::decode(&full_pdu)?;
-                println!("Received DataSm: {:#?}", req);
-                let resp = DataSmResp::new(sequence_number, "ESME_ROK", "MsgID_Data".to_string());
+                let req = DataSmRequest::decode(&full_pdu)?;
+                println!("Received DataSmRequest: {:#?}", req);
+                let resp = DataSmResponse::new(sequence_number, "ESME_ROK", "MsgID_Data".to_string());
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent DataSm Response");
+                println!("Sent DataSmRequest Response");
             }
             CMD_ALERT_NOTIFICATION => {
                 let req = AlertNotification::decode(&full_pdu)?;
@@ -202,22 +202,22 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn std::error::Error>
                 // No Response for AlertNotification
             }
             CMD_QUERY_BROADCAST_SM => {
-                let req = QueryBroadcastSm::decode(&full_pdu)?;
-                println!("Received QueryBroadcastSm: {:#?}", req);
-                let resp = QueryBroadcastSmResp::new(sequence_number, "ESME_ROK", req.message_id);
+                let req = QueryBroadcastSmRequest::decode(&full_pdu)?;
+                println!("Received QueryBroadcastSmRequest: {:#?}", req);
+                let resp = QueryBroadcastSmResponse::new(sequence_number, "ESME_ROK", req.message_id);
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent QueryBroadcastSm Response");
+                println!("Sent QueryBroadcastSmRequest Response");
             }
             CMD_CANCEL_BROADCAST_SM => {
-                let req = CancelBroadcastSm::decode(&full_pdu)?;
-                println!("Received CancelBroadcastSm: {:#?}", req);
-                let resp = CancelBroadcastSmResp::new(sequence_number, "ESME_ROK");
+                let req = CancelBroadcastSmRequest::decode(&full_pdu)?;
+                println!("Received CancelBroadcastSmRequest: {:#?}", req);
+                let resp = CancelBroadcastSmResponse::new(sequence_number, "ESME_ROK");
                 let mut resp_buf = Vec::new();
                 resp.encode(&mut resp_buf)?;
                 stream.write_all(&resp_buf)?;
-                println!("Sent CancelBroadcastSm Response");
+                println!("Sent CancelBroadcastSmRequest Response");
             }
             CMD_UNBIND => {
                 let _req = UnbindRequest::decode(&full_pdu)?;
