@@ -74,9 +74,39 @@ fn test_pdu_error_display() {
     // Test From<std::io::Error>
     let io_err = std::io::Error::new(std::io::ErrorKind::Other, "oh no");
     let pdu_err = PduError::from(io_err);
-    if let PduError::Io(e) = pdu_err {
+    if let PduError::Io(ref e) = pdu_err {
         assert_eq!(format!("{}", e), "oh no");
     } else {
         panic!("Expected PduError::Io");
+    }
+
+    // PduError::Io Display and Error trait
+    assert!(format!("{}", pdu_err).contains("IO Error: oh no"));
+    use std::error::Error;
+    assert!(pdu_err.source().is_some());
+
+    // PduError::Utf8 Display and Error trait
+    let utf8_err = String::from_utf8(vec![0x80]).unwrap_err();
+    let pdu_utf8_err = PduError::Utf8(utf8_err);
+    assert!(format!("{}", pdu_utf8_err).contains("UTF8 Error:"));
+    assert!(pdu_utf8_err.source().is_some());
+}
+
+#[test]
+fn test_more_status_codes() {
+    let codes = [
+        0x00000011, 0x00000013, 0x00000014, 0x00000015, 0x00000033, 0x00000034, 0x00000040,
+        0x00000042, 0x00000043, 0x00000044, 0x00000045, 0x00000048, 0x00000049, 0x00000050,
+        0x00000051, 0x00000053, 0x00000054, 0x00000055, 0x000000C0, 0x000000C1, 0x000000C2,
+        0x000000C3, 0x000000C4, 0x000000FE,
+    ];
+    for &code in &codes {
+        let desc = get_status_description(code);
+        assert!(
+            !desc.contains("Unknown Error"),
+            "Code 0x{:08X} returned unknown",
+            code
+        );
+        assert_eq!(get_status_code(&desc), code);
     }
 }

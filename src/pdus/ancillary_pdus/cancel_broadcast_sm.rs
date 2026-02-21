@@ -65,7 +65,10 @@ impl CancelBroadcastSmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, message_id = %self.message_id, src = %self.source_addr)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding CancelBroadcastSmRequest");
         let tlvs_len: usize = self
             .optional_params
             .iter()
@@ -104,7 +107,13 @@ impl CancelBroadcastSmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, message_id = tracing::field::Empty, src = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!(
+            "Decoding CancelBroadcastSmRequest from {} bytes",
+            buffer.len()
+        );
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -114,9 +123,13 @@ impl CancelBroadcastSmRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         let service_type = read_c_string(&mut cursor)?;
         let message_id = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("message_id", &message_id);
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
@@ -124,6 +137,8 @@ impl CancelBroadcastSmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
 
         let mut optional_params = Vec::new();
         while let Some(tlv) = Tlv::decode(&mut cursor)? {
@@ -178,7 +193,10 @@ impl CancelBroadcastSmResponse {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding CancelBroadcastSmResponse");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_CANCEL_BROADCAST_SM_RESP.to_be_bytes())?;
@@ -207,10 +225,14 @@ impl CancelBroadcastSmResponse {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
+
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
-
-        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self {
             sequence_number,

@@ -17,11 +17,12 @@
 
 - **PDU Support**: Supports all PDU's as per [SMPP v5.0](https://smpp.org/SMPP_v5.pdf) specifications.
 - **TLV Support**: Includes a comprehensive list of Tag-Length-Value (TLV) optional parameters.
+- **Tracing Support**: Optional instrumentation using the [tracing](https://crates.io/crates/tracing/0.1.44) crate (use `features = ["tracing"]`).
 - **Dependency**: Built with standard library + [rand](https://crates.io/crates/rand/0.9.2).
 
 ## Compatibility
 
-The minimum supported Rust version (MSRV) is **1.63.0**.
+The minimum supported Rust version (MSRV) is **1.65.0**.
 
 ## Usage
 
@@ -29,7 +30,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-smpp-codec = 0.2.1
+smpp-codec = { version = "0.3.0", features = ["tracing"] }
 ```
 Or
 ```toml
@@ -151,40 +152,41 @@ fn main() {
 
 ## Benchmark (cargo test --test benchmarks --release -- --nocapture)
 
+### The benchmark was done on a Windows 11 laptop and it may vary
 
 
 | Request Name              | Encoding Time | Enc Rate (Mop/s) | Decoding Time | Dec Rate (Mop/s) |
 |---------------------------|---------------|------------------|---------------|------------------|
-| BindRequest               | 6.20ms        | 16.14            | 73.24ms       | 1.37             |
-| BindResponse              | 7.90ms        | 12.66            | 11.48ms       | 8.71             |
-| OutbindRequest            | 0.90ms        | 111.26           | 13.22ms       | 7.57             |
-| UnbindRequest             | 0.37ms        | 272.55           | 0.23ms        | 433.09           |
-| UnbindResponse            | 0.48ms        | 206.83           | 4.90ms        | 20.40            |
-| EnquireLinkRequest        | 0.44ms        | 227.12           | 0.20ms        | 500.25           |
-| EnquireLinkResponse       | 0.42ms        | 240.50           | 4.95ms        | 20.18            |
-| GenericNack               | 0.43ms        | 231.37           | 30.21ms       | 3.31             |
-| AlertNotification         | 1.36ms        | 73.76            | 14.04ms       | 7.12             |
-| SubmitSmRequest           | 7.94ms        | 12.60            | 49.84ms       | 2.01             |
-| SubmitSmRequest (Multi)   | 20.51ms       | 14.62            | 74.64ms       | 4.02             |
-| SubmitSmResponse          | 39.47ms       | 2.53             | 38.77ms       | 2.58             |
-| SubmitMulti               | 3.72ms        | 26.90            | 37.38ms       | 2.68             |
-| SubmitMultiResp           | 6.03ms        | 16.59            | 13.08ms       | 7.64             |
-| DeliverSmRequest          | 5.84ms        | 17.12            | 48.42ms       | 2.07             |
-| DeliverSmResponse         | 6.38ms        | 15.67            | 6.07ms        | 16.49            |
-| DataSm                    | 2.33ms        | 42.97            | 56.34ms       | 1.78             |
-| DataSmResp                | 6.12ms        | 16.33            | 12.74ms       | 7.85             |
-| CancelSmRequest           | 2.67ms        | 37.47            | 29.67ms       | 3.37             |
-| CancelSmResponse          | 0.40ms        | 249.94           | 7.27ms        | 13.75            |
-| QuerySmRequest            | 1.17ms        | 85.69            | 17.63ms       | 5.67             |
-| QuerySmResponse           | 2.64ms        | 37.86            | 16.16ms       | 6.19             |
-| BroadcastSm               | 3.79ms        | 26.37            | 63.79ms       | 1.57             |
-| BroadcastSmResp           | 10.20ms       | 9.80             | 16.99ms       | 5.89             |
-| ReplaceSm                 | 2.29ms        | 43.62            | 55.82ms       | 1.79             |
-| ReplaceSmResp             | 0.55ms        | 180.28           | 6.36ms        | 15.73            |
-| QueryBroadcastSm          | 1.35ms        | 74.13            | 17.71ms       | 5.65             |
-| QueryBroadcastSmResp      | 0.85ms        | 117.84           | 12.60ms       | 7.94             |
-| CancelBroadcastSm         | 1.69ms        | 59.29            | 24.60ms       | 4.06             |
-| CancelBroadcastSmResp     | 0.44ms        | 229.67           | 6.11ms        | 16.37            |
+| BindRequest               | 7.24ms        | 13.80            | 46.47ms       | 2.15             |
+| BindResponse              | 14.47ms       | 6.91             | 17.25ms       | 5.80             |
+| OutbindRequest            | 0.91ms        | 110.22           | 14.05ms       | 7.12             |
+| UnbindRequest             | 0.40ms        | 249.44           | 0.21ms        | 485.91           |
+| UnbindResponse            | 0.41ms        | 243.01           | 4.91ms        | 20.36            |
+| EnquireLinkRequest        | 0.49ms        | 205.09           | 0.21ms        | 485.91           |
+| EnquireLinkResponse       | 0.48ms        | 207.56           | 5.11ms        | 19.59            |
+| GenericNack               | 0.40ms        | 252.53           | 4.81ms        | 20.77            |
+| AlertNotification         | 1.25ms        | 79.76            | 13.80ms       | 7.24             |
+| SubmitSmRequest           | 6.31ms        | 15.84            | 23.16ms       | 4.32             |
+| SubmitSmRequest (Multi)   | 20.16ms       | 14.88            | 71.26ms       | 4.21             |
+| SubmitSmResponse          | 13.20ms       | 7.58             | 11.65ms       | 8.58             |
+| SubmitMultiRequest        | 4.00ms        | 24.97            | 38.88ms       | 2.57             |
+| SubmitMultiResponse       | 6.57ms        | 15.21            | 11.43ms       | 8.75             |
+| DeliverSmRequest          | 6.11ms        | 16.36            | 23.37ms       | 4.28             |
+| DeliverSmResponse         | 5.98ms        | 16.72            | 5.80ms        | 17.24            |
+| DataSmRequest             | 2.31ms        | 43.36            | 26.69ms       | 3.75             |
+| DataSmResponse            | 6.29ms        | 15.89            | 11.52ms       | 8.68             |
+| CancelSmRequest           | 1.93ms        | 51.74            | 20.39ms       | 4.90             |
+| CancelSmResponse          | 0.41ms        | 241.14           | 5.04ms        | 19.84            |
+| QuerySmRequest            | 1.12ms        | 89.36            | 14.68ms       | 6.81             |
+| QuerySmResponse           | 1.01ms        | 98.58            | 11.68ms       | 8.56             |
+| BroadcastSmRequest        | 3.63ms        | 27.55            | 28.60ms       | 3.50             |
+| BroadcastSmResponse       | 6.42ms        | 15.58            | 11.28ms       | 8.86             |
+| ReplaceSmRequest          | 2.19ms        | 45.71            | 20.97ms       | 4.77             |
+| ReplaceSmResponse         | 0.46ms        | 217.58           | 4.72ms        | 21.18            |
+| QueryBroadcastSmRequest   | 1.19ms        | 83.79            | 13.57ms       | 7.37             |
+| QueryBroadcastSmResponse  | 0.79ms        | 125.91           | 11.08ms       | 9.02             |
+| CancelBroadcastSmRequest  | 1.58ms        | 63.34            | 20.53ms       | 4.87             |
+| CancelBroadcastSmResponse | 0.37ms        | 268.96           | 4.72ms        | 21.17            |
 
 ## License
 

@@ -95,7 +95,10 @@ impl AlertNotification {
     /// let mut buffer = Vec::new();
     /// alert.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, src = %self.source_addr, dst = %self.esme_addr)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding AlertNotification");
         // Validate lengths
         if self.source_addr.len() > 65 {
             return Err(PduError::StringTooLong("source_addr".into(), 65));
@@ -155,7 +158,10 @@ impl AlertNotification {
     /// let decoded = AlertNotification::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.source_addr, "src");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, src = tracing::field::Empty, dst = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding AlertNotification from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -167,6 +173,9 @@ impl AlertNotification {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
+
         // 3. Read Body
         let mut u8_buf = [0u8; 1];
 
@@ -176,11 +185,17 @@ impl AlertNotification {
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = read_c_string(&mut cursor)?;
 
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
+
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_ton = Ton::from(u8_buf[0]);
         cursor.read_exact(&mut u8_buf)?;
         let esme_addr_npi = Npi::from(u8_buf[0]);
         let esme_addr = read_c_string(&mut cursor)?;
+
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("dst", &esme_addr);
 
         // Optional Params (TLVs)
         let mut optional_params = Vec::new();

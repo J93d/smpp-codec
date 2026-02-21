@@ -55,7 +55,10 @@ impl OutbindRequest {
     /// let mut buffer = Vec::new();
     /// outbind.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, system_id = %self.system_id)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding OutbindRequest");
         // Validate
         if self.system_id.len() > 16 {
             return Err(PduError::StringTooLong("system_id".into(), 16));
@@ -100,7 +103,10 @@ impl OutbindRequest {
     /// let decoded = OutbindRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.system_id, "id");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, system_id = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding OutbindRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -113,8 +119,14 @@ impl OutbindRequest {
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
 
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
+
         // Body
         let system_id = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("system_id", &system_id);
+
         let password = read_c_string(&mut cursor)?;
 
         Ok(Self {

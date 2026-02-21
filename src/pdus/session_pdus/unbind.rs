@@ -43,7 +43,10 @@ impl UnbindRequest {
     /// let mut buffer = Vec::new();
     /// unbind_req.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding UnbindRequest");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_UNBIND.to_be_bytes())?;
@@ -69,7 +72,10 @@ impl UnbindRequest {
     /// let decoded = UnbindRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding UnbindRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -79,6 +85,9 @@ impl UnbindRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self { sequence_number })
     }
@@ -133,7 +142,10 @@ impl UnbindResponse {
     /// let mut buffer = Vec::new();
     /// unbind_resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding UnbindResponse");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_UNBIND_RESP.to_be_bytes())?;
@@ -159,7 +171,10 @@ impl UnbindResponse {
     /// let decoded = UnbindResponse::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding UnbindResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -173,15 +188,20 @@ impl UnbindResponse {
         // Read Status
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
 
         // Read Sequence
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self {
             sequence_number,
             command_status,
-            status_description: get_status_description(command_status),
+            status_description,
         })
     }
 }

@@ -73,7 +73,10 @@ impl ReplaceSmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, message_id = %self.message_id, src = %self.source_addr)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding ReplaceSmRequest");
         // Calculate Body Length
         // MessageId(N+1)
         // Source(1+1+N+1)
@@ -123,7 +126,10 @@ impl ReplaceSmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, message_id = tracing::field::Empty, src = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding ReplaceSmRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -133,8 +139,12 @@ impl ReplaceSmRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         let message_id = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("message_id", &message_id);
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
@@ -142,6 +152,8 @@ impl ReplaceSmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
 
         let schedule_delivery_time = read_c_string(&mut cursor)?;
         let validity_period = read_c_string(&mut cursor)?;
@@ -200,7 +212,10 @@ impl ReplaceSmResponse {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding ReplaceSmResponse");
         // Header Only PDU (Body Length = 0)
         let command_len = HEADER_LEN as u32;
 
@@ -216,7 +231,10 @@ impl ReplaceSmResponse {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding ReplaceSmResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -226,10 +244,14 @@ impl ReplaceSmResponse {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
+
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
-
-        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self {
             sequence_number,

@@ -36,81 +36,81 @@ pub use submission_pdus::{SubmitMultiResponse, UnsuccessfulDelivery};
 
 /// Deprecated alias for [`DataSmRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `DataSmRequest` for consistency. Please update your code."
 )]
 pub type DataSm = DataSmRequest;
 
 /// Deprecated alias for [`DataSmResponse`].
-#[deprecated(since = "0.2.2", note = "Renamed to `DataSmResponse` for consistency.")]
+#[deprecated(since = "0.3.0", note = "Renamed to `DataSmResponse` for consistency.")]
 pub type DataSmResp = DataSmResponse;
 
 /// Deprecated alias for [`SubmitMultiRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `SubmitMultiRequest` for consistency."
 )]
 pub type SubmitMulti = SubmitMultiRequest;
 
 /// Deprecated alias for [`SubmitMultiResponse`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `SubmitMultiResponse` for consistency."
 )]
 pub type SubmitMultiResp = SubmitMultiResponse;
 
 /// Deprecated alias for [`BroadcastSmRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `BroadcastSmRequest` for consistency."
 )]
 pub type BroadcastSm = BroadcastSmRequest;
 
 /// Deprecated alias for [`BroadcastSmResponse`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `BroadcastSmResponse` for consistency."
 )]
 pub type BroadcastSmResp = BroadcastSmResponse;
 
 /// Deprecated alias for [`CancelBroadcastSmRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `CancelBroadcastSmRequest` for consistency."
 )]
 pub type CancelBroadcastSm = CancelBroadcastSmRequest;
 
 /// Deprecated alias for [`CancelBroadcastSmResponse`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `CancelBroadcastSmResponse` for consistency."
 )]
 pub type CancelBroadcastSmResp = CancelBroadcastSmResponse;
 
 /// Deprecated alias for [`QueryBroadcastSmRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `QueryBroadcastSmRequest` for consistency."
 )]
 pub type QueryBroadcastSm = QueryBroadcastSmRequest;
 
 /// Deprecated alias for [`QueryBroadcastSmResponse`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `QueryBroadcastSmResponse` for consistency."
 )]
 pub type QueryBroadcastSmResp = QueryBroadcastSmResponse;
 
 /// Deprecated alias for [`ReplaceSmRequest`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `ReplaceSmRequest` for consistency."
 )]
 pub type ReplaceSm = ReplaceSmRequest;
 
 /// Deprecated alias for [`ReplaceSmResponse`].
 #[deprecated(
-    since = "0.2.2",
+    since = "0.3.0",
     note = "Renamed to `ReplaceSmResponse` for consistency."
 )]
 pub type ReplaceSmResp = ReplaceSmResponse;

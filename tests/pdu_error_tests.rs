@@ -162,7 +162,7 @@ fn test_read_c_string_errors() {
     use std::io::Cursor;
 
     // Buffer too short (empty)
-    let data = vec![];
+    let data = [];
     let mut cursor = Cursor::new(&data[..]);
     let res = read_c_string(&mut cursor);
     assert!(matches!(res.unwrap_err(), PduError::Io(_)));
@@ -176,7 +176,7 @@ fn test_read_c_string_errors() {
     assert!(matches!(res.unwrap_err(), PduError::Io(_)));
 
     // Invalid UTF-8
-    let data = vec![0xFF, 0xFF, 0x00];
+    let data = [0xFF, 0xFF, 0x00];
     let mut cursor = Cursor::new(&data[..]);
     let res = read_c_string(&mut cursor);
     assert!(matches!(res.unwrap_err(), PduError::Utf8(_)));

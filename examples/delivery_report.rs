@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     println!("Original Receipt: {:?}", receipt);
-    println!("Formatted Text: {}", receipt.to_string());
+    println!("Formatted Text: {}", receipt);
 
     // 2. Create DeliverSm PDU wrapping the receipt
     let pdu = DeliverSmRequest::new_receipt(

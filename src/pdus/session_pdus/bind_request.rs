@@ -86,7 +86,10 @@ impl BindRequest {
     /// let mut buffer = Vec::new();
     /// bind_req.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(system_id = %self.system_id, mode = ?self.mode, seq = self.sequence_number)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding BindRequest");
         // 1. Validate Constraints
         if self.system_id.len() > 16 {
             return Err(PduError::StringTooLong("system_id".into(), 16));
@@ -151,7 +154,10 @@ impl BindRequest {
     /// let decoded = BindRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.system_id, "id");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding BindRequest from {} bytes", buffer.len());
         // 1. Validate total length
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
@@ -190,6 +196,9 @@ impl BindRequest {
         // Sequence Number
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         // 3. Read Body (C-Strings and u8s)
         let system_id = read_c_string(&mut cursor)?;

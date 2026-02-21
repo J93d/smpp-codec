@@ -62,10 +62,7 @@ fn test_tlv_getters_errors() {
     // String utf8 error
     let bad_utf8 = vec![0xFF, 0xFF, 0x00];
     let tlv_bad = Tlv::new(tags::ADDITIONAL_STATUS_INFO_TEXT, bad_utf8);
-    assert!(match tlv_bad.value_as_string() {
-        Err(PduError::Utf8(_)) => true,
-        _ => false,
-    });
+    assert!(matches!(tlv_bad.value_as_string(), Err(PduError::Utf8(_))));
 }
 
 #[test]
@@ -88,13 +85,13 @@ fn test_tlv_encoding_decoding() {
 #[test]
 fn test_tlv_decode_partial() {
     // Only tag (2 bytes)
-    let buffer = vec![0x12, 0x34];
+    let buffer = [0x12, 0x34];
     let mut cursor = Cursor::new(&buffer[..]);
     let result = Tlv::decode(&mut cursor).expect("Should not error on EOF check, just None");
     assert!(result.is_none());
 
     // Tag + Len but no value
-    let buffer = vec![0x12, 0x34, 0x00, 0x05];
+    let buffer = [0x12, 0x34, 0x00, 0x05];
     let mut cursor = Cursor::new(&buffer[..]);
     // decode checks length upfront
     let err = Tlv::decode(&mut cursor).unwrap_err();
@@ -128,4 +125,19 @@ fn test_get_tag_by_name() {
 
     // Unknown tag
     assert_eq!(get_tag_by_name("unknown_tag_xyz"), 0);
+
+    // More tags for coverage
+    assert_eq!(get_tag_by_name("additional_status_info_text"), 0x001D);
+    assert_eq!(get_tag_by_name("broadcast_area_identifier"), 0x0606);
+    assert_eq!(get_tag_by_name("broadcast_frequency_interval"), 0x0603);
+    assert_eq!(get_tag_by_name("broadcast_channel_indicator"), 0x0600);
+}
+
+#[test]
+fn test_tlv_additional_constructors() {
+    let tlv = Tlv::new_from_name("sar_msg_ref_num", vec![0x12, 0x34]);
+    assert_eq!(tlv.tag, 0x020C);
+
+    let tlv_no_null = Tlv::new(0x1122, vec![b'A', b'B']);
+    assert_eq!(tlv_no_null.value_as_string().unwrap(), "AB");
 }

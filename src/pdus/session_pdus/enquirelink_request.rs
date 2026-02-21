@@ -41,7 +41,10 @@ impl EnquireLinkRequest {
     /// let mut buffer = Vec::new();
     /// enquire_link.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding EnquireLinkRequest");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_ENQUIRE_LINK.to_be_bytes())?;
@@ -67,7 +70,10 @@ impl EnquireLinkRequest {
     /// let decoded = EnquireLinkRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding EnquireLinkRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -77,6 +83,9 @@ impl EnquireLinkRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self { sequence_number })
     }

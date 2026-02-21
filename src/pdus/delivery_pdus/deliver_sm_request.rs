@@ -105,7 +105,10 @@ impl DeliverSmRequest {
     /// let mut buffer = Vec::new();
     /// deliver.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, src = %self.source_addr, dst = %self.dest_addr)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding DeliverSmRequest");
         // 1. Validation
         if self.service_type.len() > 6 {
             return Err(PduError::StringTooLong("service_type".into(), 6));
@@ -198,7 +201,10 @@ impl DeliverSmRequest {
     /// let decoded = DeliverSmRequest::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.short_message, b"Hi");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, src = tracing::field::Empty, dst = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding DeliverSmRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -208,6 +214,8 @@ impl DeliverSmRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         // Body Parsing
         let mut u8_buf = [0u8; 1];
@@ -220,6 +228,8 @@ impl DeliverSmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
 
         // Dest
         cursor.read_exact(&mut u8_buf)?;
@@ -227,6 +237,8 @@ impl DeliverSmRequest {
         cursor.read_exact(&mut u8_buf)?;
         let dest_addr_npi = Npi::from(u8_buf[0]);
         let dest_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("dst", &dest_addr);
 
         // Flags
         cursor.read_exact(&mut u8_buf)?;

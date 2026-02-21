@@ -46,7 +46,10 @@ impl DeliverSmResponse {
     }
 
     /// Encode the struct into raw bytes for the network.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description, message_id = %self.message_id)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding DeliverSmResponse");
         let mut body = Vec::new();
         // Always write message_id if status is 0 (OK)
         if self.command_status == 0 {
@@ -64,7 +67,10 @@ impl DeliverSmResponse {
     }
 
     /// Decode raw bytes from the network into the struct.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty, message_id = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding DeliverSmResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -74,17 +80,24 @@ impl DeliverSmResponse {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
+
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         // Read Body (message_id) if present
         let message_id = if buffer.len() > HEADER_LEN {
-            read_c_string(&mut cursor)?
+            let id = read_c_string(&mut cursor)?;
+            #[cfg(feature = "tracing")]
+            tracing::Span::current().record("message_id", &id);
+            id
         } else {
             String::new()
         };
-
-        let status_description = get_status_description(command_status);
 
         Ok(Self {
             sequence_number,

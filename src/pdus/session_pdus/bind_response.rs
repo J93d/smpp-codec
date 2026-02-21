@@ -72,7 +72,10 @@ impl BindResponse {
     /// let mut buffer = Vec::new();
     /// bind_resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, id = %format!("{:#010X}", self.command_id), status = %self.status_description)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding BindResponse");
         let mut body = Vec::new();
 
         // If status is OK, we must include system_id.
@@ -119,7 +122,10 @@ impl BindResponse {
     /// let decoded = BindResponse::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, id = tracing::field::Empty, status = tracing::field::Empty, system_id = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding BindResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -134,12 +140,19 @@ impl BindResponse {
 
         cursor.read_exact(&mut bytes)?;
         let command_id = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("id", format!("{:#010X}", command_id));
 
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
 
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         // 2. Read Body
         let system_id: String;
@@ -151,6 +164,8 @@ impl BindResponse {
             // Read system_id (C-String)
             if command_status == 0 {
                 system_id = read_c_string(&mut cursor)?;
+                #[cfg(feature = "tracing")]
+                tracing::Span::current().record("system_id", &system_id);
             } else {
                 system_id = String::new();
             }
@@ -167,8 +182,6 @@ impl BindResponse {
             cursor.read_exact(&mut temp_buf)?;
             optional_params = temp_buf;
         }
-
-        let status_description = get_status_description(command_status);
 
         Ok(Self {
             sequence_number,

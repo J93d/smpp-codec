@@ -49,7 +49,10 @@ impl GenericNack {
     /// let mut buffer = Vec::new();
     /// nack.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_name)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding GenericNack");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&GENERIC_NACK.to_be_bytes())?;
@@ -75,7 +78,10 @@ impl GenericNack {
     /// let decoded = GenericNack::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.status_name, "ESME_RINVCMDID");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding GenericNack from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -89,15 +95,20 @@ impl GenericNack {
         // Status
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_name = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_name);
 
         // Sequence
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self {
             sequence_number,
             command_status,
-            status_name: get_status_description(command_status),
+            status_name,
         })
     }
 }

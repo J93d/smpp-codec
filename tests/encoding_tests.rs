@@ -105,3 +105,27 @@ fn test_process_body_udh() {
     let body = process_body(&payload, 0x00, true);
     assert_eq!(body, MessageBody::Text(text.to_string()));
 }
+
+#[test]
+fn test_dcs_edge_cases() {
+    // Group 1111 (0x0F)
+    assert!(matches!(
+        process_body(b"A", 0xF0, false),
+        MessageBody::Text(_)
+    )); // GSM 7-bit
+    assert!(matches!(
+        process_body(b"A", 0xF4, false),
+        MessageBody::Binary(_)
+    )); // 8-bit Binary
+
+    // Unknown group (Group 0101)
+    assert!(matches!(
+        process_body(b"A", 0x50, false),
+        MessageBody::Binary(_)
+    ));
+
+    // Malformed UDH
+    let malformed_udh = vec![0x05, 0x01, 0x02]; // len 5 but only 3 bytes total
+    let body = process_body(&malformed_udh, 0x00, true);
+    assert_eq!(body, MessageBody::Binary(malformed_udh));
+}

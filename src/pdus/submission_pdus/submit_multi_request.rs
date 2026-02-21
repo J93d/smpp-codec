@@ -112,12 +112,20 @@ impl SubmitMultiRequest {
         }
     }
 
+    /// Returns the number of destinations as a u8.
+    fn dest_count(&self) -> u8 {
+        self.destinations.len() as u8
+    }
+
     /// Encode the PDU into the writer.
     ///
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails or fields are invalid.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, src = %self.source_addr, dests = self.dest_count())))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding SubmitMultiRequest");
         // Calculate length of destinations
         let mut dest_len = 0;
         for dest in &self.destinations {
@@ -214,7 +222,10 @@ impl SubmitMultiRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, src = tracing::field::Empty, dests = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding SubmitMultiRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -224,6 +235,8 @@ impl SubmitMultiRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         let service_type = read_c_string(&mut cursor)?;
 
@@ -233,10 +246,14 @@ impl SubmitMultiRequest {
         cursor.read_exact(&mut u8_buf)?;
         let source_addr_npi = Npi::from(u8_buf[0]);
         let source_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
 
         // Decode Destination List
         cursor.read_exact(&mut u8_buf)?;
         let dest_count = u8_buf[0];
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("dests", dest_count);
         let mut destinations = Vec::with_capacity(dest_count as usize);
 
         for _ in 0..dest_count {

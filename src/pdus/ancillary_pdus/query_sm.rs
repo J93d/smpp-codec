@@ -38,7 +38,10 @@ impl QuerySmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails or strings are too long.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, message_id = %self.message_id, src = %self.source_addr)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding QuerySmRequest");
         // 1. Validation
         if self.message_id.len() > 64 {
             return Err(PduError::StringTooLong("message_id".into(), 64));
@@ -72,7 +75,10 @@ impl QuerySmRequest {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, message_id = tracing::field::Empty, src = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding QuerySmRequest from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -83,8 +89,12 @@ impl QuerySmRequest {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         let message_id = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("message_id", &message_id);
 
         let mut u8_buf = [0u8; 1];
         cursor.read_exact(&mut u8_buf)?;
@@ -93,6 +103,8 @@ impl QuerySmRequest {
         let source_addr_npi = Npi::from(u8_buf[0]);
 
         let source_addr = read_c_string(&mut cursor)?;
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("src", &source_addr);
 
         Ok(Self {
             sequence_number,
@@ -172,7 +184,10 @@ impl QuerySmResponse {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the write fails.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description, message_id = %self.message_id)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding QuerySmResponse");
         let body_len = if self.command_status == 0 {
             self.message_id.len() + 1 + self.final_date.len() + 1 + 1 + 1 // message_state, error_code
         } else {
@@ -199,7 +214,10 @@ impl QuerySmResponse {
     /// # Errors
     ///
     /// Returns a [`PduError`] if the buffer is too short or malformed.
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty, message_id = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding QuerySmResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -209,8 +227,14 @@ impl QuerySmResponse {
         let mut bytes = [0u8; 4];
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = crate::common::get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
+
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         let message_id: String;
         let final_date: String;
@@ -218,7 +242,10 @@ impl QuerySmResponse {
         let error_code: u8;
 
         if command_status == 0 && buffer.len() > HEADER_LEN {
-            message_id = read_c_string(&mut cursor)?;
+            let id = read_c_string(&mut cursor)?;
+            #[cfg(feature = "tracing")]
+            tracing::Span::current().record("message_id", &id);
+            message_id = id;
             final_date = read_c_string(&mut cursor)?;
 
             let mut u8_buf = [0u8; 1];
@@ -232,8 +259,6 @@ impl QuerySmResponse {
             message_state = 0;
             error_code = 0;
         }
-
-        let status_description = crate::common::get_status_description(command_status);
 
         Ok(Self {
             sequence_number,

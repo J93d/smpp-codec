@@ -53,7 +53,10 @@ impl EnquireLinkResponse {
     /// let mut buffer = Vec::new();
     /// resp.encode(&mut buffer).expect("Encoding failed");
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(writer), err, fields(seq = self.sequence_number, status = %self.status_description)))]
     pub fn encode(&self, writer: &mut impl Write) -> Result<(), PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Encoding EnquireLinkResponse");
         let command_len = HEADER_LEN as u32;
         writer.write_all(&command_len.to_be_bytes())?;
         writer.write_all(&CMD_ENQUIRE_LINK_RESP.to_be_bytes())?;
@@ -80,7 +83,10 @@ impl EnquireLinkResponse {
     /// let decoded = EnquireLinkResponse::decode(&buffer).expect("Decoding failed");
     /// assert_eq!(decoded.sequence_number, 1);
     /// ```
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip(buffer), err, fields(seq = tracing::field::Empty, status = tracing::field::Empty)))]
     pub fn decode(buffer: &[u8]) -> Result<Self, PduError> {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Decoding EnquireLinkResponse from {} bytes", buffer.len());
         if buffer.len() < HEADER_LEN {
             return Err(PduError::BufferTooShort);
         }
@@ -94,15 +100,20 @@ impl EnquireLinkResponse {
         // [Change] Read Status
         cursor.read_exact(&mut bytes)?;
         let command_status = u32::from_be_bytes(bytes);
+        let status_description = get_status_description(command_status);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("status", &status_description);
 
         // Read Sequence
         cursor.read_exact(&mut bytes)?;
         let sequence_number = u32::from_be_bytes(bytes);
+        #[cfg(feature = "tracing")]
+        tracing::Span::current().record("seq", sequence_number);
 
         Ok(Self {
             sequence_number,
             command_status,
-            status_description: get_status_description(command_status),
+            status_description,
         })
     }
 }

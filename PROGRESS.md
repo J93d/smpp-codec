@@ -48,4 +48,5 @@ Tracking the implementation status of SMPP v3.4 PDUs.
 ## Code Quality
 - [x] Full Documentation (All public items documented, 0 warnings)
 - [x] README Examples Tested
+- [x] Tracing Support (Optional feature: `tracing` - Instrumented all PDUs)
 
